@@ -8,29 +8,11 @@ oasis_gender = as_tibble(read_csv("OASIS_bygender_CORRECTED_092617.csv")) %>%
   rename(Image = '...1') %>%
   select(!Category) %>% #Removed to allow join- maintains category string descriptor
   mutate(oasis_initial, Valence_gender_difference = abs(Valence_mean_men - Valence_mean_women))
-oasis_all <- left_join(oasis_initial, oasis_gender) %>%
+oasis_all = left_join(oasis_initial, oasis_gender) 
+oasis_filtered = filter(oasis_all, Valence_mean >= 2, Valence_mean <= 6, Valence_SD < 1.5) %>%
   as_tibble()
-oasis_all$Theme <-   gsub(" ", "_", oasis_all$Theme)
 
-## Remove pictures used in Kris's task
-r21 <- as_tibble(read_csv("R21AMY_behavior.csv"))
-r21_pics <- distinct(r21, Name) %>%
-  rename(Theme = Name)
-r21_pics$Theme <-   gsub(" ", "_", r21_pics$Theme)
-oasis_no_overlap <- anti_join(oasis_all, r21_pics, by = 'Theme')
-#filter_no_overlap <- anti_join(filtered, r21_pics, by = 'Theme')
-
-## Create filter sets
-oasis_filtered <- filter(oasis_no_overlap, Valence_mean >= 2.0, Valence_mean <= 5.5, Valence_gender_difference < .6) %>%
-  as_tibble()
-all_mean_sd <- filter(oasis_all, Valence_gender_difference < .6, Valence_SD >= 1.0, Valence_SD <= 1.6)
-# no_overlap <- anti_join(high_sd, all_mean_sd, by = 'Theme')
-high_sd <- filter(oasis_filtered, Valence_SD >= 1.0,Valence_SD <= 1.4)
-mid_sd <- filter(oasis_filtered, Valence_SD >= 1.16,Valence_SD <= 1.23)
-low_sd <- filter(oasis_filtered, Valence_SD < .5)
-low_mean <- filter(mid_sd, Valence_mean < 4.5)
-mean(mid_sd$Valence_mean)
-#oasis_filtered_no_sd = filter(oasis_all, Valence_mean >= 2, Valence_mean <= 6)
+oasis_filtered_no_sd = filter(oasis_all, Valence_mean >= 2, Valence_mean <= 6)
 
 ## Data Exploration 
 # count(oasis_all, Valence_SD > 1.5) #50
@@ -75,9 +57,7 @@ oasis_potential_set_full = left_join(oasis_potential_set, oasis_gender)
 r21 <- as_tibble(read_csv("R21AMY_behavior.csv"))
 r21_pics <- distinct(r21, Name) %>%
   rename(Theme = Name)
-r21_pics$Theme <-   gsub(" ", "_", r21_pics$Theme)
 oasis_no_overlap <- anti_join(oasis_potential_set, r21_pics, by = 'Theme')
-filter_no_overlap <- anti_join(filtered, r21_pics, by = 'Theme')
 
 
 count(oasis_potential_set, Valence_mean > 4.52)

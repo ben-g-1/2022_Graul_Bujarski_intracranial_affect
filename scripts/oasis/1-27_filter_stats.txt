@@ -1,0 +1,8 @@
+Valence Mean =
+4.2147666953724
+Valence SD = 
+1.04957480798893
+Arousal Mean = 
+3.50590516618158
+Arousal SD = 
+1.6370890335357
