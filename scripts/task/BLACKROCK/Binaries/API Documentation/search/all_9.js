@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['macro_5fstim',['MACRO_STIM',['../BStimulator_8h_a2d21e704d4462280b7221d5a14141211.html#a2d21e704d4462280b7221d5a14141211aa72badc0207c7c50c103109a99804887',1,'BStimulator.h']]],
+  ['mainboardversion',['mainboardVersion',['../structBDeviceInfo.html#adb5bed97f7b20d9524a69addc51f93e3',1,'BDeviceInfo']]],
+  ['major',['major',['../structBVersion.html#aecd30f62be9496c3478be7be07620023',1,'BVersion']]],
+  ['manualstimulus',['manualStimulus',['../classBStimulator_a8ad392c2ed412f07457ac2634d0d98c4.html#a8ad392c2ed412f07457ac2634d0d98c4',1,'BStimulator']]],
+  ['maxchannels',['MAXCHANNELS',['../BStimulator_8h.html#a76314819e990695adc127ee3b4629577',1,'BStimulator.h']]],
+  ['maxcompvoltage',['maxCompVoltage',['../structBReadHardwareValuesOutput_af39ce53a5a5bc80928de7c47ac998bba.html#af39ce53a5a5bc80928de7c47ac998bba',1,'BReadHardwareValuesOutput']]],
+  ['maxconfigurations',['MAXCONFIGURATIONS',['../BStimulator_8h_a5bea60a8f6a26f5d96540cb6e36da6a1.html#a5bea60a8f6a26f5d96540cb6e36da6a1',1,'BStimulator.h']]],
+  ['maxfreq',['maxFreq',['../structBReadHardwareValuesOutput.html#a0bee64a03ebfa31eb5e910d807ebbeb7',1,'BReadHardwareValuesOutput']]],
+  ['maxmodules',['MAXMODULES',['../BStimulator_8h.html#ab34c9d1a66acf46f9ea586590e47afd9',1,'BStimulator.h']]],
+  ['maxoutputvoltage',['maxOutputVoltage',['../classBStimulator_a6ad8e2e11c83931df0307839745255ce.html#a6ad8e2e11c83931df0307839745255ce',1,'BStimulator']]],
+  ['measurement',['measurement',['../structBOutputMeasurement.html#aa3532bc3970db83b460c7fb20f537c86',1,'BOutputMeasurement']]],
+  ['measureoutputvoltage',['measureOutputVoltage',['../classBStimulator_a152592c65daa79dab8f2aaf069a163f5.html#a152592c65daa79dab8f2aaf069a163f5',1,'BStimulator']]],
+  ['micro_5fstim',['MICRO_STIM',['../BStimulator_8h_a2d21e704d4462280b7221d5a14141211.html#a2d21e704d4462280b7221d5a14141211af8c4d0f901bc3ae7c6cf3c092e93eddf',1,'BStimulator.h']]],
+  ['milivolts',['miliVolts',['../structBMaxOutputVoltage.html#ab687b704638d0a2640d238f44ff149cc',1,'BMaxOutputVoltage']]],
+  ['mincompvoltage',['minCompVoltage',['../structBReadHardwareValuesOutput_addc1e335f3d731a89968ddacc79d77a0.html#addc1e335f3d731a89968ddacc79d77a0',1,'BReadHardwareValuesOutput']]],
+  ['minfreq',['minFreq',['../structBReadHardwareValuesOutput.html#a957b8ba8b883649730f66d5f3968b69a',1,'BReadHardwareValuesOutput']]],
+  ['minor',['minor',['../structBVersion.html#a775bf6899fe42c57201f6f5f3b99cb0a',1,'BVersion']]],
+  ['modules',['modules',['../structBReadHardwareValuesOutput.html#a5214500962008733b469430ed61e865a',1,'BReadHardwareValuesOutput']]],
+  ['modulesmv',['modulesMV',['../structBTestModules.html#a2a97f3bf2c8ef53bbcf6cff5fbfba963',1,'BTestModules']]],
+  ['modulesstatus',['modulesStatus',['../structBTestModules_ac54563fe6381724cfaa047004af7b156.html#ac54563fe6381724cfaa047004af7b156',1,'BTestModules']]],
+  ['modulestatus',['moduleStatus',['../structBDeviceInfo.html#a8e9915f7f52ecf6d948703e026760b38',1,'BDeviceInfo']]],
+  ['moduleversion',['moduleVersion',['../structBDeviceInfo.html#aed8cee6e58eafb31583f5db5c6686058',1,'BDeviceInfo']]]
+];
