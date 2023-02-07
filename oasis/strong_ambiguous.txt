@@ -1,0 +1,4 @@
+# Sweet spot seems to be around Valence_SD ~ 1.4
+Dog_15
+Fire_8
+Dog_30

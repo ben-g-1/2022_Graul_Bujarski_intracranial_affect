@@ -1,5 +1,7 @@
 import os
+
 import shutil
+from pathlib import Path
 from tkinter import *
 from tkinter import filedialog
 
@@ -8,9 +10,9 @@ root.withdraw()
 
 # Change these variables
 
-filePath = 'C:\\Users\\bgrau\\OneDrive\\Documents\\GitHub\\git_ieeg_affect\\scripts\\oasis\\1-27_filter_list.csv'
-folderPath = 'C:\\Users\\bgrau\\OneDrive\\Documents\\GitHub\\git_ieeg_affect\\oasis\\images\\'
-destination = 'C:\\Users\\bgrau\\OneDrive\\Documents\\GitHub\\git_ieeg_affect\\oasis\\filter_1-27\\'
+filePath = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\scripts\\oasis\\no_overlap.csv'
+folderPath = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\oasis\\images\\'
+destination = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\oasis\\no_overlap_links\\'
 
 # First, create a list and populate it with the files
 
@@ -25,6 +27,6 @@ with open(filePath, "r") as fh:
 for filename in os.listdir(folderPath):
     if filename in filesToFind:
         filename = os.path.join(folderPath, filename)
-        shutil.copy(filename, destination)
+        Path(destination).symlink_to(Path(filename))
     #else:
     #    print(filename, "is not copied")
