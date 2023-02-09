@@ -2,7 +2,7 @@
 % v8.1.2022
 
 % function called by GUI app to run encoding task
-function RunEncodingTask(subj, channels, amp)
+%function RunEncodingTask(subj, channels, amp)
 %%
 % variables input from GUI app
 
@@ -317,4 +317,4 @@ disp(total_time)
 
 disp("Task Complete")
 
-end
+%end

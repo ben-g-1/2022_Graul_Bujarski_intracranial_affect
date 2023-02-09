@@ -1,9 +1,20 @@
+%% Normal distribution
+
+clear all;
+
+% mkdir('SocialCueLow_gray')
+% cd SocialCueLow_gray
+% m = 0.30    % provide mean
+% s = 0.15    % provide stdev
+
+%mkdir('SocialCue_mean5o5')
+%cd SocialCue_mean5o5
 m = 0.7857;     % provide mean [0.175, 0.25, 0.5, 0.6]
 v = 0.15^2;  % provide stdev^2
 n = 10;     % number of ratings to display
 a = 11
-z = zeros(n,2)
-
+z = []
+z(1:a,:) = 1
 
 set(0, 'defaultFigurePosition', [300 400 400 120], 'defaultFigureColor' , [.5 .5 .5], ...
     'defaultLineColor', [1 1 1])
@@ -45,34 +56,37 @@ f = 1
     anchors = []
     anchors.points = [0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1]';
     line([0,1], [0 0], 'Color', 'w', 'LineWidth', 2); hold on;
-    %plot(anchors.points, 1, '.', 'MarkerSize', 1, 'Color',[.5 .5 .5]); hold on;
-    %errorbar(anchors.points, zeros(a,1), z, 'black', 'LineWidth', .5); hold on;
+    plot(anchors.points, 1, '.', 'MarkerSize', 1, 'Color',[.5 .5 .5]); hold on;
+    errorbar(anchors.points, zeros(a,1), z, 'black', 'LineWidth', .5); hold on;
     plot(stim(f).ratings, 1, '.', 'MarkerSize', 1, 'Color',[.5 .5 .5]); hold on;
-    errorbar(stim(f).ratings, zeros(n,1), (ones(n,1)), 'w', 'LineWidth', 1); hold on;
+    errorbar(stim(f).ratings, zeros(n,1), (ones(n,1)), 'w', 'LineWidth', 2); hold on;
 
    
 
     strpos = {'Extremely', 'Positive'};
-    strneg = {'Extremely', 'Negative'};
-    strl = 'l'
+    strneg = {'Extremely', 'Negative'}
     l1 = text(.85, -.85,strpos,'FontSize',16, 'Color',[1 1 1]); hold on;
     l2 = text(0, -.85,strneg,'FontSize',16, 'Color',[1 1 1]); hold on;
-     
-    %Gotta be a better way to iterate over the list [0:.1:1], but
-    %can't figure it out now
-    a0 =  text(0, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a1 =  text(0.1, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a2 =  text(0.1, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a3 =  text(0.2, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a4 =  text(0.3, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a5 =  text(0.4, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a6 =  text(0.5, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a7 =  text(0.6, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a8 =  text(0.7, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a9 =  text(0.8, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a10 =  text(0.9, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
-    a11 =  text(1, 0, 'l','FontSize',16, 'Color',[1 1 1]); hold on;
 
     xlim([0 1])
     ylim([-0.5 0.5])
     box off
+    
+    % stuff for filename that includes m and s
+    ms = num2str(stim(f).ratingsmean,'%.3f');
+    ss = num2str(stim(f).ratingsstdev,'%.3f');
+    stim(f).filename = ([num2str(f), '_M', ms(:,3:5), '_STD', ss(:, 3:5), '.jpg']);
+      
+    fprintf(fid, '%s \t %s \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t \n', stim(f).filename, stim(f).ratingsmean, stim(f).ratingsstdev, stim(f).min, stim(f).max, stim(f).ratings');
+  
+    set(gcf,'Units','pixels','Position',[200 200 600 150]);  %# Modify figure size
+
+    frame = getframe(gcf);                   %# Capture the current window
+    %imwrite(frame.cdata, stim(f).filename);  %# Save the frame data
+    
+    
+%end  
+
+%fclose(fid);
+
+%save('stimulilv1', 'stim')  % saves the parameter structure as mat file
