@@ -1,8 +1,8 @@
-m = 0.7857;     % provide mean [0.175, 0.25, 0.5, 0.6]
+m = 0.9;     % provide mean [0.175, 0.25, 0.5, 0.6]
 v = 0.15^2;  % provide stdev^2
 n = 10;     % number of ratings to display
-a = 11
-z = zeros(n,2)
+a = 11;
+z = zeros(n,2);
 
 
 set(0, 'defaultFigurePosition', [300 400 400 120], 'defaultFigureColor' , [.5 .5 .5], ...
@@ -17,7 +17,7 @@ lognormdist = makedist('lognormal','mu',mu, 'sigma',s);  % creates lognormal dis
 %fprintf(fid, '%s %d %s %d \n', 'mean = ', m, 'stdev = ', sqrt(v))
 %fprintf(fid, '%s \t %s \t %s \t %s \t %s \t %s \t \n', 'Stimulusfile', 'Mean', 'StDev','Min', 'Max',  'IndivRatings') 
 
-f = 1
+f = 1;
 %for f = 1:1   % creates and saves figures as bmp
 
     close all
@@ -42,13 +42,11 @@ f = 1
                  'XColor', [.5 .5 .5]);
     hold(axes1, 'all');
 
-    anchors = []
+    anchors = [];
     anchors.points = [0 .1 .2 .3 .4 .5 .6 .7 .8 .9 1]';
     line([0,1], [0 0], 'Color', 'w', 'LineWidth', 2); hold on;
-    %plot(anchors.points, 1, '.', 'MarkerSize', 1, 'Color',[.5 .5 .5]); hold on;
-    %errorbar(anchors.points, zeros(a,1), z, 'black', 'LineWidth', .5); hold on;
-    %plot(stim(f).ratings, 1, '.', 'MarkerSize', 1, 'Color',[.5 .5 .5]); hold on;
-    %errorbar(stim(f).ratings, zeros(n,1), (ones(n,1)), 'w', 'LineWidth', 1); hold on;
+    plot(stim(f).ratings, 1, '.', 'MarkerSize', 1, 'Color',[.5 .5 .5]); hold on;
+    errorbar(stim(f).ratings, zeros(n,1), (ones(n,1)), 'w', 'LineWidth', 1); hold on;
 
    
 

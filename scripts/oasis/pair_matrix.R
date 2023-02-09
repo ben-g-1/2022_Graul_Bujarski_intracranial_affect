@@ -44,4 +44,5 @@ ggplot(pair_matrix, aes(Valence_mean, Arousal_mean, color = Valence_SD)) +
   scale_color_gradientn(colors = rainbow(4)) +
   labs(title = "Distribution of Valence Scores for Paired Oasis Set")
 
-write_csv(pair_matrix, 'pair_matrix')
+write_csv(pair_matrix, 'pair_matrix.csv')
+

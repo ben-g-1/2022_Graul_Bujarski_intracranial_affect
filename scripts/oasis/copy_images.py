@@ -10,9 +10,9 @@ root.withdraw()
 
 # Change these variables
 
-filePath = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\scripts\\oasis\\no_overlap.csv'
-folderPath = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\oasis\\images\\'
-destination = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\oasis\\no_overlap_links\\'
+filePath = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\scripts\\oasis\\pair_matrix_names.csv'
+folderPath = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\oasis\\Images\\'
+destination = 'C:\\Users\\bgrau\\GitHub\\git_ieeg_affect\\oasis\\pairA\\'
 
 # First, create a list and populate it with the files
 
@@ -27,6 +27,6 @@ with open(filePath, "r") as fh:
 for filename in os.listdir(folderPath):
     if filename in filesToFind:
         filename = os.path.join(folderPath, filename)
-        Path(destination).symlink_to(Path(filename))
+        shutil.copy(filename, destination)
     #else:
     #    print(filename, "is not copied")

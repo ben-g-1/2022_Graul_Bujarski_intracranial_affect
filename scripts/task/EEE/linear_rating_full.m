@@ -1,4 +1,10 @@
-%function faces(sub,input_counterbalance_file, run_num, biopac)
+%function valence_rating(foo, fii, fee)
+
+% Script adapted from Heejung Jung, Philip Kragel, and Zachary Leeds
+% [Point to specfic scripts for reference later?]
+% this is redundant but need to check differences
+
+
 
 %% -----------------------------------------------------------------------------
 %                           Parameters
@@ -6,6 +12,7 @@
 
 %% A. Psychtoolbox parameters _________________________________________________
 global p
+%%% Remove or comment when working
 Screen('Preference', 'SkipSyncTests', 1);
 
 PsychDefaultSetup(2);
@@ -36,12 +43,13 @@ p.fix.allCoords                = [p.fix.xCoords; p.fix.yCoords];
 
 %% B. Directories ______________________________________________________________
 
-task_dir                       = pwd; %'/home/spacetop/repos/faces/scripts';
-main_dir                       = fileparts(task_dir); %'/home/spacetop/repos/faces';
-repo_dir                       = fileparts(fileparts(task_dir)); % '/home/spacetop/repos'
+%%% Improve these when on local machine
+task_dir                       = pwd; %'C:\\{USER}\\MATLAB\\task\\EEE';
+image_dir                       = [task_dir filesep 'images']; %'C:\\{USER}\\MATLAB\\task\\EEE\\images';
+
 taskname                       = 'EEE';
 
-instruct = 'foo test foo';
+
 
 %% E. Keyboard information _____________________________________________________
 KbName('UnifyKeyNames');
@@ -56,31 +64,35 @@ p.keys.end                     = KbName('e');
 
 
 %% G. Instructions _____________________________________________________________
+%expect = 'expect the next image to be ';
+%T.param_taskname(:) = lower(judgment);
 
-instruct_start                 = ['We will now start the experiment.\nPlease indicate the ' instruct ' of the face.\n\n\n\nexperimenters, press "s" to start'];
-instruct_trigger              = ['Judgment: ' instruct ' of the face'];
+% For exp
+instruct_start                 = ['We will now start the practice ratings.\nPlease indicate how pleasant or unpleasant you expect the next image to be ';'.\n\n\n\nexperimenters, press "s" to start'];
+instruct_trigger              = ['Please indicate how pleasant or unpleasant you found the previous image'];
 
 instruct_end                   = 'This is the end of the experiment. Please wait for the experimenter\n\n\n\nexperimenters, press "e" to end';
 
 
-%T.param_taskname(:) = lower(judgment);
-%% C. Circular rating scale _____________________________________________________
+
+%% C. Linear rating scale _____________________________________________________
 %image_filepath                 = fullfile(main_dir,'stimuli','ratingscale');
 %image_scale_filename           = lower(['task-',judgment,'_scale.jpg']);
 image_scale                    = fullfile(task_dir,'ratingscale.jpg');
-%%%
 
+%%% Uncomment after ratings are consistently occuring without breaking
 %HideCursor;
 %%
 % % H. Make Images Into Textures ________________________________________________
 % DrawFormattedText(p.ptb.window,sprintf('LOADING\n\n0%% complete'),'center','center',p.ptb.white );
 %Screen('Flip',p.ptb.window);
-% 
-%for trl = 1:length(countBalMat.ISI)
+%
+%%% FIGURE OUT LOOP THROUGH 
+%for trl = 1:length(EEE_pairs)
 % 
 %     %cue_tex{trl} = Screen('MakeTexture', p.ptb.window, imread(cue_image));
-%     video_filename  = [countBalMat.image_filename{trl}];
-%     video_file      = fullfile(dir_video, video_filename);
+%     image_filename  = [countBalMat.image_filename{trl}];
+%     image_file      = fullfile(dir_video, video_filename);
 %     [movie{trl}, ~, ~, imgw{trl}, imgh{trl}] = Screen('OpenMovie', p.ptb.window, video_file);
      rating_tex      = Screen('MakeTexture', p.ptb.window, imread(image_scale)); % pure rating scale
 %     %start_tex       = Screen('MakeTexture',p.ptb.window, imread(instruct_start));

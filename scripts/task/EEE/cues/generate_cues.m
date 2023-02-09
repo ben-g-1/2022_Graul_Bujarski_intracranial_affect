@@ -1,21 +1,23 @@
+
+%function [cue_high, cue_low] = generateCue(ratingMean, ratingSD)
+
 %% Normal distribution
+% Adapted from 
 
-clear all;
-
-% mkdir('SocialCueLow_gray')
-% cd SocialCueLow_gray
-% m = 0.30    % provide mean
-% s = 0.15    % provide stdev
-
-mkdir('SocialCue_mean5o5')
-cd SocialCue_mean5o5
-m = 0.7857;     % provide mean [0.175, 0.25, 0.5, 0.6]
-v = 0.15^2;  % provide stdev^2
+m = ratingMean;     
+v = ratingSD^2;  % provide stdev^2
 n = 10;     % number of ratings to display
 
 set(0, 'defaultFigurePosition', [300 400 400 120], 'defaultFigureColor' , [.5 .5 .5], ...
     'defaultLineColor', [1 1 1])
 set(0, 'DefaultFigureInvertHardcopy', 'off')
+
+for f = 1:2;
+    if f = 1
+        m = m + v
+    if f = 2
+        m = m-v
+    end 
 
 mu = log(m/(sqrt(1 + v/m^2)));
 s = sqrt(log(1 + v/m^2));
@@ -26,9 +28,8 @@ fprintf(fid, '%s %d %s %d \n', 'mean = ', m, 'stdev = ', sqrt(v))
 fprintf(fid, '%s \t %s \t %s \t %s \t %s \t %s \t \n', 'Stimulusfile', 'Mean', 'StDev','Min', 'Max',  'IndivRatings') 
 
 
-for f = 1:32   % creates and saves figures as bmp
+  
 
-    close all
     
     stim(f).ratings = random(lognormdist, n,1);  % draws 10 values from normal distribution as defined above
     
@@ -37,6 +38,7 @@ for f = 1:32   % creates and saves figures as bmp
             stim(f).ratings(i) = random(lognormdist, 1,1);
         end
     end
+    
     
     stim(f).ratingsmean = mean(stim(f).ratings);
     stim(f).ratingsstdev = std(stim(f).ratings);
@@ -71,8 +73,8 @@ for f = 1:32   % creates and saves figures as bmp
     imwrite(frame.cdata, stim(f).filename);  %# Save the frame data
     
     
-end  
+%end  
 
-fclose(fid);
+%fclose(fid);
 
-save('stimulilv1', 'stim')  % saves the parameter structure as mat file
+%save('stimulilv1', 'stim')  % saves the parameter structure as mat file
