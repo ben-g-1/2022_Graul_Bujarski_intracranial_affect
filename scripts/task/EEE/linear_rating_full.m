@@ -154,7 +154,7 @@ Screen('TextSize',p.ptb.window,36);
 
     %% 3. post evaluation rating ___________________________________________________
     %T.event03_rating_biopac(trl)          = biopac_linux_matlab(biopac, channel, channel.rating, 1);
-    [onsettime, trajectory, RT, buttonPressOnset] = linear_rating_adapted(1.875,p, rating_tex, 'expectation')%, biopac, channel);
+    [onsettime, trajectory, RT, buttonPressOnset] = linear_rating_bg(1.875,p, rating_tex, 'foo')%, biopac, channel);
     rating_Trajectory{trl,2}            = trajectory;
     T.event03_rating_displayonset(trl) = onsettime;
     T.event03_rating_responseonset(trl) = buttonPressOnset;

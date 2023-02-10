@@ -1,0 +1,12 @@
+-   Data:
+    -   `sub-<>_ses-<>_task-<>_acq-<>_run-<>_ieeg.extension`
+-   Metadata:
+    -   `sub-<>_ses-<>_task-<>_acq-<>_run-<>_ieeg.json`
+-   Channel information:
+    -   `sub-<>_ses-<>_task-<>_acq-<>_run-<>_channels.tsv`
+-   Events:
+    -   `sub-<>_ses-<>_task-<>_acq-<>_run-<>_events.tsv`
+-   Electrode locations:
+    -   `sub-<>_ses-<>_acq-<>_electrodes.tsv` _electrode xyz coordinates_
+    -   `sub-<>_ses-<>_acq-<>_coordsystem.json` _coordinate metadata_
+    -   `sub-<>_ses-<>_acq-<>_photo.jpg` _operative photo_

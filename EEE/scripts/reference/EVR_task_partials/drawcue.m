@@ -1,25 +1,5 @@
-
-%function [cue_high, cue_low] = generateCue(ratingMean, ratingSD)
-
-%% Normal distribution
-% Adapted from 
-
-m = ratingMean;     
-v = ratingSD^2;  % provide stdev^2
-n = 10;     % number of ratings to display
-
-set(0, 'defaultFigurePosition', [300 400 400 120], 'defaultFigureColor' , [.5 .5 .5], ...
-    'defaultLineColor', [1 1 1])
-set(0, 'DefaultFigureInvertHardcopy', 'off')
-
-for f = 1:2;
-    if f = 1
-        m = m + v
-    if f = 2
-        m = m-v
-    end 
-
-mu = log(m/(sqrt(1 + v/m^2)));
+function drawcue(cuemean, cuetype, pairnum, v, m, f, n)
+mu = log(cuemean/(sqrt(1 + v/cuemean^2)));
 s = sqrt(log(1 + v/m^2));
 lognormdist = makedist('lognormal','mu',mu, 'sigma',s);  % creates lognormal distribution with mean m and stdev sqrt(v)
 
@@ -56,25 +36,35 @@ fprintf(fid, '%s \t %s \t %s \t %s \t %s \t %s \t \n', 'Stimulusfile', 'Mean', '
     plot(stim(f).ratings, 1, '.', 'MarkerSize', 10, 'Color',[.5 .5 .5]); hold on;
     errorbar(stim(f).ratings, zeros(n,1), (ones(n,1)), 'w', 'LineWidth', 2); hold on;
 
-    xlim([0 1])
+    strpos = {'Extremely', 'Positive'};
+    strneg = {'Extremely', 'Negative'};
+    strneut = {'Neutral'}
+    strl = 'l'
+    lbl_right = text(1.04, 0 ,strpos,'FontSize',16, 'Color',[1 1 1]); hold on;
+    lbl_left = text(-.2, 0 ,strneg,'FontSize',16, 'Color',[1 1 1]); hold on;
+    lbl_low = text (0.45, -.65, strneut, 'FontSize',16, 'Color',[1 1 1]); hold on;
+
+    %xlim([0 1])
     ylim([-0.5 0.5])
     box off
     
     % stuff for filename that includes m and s
     ms = num2str(stim(f).ratingsmean,'%.3f');
     ss = num2str(stim(f).ratingsstdev,'%.3f');
-    stim(f).filename = ([num2str(f), '_M', ms(:,3:5), '_STD', ss(:, 3:5), '.jpg']);
+    stim(f).filename = (['Pair', num2str(pairnum), "_", cuetype, '_M', ms(:,3:5), '_STD', ss(:, 3:5), '.jpg']);
       
-    fprintf(fid, '%s \t %s \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t \n', stim(f).filename, stim(f).ratingsmean, stim(f).ratingsstdev, stim(f).min, stim(f).max, stim(f).ratings');
+    %fprintf(fid, '%s \t %s \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t %d \t \n', stim(f).filename, stim(f).ratingsmean, stim(f).ratingsstdev, stim(f).min, stim(f).max, stim(f).ratings');
   
     set(gcf,'Units','pixels','Position',[200 200 600 150]);  %# Modify figure size
 
     frame = getframe(gcf);                   %# Capture the current window
     imwrite(frame.cdata, stim(f).filename);  %# Save the frame data
     
-    
-%end  
+ 
+   
+   
 
-%fclose(fid);
+fclose(fid);
 
-%save('stimulilv1', 'stim')  % saves the parameter structure as mat file
+save('cuesall', 'cues')  % saves the parameter structure as mat file
+end

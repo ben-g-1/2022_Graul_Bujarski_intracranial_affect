@@ -1,4 +1,4 @@
-function [timing_initialized, trajectory, RT, buttonPressOnset] = linear_rating(duration, p, image_tex, rating_type)%, biopac, channel)
+function [timing_initialized, trajectory, RT, buttonPressOnset] = linear_rating_bg(duration, p, image_tex, rating_type)%, biopac, channel)
 % global screenNumber window windowRect xCenter yCenter screenXpixels screenYpixels
 % shows a circular rating scale and records mouse position
 %
@@ -18,6 +18,7 @@ function [timing_initialized, trajectory, RT, buttonPressOnset] = linear_rating(
 % Phil Kragel 6/20/2019
 % edited Heejung Jung 7/26/2019
 % edited Phil Kragel for faces task 11/15/2019
+% edited Ben Graul for EEE task 2/6/2023
 %
 % Additions ________________
 % 1. duration:    length of rating scale, NOTE that the duration is filled with a fixation
@@ -40,8 +41,9 @@ SAMPLERATE = .01; % used in continuous ratings
 TRACKBALL_MULTIPLIER=1;
 RT = NaN;
 buttonPressOnset = NaN;
+%rating_type = 'expectation'
 
-HideCursor;
+%HideCursor;
 %biopac_linux_matlab(biopac,channel, channel.rating, 0)
 %%% configure screen
 dspl.screenWidth = p.ptb.rect(3);
@@ -74,6 +76,7 @@ cursor.xmax = dspl.screenWidth/2 + dspl.screenWidth/2*0.275;
 % cursor.ymax = dspl.cscale.rect(4);
 
 
+%%% PLAY WITH DIFFERENT CURSOR SIZES
 cursor.size = 8;
 cursor.xcenter = ceil(dspl.cscale.rect(1) + (dspl.cscale.rect(3) - dspl.cscale.rect(1))*0.5);
 %cursor.ycenter = ceil(dspl.cscale.rect(2) + (dspl.cscale.rect(4)-dspl.cscale.rect(2))*0.847);
@@ -81,7 +84,7 @@ cursor.ycenter = ceil(dspl.cscale.rect(2) + (dspl.cscale.rect(4)-dspl.cscale.rec
 cursor.ymin = cursor.ycenter;
 cursor.ymax = cursor.ycenter;
 
-%RATINGTITLES = 'INTENSITY';
+RATINGTITLES = 'INTENSITY';
 
 
 % initialize
@@ -140,7 +143,7 @@ while GetSecs < timing_initialized + duration
     Screen('CopyWindow',dspl.cscale.w,p.ptb.window);
     DrawFormattedText(p.ptb.window,rating_type,'center',dspl.screenHeight/2+150,255);
     % add rating indicator ball
-    Screen('FillOval',p.ptb.window,[255 0 0],[[cursor.x cursor.y]-cursor.size [cursor.x cursor.y]+cursor.size]);
+    Screen('FillRect',p.ptb.window,[255 0 0],[[cursor.x cursor.y]-cursor.size [cursor.x cursor.y]+cursor.size]);
     Screen('Flip',p.ptb.window);
 
     elseif any(buttonpressed)
@@ -151,7 +154,7 @@ while GetSecs < timing_initialized + duration
        Screen('CopyWindow',dspl.cscale.w,p.ptb.window);
        DrawFormattedText(p.ptb.window,rating_type,'center',dspl.screenHeight/2+150,255);
        % cursor changes
-       Screen('FillOval',p.ptb.window,[255 0 255],[[cursor.x cursor.y]-cursor.size [cursor.x cursor.y]+cursor.size]);
+       Screen('FillRect',p.ptb.window,[255 0 255],[[cursor.x cursor.y]-cursor.size [cursor.x cursor.y]+cursor.size]);
        Screen('Flip',p.ptb.window);
        remainder_time = duration-0.5-RT;
        WaitSecs(remainder_time);

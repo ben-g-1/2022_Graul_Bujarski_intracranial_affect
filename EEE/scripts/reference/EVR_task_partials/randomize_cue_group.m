@@ -8,7 +8,7 @@ num_twos = 16;
 row = [ones(1, num_ones), 2 * ones(1, num_twos)];
 
 % Randomly permute the order of the ones and twos
-row = row(randperm(length(row)));
+row = row(randperm(length(row)))';
 row2 = 3 - row
 
-A = [row; row2]
+cue_order = [row, row2]'

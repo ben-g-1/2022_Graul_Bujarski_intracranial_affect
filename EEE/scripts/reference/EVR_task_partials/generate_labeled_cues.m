@@ -24,9 +24,9 @@ mu = log(m/(sqrt(1 + v/m^2)));
 s = sqrt(log(1 + v/m^2));
 lognormdist = makedist('lognormal','mu',mu, 'sigma',s);  % creates lognormal distribution with mean m and stdev sqrt(v)
 
-%fid = fopen('stimulilv1.txt','w');   % opens textfile to write stimulus parameters
-%fprintf(fid, '%s %d %s %d \n', 'mean = ', m, 'stdev = ', sqrt(v))
-%fprintf(fid, '%s \t %s \t %s \t %s \t %s \t %s \t \n', 'Stimulusfile', 'Mean', 'StDev','Min', 'Max',  'IndivRatings') 
+fid = fopen('stimulilv1.txt','w');   % opens textfile to write stimulus parameters
+fprintf(fid, '%s %d %s %d \n', 'mean = ', m, 'stdev = ', sqrt(v))
+fprintf(fid, '%s \t %s \t %s \t %s \t %s \t %s \t \n', 'Stimulusfile', 'Mean', 'StDev','Min', 'Max',  'IndivRatings') 
 
 f = 1
 %for f = 1:1   % creates and saves figures as bmp

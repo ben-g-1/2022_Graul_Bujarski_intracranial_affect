@@ -12,7 +12,7 @@ screens = Screen('Screens');
 
 % set to display to external monitor (2)
 % need to change to 1 for laptop screen display
-screenPresent = 0;
+screenPresent = 2;
 
 % Define colors: black, white
 white = WhiteIndex(screenPresent);
