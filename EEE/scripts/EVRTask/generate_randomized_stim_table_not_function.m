@@ -8,8 +8,8 @@
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
-subnum = 700;
-sesnum = 999;
+subnum = '01';
+sesnum = '01';
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
 basedir = 'C:\Users\bgrau\GitHub\ieeg_affect';
@@ -193,34 +193,34 @@ pairtable.cue_observed_std = cue_observed_std;
 % Visual check: Draw lines for each trials
 % (Drawing would be done at run-time most likely)
 % k = 3; % pick a trial/image number; or loop through all
-% figure; hold on;
-% set(gcf, 'Color', 'w')
-% 
-% for k = 1:2*npairs
-%     clf
-%     hold on;
-% 
-%     % Plot background scale elements and text
-%     plot([1 7], [0.5 0.5], 'k', 'LineWidth', 3);
-% 
-%     strpos = {'Extremely', 'Positive'};
-%     strneg = {'Extremely', 'Negative'};
-%     text(0.5, -.4, 'Extremely Negative', 'FontSize', 18)
-%     text(6.5, -.4, 'Extremely Positive', 'FontSize', 18)
-%     text(3.8, -.4, 'Neutral', 'FontSize', 18)
-%     plot([1 1], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
-%     plot([7 7], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
-%     plot([4 4], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
-% 
-%     % Plot cues (on top)   
-%     %plot(pairtable.cue_mean(k), 0, 'ko', 'MarkerFaceColor', 'b');  % Note: we would not plot this in the actual experiment
-%     plot([pairtable.image_cue_values{k} pairtable.image_cue_values{k}]', [zeros(nlines, 1) ones(nlines, 1)]', 'b', 'LineWidth', 2);
-% 
-%     set(gca, 'XLim', [0 8], 'YLim', [-2 2])
-%     axis off
-%     drawnow
-%     pause(0.1)
-% end
+figure; hold on;
+set(gcf, 'Color', 'w')
+
+for k = 1:2*npairs
+    clf
+    hold on;
+
+    % Plot background scale elements and text
+    plot([1 7], [0.5 0.5], 'k', 'LineWidth', 3);
+
+    strpos = {'Extremely', 'Positive'};
+    strneg = {'Extremely', 'Negative'};
+    text(0.5, -.4, 'Extremely Negative', 'FontSize', 18)
+    text(6.5, -.4, 'Extremely Positive', 'FontSize', 18)
+    text(3.8, -.4, 'Neutral', 'FontSize', 18)
+    plot([1 1], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
+    plot([7 7], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
+    plot([4 4], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
+
+    % Plot cues (on top)   
+    %plot(pairtable.cue_mean(k), 0, 'ko', 'MarkerFaceColor', 'b');  % Note: we would not plot this in the actual experiment
+    plot([pairtable.image_cue_values{k} pairtable.image_cue_values{k}]', [zeros(nlines, 1) ones(nlines, 1)]', 'b', 'LineWidth', 2);
+
+    set(gca, 'XLim', [0 8], 'YLim', [-2 2])
+    axis off
+    drawnow
+    pause(0.1)
+end
 
 %% Now sort the table rows randomly
 % stratifying one member of each pair into first and 2nd half, so the
