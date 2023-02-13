@@ -26,7 +26,7 @@ z(1:a,:) = 0.125/4
    
 
     strpos = {'Extremely', 'Positive'};
-    strneg = {'Extremely', 'Negative'}
+    strneg = {'Extremely', 'Negative'};
     l1 = text(.85, -.85,strpos,'FontSize',16, 'Color',[1 1 1]); hold on;
     l2 = text(0, -.85,strneg,'FontSize',16, 'Color',[1 1 1]); hold on;
 

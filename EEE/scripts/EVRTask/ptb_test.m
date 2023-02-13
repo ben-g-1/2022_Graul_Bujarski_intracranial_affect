@@ -5,14 +5,14 @@ clear Screen
 
 % default settings for setting up Psychtoolbox
 PsychDefaultSetup(2);
-Screen('Preference', 'SkipSyncTests', 1)
+% Screen('Preference', 'SkipSyncTests', 1)
 
 % Get screen numbers
 screens = Screen('Screens');
 
 % set to display to external monitor (2)
 % need to change to 1 for laptop screen display
-screenPresent = 2;
+screenPresent = max(screens);
 
 % Define colors: black, white
 white = WhiteIndex(screenPresent);
@@ -31,7 +31,7 @@ ifi = Screen('GetFlipInterval', window);
 Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 
 % set PTB as top priority level
-%Priority(MaxPriority(window));
+Priority(MaxPriority(window));
 
 % exit on any key
 KbStrokeWait;

@@ -1,4 +1,4 @@
-function stim_table = generate_randomized_stim_table(subnum, sesnum)
+%function stim_table = generate_randomized_stim_table(subnum, sesnum, basedir)
 % This function generates a subject-specific table with stimuli and cue
 % positions (and other meta-data) in pseudorandom order).
 %
@@ -8,6 +8,8 @@ function stim_table = generate_randomized_stim_table(subnum, sesnum)
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
+subnum = 700;
+sesnum = 999;
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
 basedir = 'C:\Users\bgrau\GitHub\ieeg_affect';
@@ -41,7 +43,7 @@ if not(isfile(fname))
     'The paired file list is missing. Exiting now.'
     return
 end
-fwritename = fullfile(sesdir,'randomized_pair_matrix.mat');
+fwritename = fullfile(sesdir,'stim_table.mat');
 
 %PROJ
 % 
@@ -154,7 +156,7 @@ pairtable.cue_mean = pairtable.Valence_mean + mean_shift .* pairtable.highcue_in
 
 nlines = 10; % how many lines to generate
 
-cuesd = 1.3; % standard deviation of lines around the cue mean
+cuesd = 0.8; % standard deviation of lines around the cue mean
             % 1.3 may be large and cause more clipping? 
 
 % Store values in cell so we can add them to the table as a vector for each
@@ -188,38 +190,37 @@ pairtable.cue_observed_mean = cue_observed_mean;
 pairtable.cue_observed_std = cue_observed_std;
 
 
-
 % Visual check: Draw lines for each trials
 % (Drawing would be done at run-time most likely)
-k = 3; % pick a trial/image number; or loop through all
-figure; hold on;
-set(gcf, 'Color', 'w')
-
-for k = 1:2*npairs
-    clf
-    hold on;
-
-    % Plot background scale elements and text
-    plot([1 7], [0.5 0.5], 'k', 'LineWidth', 3);
-
-    strpos = {'Extremely', 'Positive'};
-    strneg = {'Extremely', 'Negative'};
-    text(0.5, -.4, 'Extremely Negative', 'FontSize', 18)
-    text(6.5, -.4, 'Extremely Positive', 'FontSize', 18)
-    text(3.8, -.4, 'Neutral', 'FontSize', 18)
-    plot([1 1], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
-    plot([7 7], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
-    plot([4 4], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
-
-    % Plot cues (on top)   
-    %plot(pairtable.cue_mean(k), 0, 'ko', 'MarkerFaceColor', 'b');  % Note: we would not plot this in the actual experiment
-    plot([pairtable.image_cue_values{k} pairtable.image_cue_values{k}]', [zeros(nlines, 1) ones(nlines, 1)]', 'b', 'LineWidth', 2);
-
-    set(gca, 'XLim', [0 8], 'YLim', [-2 2])
-    axis off
-    drawnow
-    pause(0.1)
-end
+% k = 3; % pick a trial/image number; or loop through all
+% figure; hold on;
+% set(gcf, 'Color', 'w')
+% 
+% for k = 1:2*npairs
+%     clf
+%     hold on;
+% 
+%     % Plot background scale elements and text
+%     plot([1 7], [0.5 0.5], 'k', 'LineWidth', 3);
+% 
+%     strpos = {'Extremely', 'Positive'};
+%     strneg = {'Extremely', 'Negative'};
+%     text(0.5, -.4, 'Extremely Negative', 'FontSize', 18)
+%     text(6.5, -.4, 'Extremely Positive', 'FontSize', 18)
+%     text(3.8, -.4, 'Neutral', 'FontSize', 18)
+%     plot([1 1], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
+%     plot([7 7], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
+%     plot([4 4], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
+% 
+%     % Plot cues (on top)   
+%     %plot(pairtable.cue_mean(k), 0, 'ko', 'MarkerFaceColor', 'b');  % Note: we would not plot this in the actual experiment
+%     plot([pairtable.image_cue_values{k} pairtable.image_cue_values{k}]', [zeros(nlines, 1) ones(nlines, 1)]', 'b', 'LineWidth', 2);
+% 
+%     set(gca, 'XLim', [0 8], 'YLim', [-2 2])
+%     axis off
+%     drawnow
+%     pause(0.1)
+% end
 
 %% Now sort the table rows randomly
 % stratifying one member of each pair into first and 2nd half, so the
@@ -273,6 +274,11 @@ if bad_table_flag, warning('Some cues have very low std, < 0.4');
     errorcount = errorcount + 1;
  end
 
+bad_table_flag = any(abs(stim_table.cue_deviation_from_norm) > 1.6);
+if bad_table_flag, warning('Some cues are very different from the normalized rating')
+    errorcount = errorcount + 1;
+end
+
  if errorcount == 1
     warning('Consider rerunning the script')
     errorcount
@@ -317,7 +323,6 @@ refline;
 plot(stim_table.Valence_mean(wh_high), stim_table.cue_observed_std(wh_high), 'ko', 'MarkerFaceColor', 'r'); 
 plot(stim_table.Valence_mean(wh_low), stim_table.cue_observed_std(wh_low), 'ko', 'MarkerFaceColor', 'b'); 
 
-
 save(fwritename, 'stim_table')
-end % function
+%end % function
 

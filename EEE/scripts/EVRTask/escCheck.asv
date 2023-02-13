@@ -1,0 +1,8 @@
+function escCheck(p)
+[keyIsDown,trial,keyCode] = KbCheck;
+secs = getSecs
+if keyCode(p.ptb.esc)
+    Print(['Escape Key pressed during trial ', (trial), '. Exiting now.'])
+    ShowCursor
+    sca;
+end
