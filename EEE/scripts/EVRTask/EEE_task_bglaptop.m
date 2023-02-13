@@ -1,7 +1,7 @@
 %function run_EEE_task_bglaptop(subjectnum, sessionnum, projdirectorypath)
 % RunExpectationTask
 %function 
-% v1.0
+% v1.1
 % Adapted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
 
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
