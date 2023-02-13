@@ -1,7 +1,7 @@
 %function run_EEE_task_bglaptop(subjectnum, sessionnum, projdirectorypath)
 % RunExpectationTask
 %function 
-% v0.8
+% v1.0
 % Adapted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
 
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
@@ -19,6 +19,9 @@ sesdir = fullfile(subjdir, ['ses-', num2str(sessionnum)]);
 imagedir = fullfile(filedir, 'oasis_pairs');
 fname = 'stim_table.mat';
 fpath = fullfile(sesdir, fname);
+practice = fullfile(filedir, 'practice', 'practice_images.mat');
+fpartialfill = fullfile(sesdir, 'stim_table_partial.mat');
+fall = fullfile(sesdir, 'stim_table_full.mat');
 
 addpath(scriptdir);
 
@@ -41,6 +44,7 @@ end
 
 % Load randomized matrix, then add empty columns for recordings
 load(fpath);
+load(practice);
 nrow = size(stim_table, 1);
 
 %% Initialize PsychToolbox defaults
@@ -109,26 +113,78 @@ p.pleasant = 'Extremely Pleasant';
 p.unpleasant = 'Extremely Unpleasant';
 p.neutral = 'Neutral';
 
-%%% DEBUG
-% sca;
 %% Additional timing variables
 %%% create jitter and save to stim_table
-fixTime                        = 1.5; 
-imageTime                      = 4;
+fixTime                        = 1.2; 
+imageTime                      = 3.5;
 
+%% Text strings and images per block
 
-%% Instructions and Practice Sessions
+instructtext1 = 'Thank you for helping us with this test. \n\n\n\n You will see a series of pictures that might cause an emotional response.';
+DrawFormattedText(p.ptb.window, instructtext1, 'center', 'center', 255);
+Screen('Flip', p.ptb.window)
+KbStrokeWait;
+
+instructtext3 = 'We are interested in how pleasant or unpleasant you find each picture.\n\n\n\n You might know this as a valence rating from prior tests.';
+DrawFormattedText(p.ptb.window, instructtext3, 'center', 'center', 255);
+Screen('Flip', p.ptb.window)
+KbStrokeWait;
+    
+instructtext4 = 'Each image has been rated by 10 other participants. \n\n\n\n You will see these ratings before giving your own valence rating. \n\n\n\n The other ratings might be very similar or very different to your own feelings.';
+DrawFormattedText(p.ptb.window, instructtext4, 'center', 'center', 255);
+Screen('Flip', p.ptb.window)
+KbStrokeWait;
+
+instructtext5 = 'This is how you will see the ratings of other patients. \n\n\n\n\n\n\n\n\n\n\n\n\n\n Please ask questions if the ratings are unclear.' ;
+DrawFormattedText(p.ptb.window, instructtext5, 'center', p.ptb.screenYpixels*.3, [255 0 255]);
+%%% MAKE CELL FOR PRACTICE IMAGES, not drawn from table
+ cuemat = cell2mat(stim_table.image_cue_values(2));
+        for c = 1:10 
+            pix_prcnt = ((cuemat(c)-1)/6);
+            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1);
+            cue_xPixel(1,c) = xpix_coord;
+        end
+draw_cue(p,cue_xPixel)
+draw_scale(p)
+Screen('Flip', p.ptb.window)
+KbStrokeWait;
+
+instructtext6 = 'We will now practice making a rating.';
+DrawFormattedText(p.ptb.window, instructtext6, 'center', 'center', 255);
+Screen('Flip', p.ptb.window)
+KbStrokeWait;
+
+practtext1 = 'Move the red ball using the mouse. Click when the ball is where you would like to report your rating.';
+DrawFormattedText(p.ptb.window, practtext1, 'center', p.ptb.screenYpixels*.3, 255);
+record_rating(30,p,'Practice Rating')
+
+practtext2 = 'Do you have any questions?';
+DrawFormattedText(p.ptb.window, practtext2, 'center', 'center', 255);
+Screen('Flip', p.ptb.window)
+KbStrokeWait;
+
+practtext3 = 'Please click the mouse to begin.';
+buttons = 0
+ while buttons == 0
+     DrawFormattedText(p.ptb.window, practtext3, 'center', 'center', 255);
+    Screen('Flip', p.ptb.window);
+        [x,y,buttons] = GetMouse;
+ end
+
+breaktext = 'You may take a break here. Please click when you are ready to continue.';
+thanktext = 'Thank you for your help with this experiment. Press any key to end.';
+
+%% Offer self-timed break every {perblock} images.
+perblock = 8;
+loopcount = 0;
 
 %% Full Experiment
-% while p.keys.esc == 0
-
 for trial = 1:nrow
-    
-
+      
     % Convert expectation cue lines based on screen size
     cuemat = cell2mat(stim_table.image_cue_values(trial));
         for c = 1:10 
-            pix_prcnt = ((cuemat(c)-1)/6)
+            pix_prcnt = ((cuemat(c)-1)/6);
             xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1);
 %%% Rewrite line to preallocate memory, not dynamically increase each loop
             cue_xPixel(1,c) = xpix_coord;
@@ -138,24 +194,24 @@ for trial = 1:nrow
     % Show fixation cross
      
     Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
-    Screen('Flip', p.ptb.window)
-   
- 
-    WaitSecs(fixTime)
+    Screen('Flip', p.ptb.window);
+    KbCheck;
+    
+    WaitSecs(fixTime);
    
 
     % Show expectation cue
-    draw_scale(p)
-    draw_cue(p,cue_xPixel)
+    draw_scale(p);
+    draw_cue(p,cue_xPixel);
     % draw white rectangle in bottom right corner of screen for external timing validation
     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
-    Screen('Flip', p.ptb.window)
+    Screen('Flip', p.ptb.window);
     
-    WaitSecs(imageTime)
+    WaitSecs(imageTime);
    
 
     % Show empty scale and record rating 
-    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(10,p,'Expectation');
+    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Expectation');
 
     % Record expectation rating and timing  
     stim_table.exp_init(trial) = timing_initialized;
@@ -165,9 +221,9 @@ for trial = 1:nrow
 
     % Show fixation cross
     Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
-    Screen('Flip', p.ptb.window)
+    Screen('Flip', p.ptb.window);
     
-    WaitSecs(fixTime)
+    WaitSecs(fixTime);
    
     % Show image
     imagename = append(stim_table.Theme(trial), ".jpg");
@@ -179,12 +235,11 @@ for trial = 1:nrow
     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
-    WaitSecs(imageTime)
-    
+    WaitSecs(imageTime);
     
 
     % Show empty scale and record rating
-    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(10,p,'Valence');
+    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Valence');
     Screen('Flip', p.ptb.window);
 
     % Record expectation rating and timing 
@@ -194,173 +249,27 @@ for trial = 1:nrow
     stim_table.val_clickTime(trial) = buttonPressOnset;
 
     %collapse converted pixel size for cue lines to single cell
-stim_table.cue_converted(trial) = num2cell(cue_xPixel, [1 2]);
-
+    stim_table.cue_converted(trial) = num2cell(cue_xPixel, [1 2]);
+    
+    % Check if break is needed
+    loopcount = loopcount + 1;
+    buttons = 0;
+    if loopcount == perblock && trial ~= 2
+        while buttons == 0
+        loopcount = 0;
+        DrawFormattedText(p.ptb.window,breaktext,'center', 'center', 255);
+        Screen('Flip', p.ptb.window);
+        [x,y,buttons] = GetMouse;
+        save(fpartialfill, "stim_table");
+        end
+    end %if    
 end %trial
- % escCheck
+
+
 %% Debrief
 % show slides or make in PTB?
+save(fall, "stim_table");
+DrawFormattedText(p.ptb.window,thanktext,'center','center',255);
+Screen('Flip', p.ptb.window);
 KbStrokeWait;
 sca;
-
-%%
-% %%% INTRODUCE JITTER TIME 
-% %%% See Phil's script for help
-% ImgTime = 3; % time in seconds
-% FixTime = 1; % time in seconds
-% CueTime = 2.5; % time in seconds
-
-% BLOCKS = 4
-% TRIALS = 16
-
-% %% Set output path
-% DATA_DIR = [SUBJ_DIR filesep 'data']
-% if not(isfolder(DATA_DIR))
-%     mkdir(DATA_DIR)
-% end
-
-% DataFile = [DATA_DIR filesep 'responses.mat']
-% LogFile = [DATA_DIR filesep 'log.txt'] 
-
-% %% Get system time, sync with recordings
-
-% TimingData = zeroes(2, BLOCKS.*TRIALS)
-% % row 1 = cue onset time
-% % row 2 = image onset time
-
-% ResponseData = zeros(4, BLOCKS.*TRIALS);
-
-% %% Show Instructions
-
-% %% Practice Task
-
-% %% Task in Blocks
-% endInstructions = Instructions(screenPresent, window);
-
-% % check if task terminated with user esc key
-% if endInstructions == 1
-%     % clean up screens
-%     Screen('CloseAll')
-%     close all;
-%     % display message
-%     disp("User Terminated Task During Instructions")
-%     return;
-% end
-
-% %% 
-% %%% Practice %%%
-
-% endPractice = PracticeTrials(screenPresent, window, ifi);
-
-% % check if task terminated with user esc key
-% if endPractice == 99
-%     % clean up screens
-%     Screen('CloseAll')
-%     close all;
-%     % display message
-%     disp("User Terminated Task During Practice Trials")
-%     return;
-% end
-
-%% 
-%%% Start Task %%%
-
-% get task start time
-%tStart = GetSecs;
-
-
-% % loop through matrix of random images by columns (block) then rows (trial)
-% trialCount = 0;
-% for block = 1:BLOCKS
-
-%     for trial = 1:TRIALS
-        
-%         % track total trial count
-%         trialCount = trialCount +1;
-
-%         % get image index and filename
-%         ImgIdx = RandImages(trial, block);
-%         ImgFile = ImageFiles{ImgIdx};
-
-%         % FIXATION - present fixation
-%         DrawFixation(screenPresent, window, FixTime, ifi);
-        
-%         % MARKER - first half of block (NO STIM trials)
-%         if trial < TRIALS/2
-%             % trigger marker and store time of onset
-%             TimingData(1,trialCount) = TriggerMarker(Cerestim, WaveformID);
-           
-%         % STIMULATION - second half of block
-%         else
-%             % trigger stim and store time of onset
-%             TimingData(1, trialCount) = TriggerStim(Cerestim, WaveformID, StimChannels);
-%         end
-            
-%         % IMAGE - present image and store time of onset
-%         TimingData(2, trialCount) = PresentImage(ImgFile, window, ImgTime, ifi);
-
-%         % RESPONSE %
-        
-%         % draw response scales and get user responses and reaction times
-%         response = RatingResponse(screenPresent, window, ifi);
-%         % store reaction time and key response data
-%         ResponseData(:,trialCount) = response;
-
-%         % check for escape key and end task
-%         if response == 99
-%             % clean up screens
-%             Screen('CloseAll')
-%             close all;
-%             % save data
-%             save(DATA_FILE, "TimingData","ResponseData",'-append')
-%             % display message
-%             disp("User Terminated Task at Block "+block+" / Trial "+trial)
-%             % calculate task time
-%             total_time = (GetSecs - tStart);
-%             % reformat time
-%             total_time = seconds(total_time);
-%             total_time.Format = 'mm:ss';
-%             disp("Task RunTime:")
-%             disp(total_time)
-%             return;
-%         end
-  
-%     end
-    
-%     % check if more blocks left
-%     if block < BLOCKS
-
-%         % break after each block
-%         disp("Block " +block+ " completed.")
-        
-%         % disp block break screen and wait for keypress to continue
-%         blockTxt = strcat('Take a Break\n\n You have completed...\n',num2str(block),'/8 Blocks');
-%         nextBlock = ShowText(blockTxt, screenPresent, window);
-    
-%         % check for escape key and end task
-%         if nextBlock == 0
-%             % clean up screens
-%             Screen('CloseAll')
-%             close all;
-%             % save data
-%             save(DATA_FILE, "TimingData","ResponseData",'-append')
-%             % display message
-%             disp("User Terminated Task at Block "+block+" / Trial "+trial)
-%             % calculate task time
-%             total_time = (GetSecs - tStart);
-%             % reformat time
-%             total_time = seconds(total_time);
-%             total_time.Format = 'mm:ss';
-%             disp("Task RunTime:")
-%             disp(total_time)
-%             return;
-%         end
-%         % otherwise advance to next block
-%     end
-
-% end
-
-% % task ends - display message
-% ShowText('Task Finished. Thank you', screenPresent, window);
-
-%% Debrief
