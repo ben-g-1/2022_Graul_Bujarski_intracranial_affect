@@ -21,7 +21,7 @@ function analyze_sub01
 
 %% 1) subject-specific details - these need to be set
 subjID           = 'sub01'; % for generating subject-specific filenames
-eegfile          = 'EEG Files/EMO12R21#1.ENCODING.03.31.22.EDF'; % recording file (e.g., edf)
+eegfile          = 'C:\Users\bgrau\Dropbox (Dartmouth College)\R21 Data\EEG Files\EMO12R21#1.ENCODING.03.31.22.EDF'; % recording file (e.g., edf)
 
 % create subject directory if non-existent
 subjdir = [pwd filesep subjID];
@@ -36,14 +36,15 @@ cfg.dataset      = eegfile;
 
 % trigger detection (appear to be 3-sec long)
 hdr              = ft_read_header(cfg.dataset);
-event            = ft_read_event(cfg.dataset, 'detectflank', 'up', 'chanindx', find(ismember(hdr.label, 'DC3')));
-idx              = [];
-for e = 1:numel(event)
-  if ~isequal(event(e).type, 'DC3')
-    idx = [idx e]; % events to be tossed
-  end
-end
-event(idx)       = [];
+event            = ft_read_event(cfg.dataset, 'detectflank', 'up')
+%     'chanindx', find(ismember(hdr.label, 'DC3')));
+% idx              = [];
+% for e = 1:numel(event)
+%   if ~isequal(event(e).type, 'DC3')
+%     idx = [idx e]; % events to be tossed
+%   end
+% end
+% event(idx)       = [];
 trigs            = [event.sample]';
 
 % trial definition

@@ -149,7 +149,7 @@ DrawFormattedText(p.ptb.window, instructtext5, 'center', p.ptb.screenYpixels*.3,
  cuemat = cell2mat(stim_table.image_cue_values(2));
         for c = 1:10 
             pix_prcnt = ((cuemat(c)-1)/6);
-            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1);
+            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1*p.ptb.screenXpixels);
             cue_xPixel(1,c) = xpix_coord;
         end
 draw_cue(p,cue_xPixel)

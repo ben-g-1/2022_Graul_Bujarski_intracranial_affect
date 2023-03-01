@@ -36,15 +36,14 @@ cfg.dataset      = eegfile;
 
 % trigger detection (appear to be 3-sec long)
 hdr              = ft_read_header(cfg.dataset);
-event            = ft_read_event(cfg.dataset, 'detectflank', 'up')
-%     'chanindx', find(ismember(hdr.label, 'DC3')));
-% idx              = [];
-% for e = 1:numel(event)
-%   if ~isequal(event(e).type, 'DC3')
-%     idx = [idx e]; % events to be tossed
-%   end
-% end
-% event(idx)       = [];
+event            = ft_read_event(cfg.dataset, 'detectflank', 'up', 'chanindx', find(ismember(hdr.label, 'DC3')));
+idx              = [];
+for e = 1:numel(event)
+  if ~isequal(event(e).type, 'DC3')
+    idx = [idx e]; % events to be tossed
+  end
+end
+event(idx)       = [];
 trigs            = [event.sample]';
 
 % trial definition
@@ -82,7 +81,7 @@ cfg              = ft_databrowser(cfg, data);
 % Note: DC2 and 3 seem to be trigger channels
 
 %% 40) remove bad channels and segments
-% ARJEN_badchan          = {'-LFMO1','-RTSF14','-RTSF13','-RTSF12','-RFSI5'}; % ,'-LXA4','-LTMH5','-RTMH4'
+badchan          = {'-LFMO1','-RTSF14','-RTSF13','-RTSF12','-RFSI5'}; % ,'-LXA4','-LTMH5','-RTMH4'
 %bad_chan = %LFMO1, LXC1 has big peak after stim, F7, 
 %% 42) re-reference depth electrodes
 % bad channel removal
@@ -122,9 +121,9 @@ freq             = ft_freqanalysis(cfg, reref);
 
 %% 47) prepare anatomical plotting layout
 % pial mesh combination
-pial_lh          = ft_read_headshape(fullfile(subjdir, 'freesurfer', 'surf', 'lh.pial'));
+pial_lh          = ft_read_headshape(fullfile(subjdir, 'freesurfer', 'surf', 'lh.pial.T1'));
 pial_lh.coordsys = 'acpc';
-pial_rh          = ft_read_headshape(fullfile(subjdir, 'freesurfer', 'surf', 'rh.pial'));
+pial_rh          = ft_read_headshape(fullfile(subjdir, 'freesurfer', 'surf', 'rh.pial.T1'));
 pial_rh.coordsys = 'acpc';
 pial.pos         = cat(1,[pial_lh.pos; pial_rh.pos]); % concatenate
 pial.tri         = cat(1,[pial_lh.tri; pial_rh.tri + size(pial_lh.pos,1)]);
