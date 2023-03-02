@@ -211,7 +211,7 @@ while GetSecs < timing_initialized + duration
        draw_scale(p)
        DrawFormattedText(p.ptb.window,rating_type,'center',p.ptb.screenYpixels/4,255);
        % cursor changes
-       Screen('DrawLine', p.ptb.window, [255 0 255], cursor.x, p.ptb.yCenter-p.rate.rateDisp, cursor.x, p.ptb.yCenter+p.rate.rateDisp, p.penwidth);
+       Screen('DrawLine', p.ptb.window, 255, cursor.x, p.ptb.yCenter-p.rate.rateDisp, cursor.x, p.ptb.yCenter+p.rate.rateDisp, p.penwidth);
        Screen('Flip',p.ptb.window);
     %    remainder_time = duration-0.5-RT;
     %    sca;

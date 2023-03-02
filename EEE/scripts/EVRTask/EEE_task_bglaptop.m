@@ -150,6 +150,7 @@ instructtext4 = ['This is how you will see the ratings of other people.'] ;
 DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15, 255);
 %%% MAKE CELL FOR PRACTICE IMAGES, not drawn from table
  cuemat = cell2mat(stim_table.image_cue_values(2));
+ cue_xPixel = zeros(1,10);
         for c = 1:10 
             pix_prcnt = ((cuemat(c)-1)/6);
             xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1);
@@ -162,12 +163,12 @@ KbStrokeWait;
 
 instructtext5 = ['After seeing what others rated the picture, we will ask you how pleasant or unpleasant you expect \n\n' ...
     'the next picture to be. \n\n\n\n\n' ...
-    'We will now practice making a rating.';
+    'We will now practice making a rating.'];
 DrawFormattedText(p.ptb.window, instructtext5, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
 KbStrokeWait;
 
-practtext1 = 'Move the line using the mouse. Click when the line is where you would like to report your rating.';
+practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating.'];
 DrawFormattedText(p.ptb.window, practtext1, 'center', p.ptb.screenYpixels*.3, 255);
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
@@ -209,9 +210,10 @@ for trial = 1:nrow
       
     % Convert expectation cue lines based on screen size
     cuemat = cell2mat(stim_table.image_cue_values(trial));
+    cue_xPixel = zeros(1,10);
         for c = 1:10 
             pix_prcnt = ((cuemat(c)-1)/6);
-            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1);
+            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1*p.ptb.screenXpixels);
 %%% Rewrite line to preallocate memory, not dynamically increase each loop
             cue_xPixel(1,c) = xpix_coord;
 
@@ -245,7 +247,7 @@ for trial = 1:nrow
     stim_table.exp_RT(trial) = RT;
     stim_table.exp_clickTime(trial) = buttonPressOnset;
 
-    stim_table.exp_rating(trial) = convert_from_pixel(p, x_coord)
+    stim_table.exp_rating(trial) = convert_from_pixel(p, x_coord);
 
     % Show fixation cross
     Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
@@ -276,7 +278,7 @@ for trial = 1:nrow
     stim_table.val_RT(trial) = RT;
     stim_table.val_clickTime(trial) = buttonPressOnset;
 
-    stim_table.val_rating(trial) = convert_from_pixel(p, x_coord)
+    stim_table.val_rating(trial) = convert_from_pixel(p, x_coord);
 
     %collapse converted pixel size for cue lines to single cell
     stim_table.cue_converted(trial) = num2cell(cue_xPixel, [1 2]);
@@ -284,7 +286,7 @@ for trial = 1:nrow
     % Check if break is needed
     loopcount = loopcount + 1;
     buttons = 0;
-    if loopcount == perblock && trial ~= 2
+    if loopcount == perblock %&& trial ~= 2
         while buttons == 0
         loopcount = 0;
         DrawFormattedText(p.ptb.window,breaktext,'center', 'center', 255);
