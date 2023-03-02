@@ -64,10 +64,10 @@ p.unpleasant = 'Extremely Unpleasant';
 p.neutral = 'Neutral';
 
 KbStrokeWait;
-sca;
+
 %%
 
-cuemat = cell2mat(stim_table.image_cue_values(3));
+cuemat = cell2mat(stim_table.image_cue_values(4));
     for c = 1:10 
         pix_prcnt = ((cuemat(c)-1)/6);
         xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1*p.ptb.screenXpixels);
@@ -75,7 +75,7 @@ cuemat = cell2mat(stim_table.image_cue_values(3));
         cue_xPixel(1,c) = xpix_coord;
     end
 %%
-PsychImaging('OpenWindow',p.ptb.screenNumber,p.ptb.black);
+
   Screen('DrawLines', p.ptb.window, p.rate.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
      % Side anchors
      Screen('DrawLine', p.ptb.window, p.ptb.white, p.rate.leftbound, p.ptb.yCenter-p.rate.anchorDisp, p.rate.leftbound, p.ptb.yCenter+p.rate.anchorDisp, p.penwidth)

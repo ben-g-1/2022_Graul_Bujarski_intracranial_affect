@@ -1,6 +1,6 @@
-function rating = convert_from_pixel(pixel):
+function rating = convert_from_pixel(p, pixel)
 
-rating = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1)
-
-rating = (pixel - (0.1*p.ptb.screenXpixels))
-rating = rating*0.8
+pixel = pixel - (.1*p.ptb.screenXpixels);
+pixel = pixel / (0.8*p.ptb.screenXpixels);
+rating = (pixel*6)+1;
+end

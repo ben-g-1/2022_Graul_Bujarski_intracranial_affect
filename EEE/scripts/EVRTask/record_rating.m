@@ -116,17 +116,10 @@ TRACKBALL_MULTIPLIER=1;
 
 
 %%
-%Empty Scale
-%   Screen('DrawLines', p.ptb.window, p.rate.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
-% 
-%      Screen('DrawLine', p.ptb.window, p.ptb.white, p.rate.leftbound, p.ptb.yCenter-p.rate.anchorDisp, p.rate.leftbound, p.ptb.yCenter+p.rate.anchorDisp, p.penwidth)
-%      Screen('DrawLine', p.ptb.window, p.ptb.white, p.rate.rightbound, p.ptb.yCenter-p.rate.anchorDisp, p.rate.rightbound, p.ptb.yCenter+p.rate.anchorDisp, p.penwidth)
-%      Screen('Flip', p.ptb.window)
-%      WaitSecs(0.5)
 
 
- dspl.cscale.width = p.ptb.screenXpixels*0.8; % scale width
- dspl.cscale.height = p.rate.rateDisp; %  scale height
+dspl.cscale.width = p.ptb.screenXpixels*0.8; % scale width
+dspl.cscale.height = p.rate.rateDisp; %  scale height
 dspl.cscale.xcenter = p.ptb.screenXpixels/2; % scale center
 dspl.cscale.ycenter = p.ptb.screenYpixels/2;
 

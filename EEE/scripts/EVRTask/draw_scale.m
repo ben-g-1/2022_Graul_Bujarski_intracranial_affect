@@ -46,13 +46,13 @@ function draw_scale(p)
 %Empty Scale
   Screen('DrawLines', p.ptb.window, p.rate.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
      % Side anchors
-     Screen('DrawLine', p.ptb.window, p.ptb.white, p.rate.leftbound, p.ptb.yCenter-p.rate.anchorDisp, p.rate.leftbound, p.ptb.yCenter+p.rate.anchorDisp, p.penwidth)
-     Screen('DrawLine', p.ptb.window, p.ptb.white, p.rate.rightbound, p.ptb.yCenter-p.rate.anchorDisp, p.rate.rightbound, p.ptb.yCenter+p.rate.anchorDisp, p.penwidth)
-      
+    Screen('DrawLine', p.ptb.window, p.ptb.white, p.rate.leftbound, p.ptb.yCenter-p.rate.anchorDisp, p.rate.leftbound, p.ptb.yCenter+p.rate.anchorDisp, p.penwidth)
+    Screen('DrawLine', p.ptb.window, p.ptb.white, p.rate.rightbound, p.ptb.yCenter-p.rate.anchorDisp, p.rate.rightbound, p.ptb.yCenter+p.rate.anchorDisp, p.penwidth)
+    
+    % Add text labels
     DrawFormattedText(p.ptb.window,p.neutral,'center',p.ptb.screenYpixels*.70,255);
     DrawFormattedText(p.ptb.window,p.unpleasant,p.ptb.screenXpixels*0.05,p.ptb.screenYpixels*.70,255);
     DrawFormattedText(p.ptb.window,p.pleasant,p.ptb.screenXpixels*0.75,p.ptb.screenYpixels*.70,255);
-    %Screen('Flip', p.ptb.window)
 end %function
 
 
