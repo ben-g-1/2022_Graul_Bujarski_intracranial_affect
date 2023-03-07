@@ -25,13 +25,13 @@ addpath(scriptdir);
 
 % Make sure the subject and session have been created. 
 if not(isfolder(subjdir))
-   print('Creating subject directory')
+   disp('Creating subject directory')
     mkdir(subjdir);
 end
 
 addpath(subjdir);
 if not(isfolder(sesdir))
-    print('Creating session directory')
+    disp('Creating session directory')
     mkdir(sesdir);
 end
 
@@ -40,7 +40,7 @@ addpath(sesdir);
 fname = fullfile(filedir, 'pair_matrix.xlsx');
 
 if not(isfile(fname))
-    'The paired file list is missing. Exiting now.'
+    disp('The paired file list is missing. Exiting now.')
     return
 end
 fwritename = fullfile(sesdir,'stim_table.mat');

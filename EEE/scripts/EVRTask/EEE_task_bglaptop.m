@@ -7,8 +7,8 @@
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
 % subjectnum and sessionnum needs to be only numbers
 
-subjectnum = 700;
-sessionnum = 999;
+subjectnum = 900;
+sessionnum = 99;
 %%% Input Path ID 
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
 % projdir = projdirectorypath
