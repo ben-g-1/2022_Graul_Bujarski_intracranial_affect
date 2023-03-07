@@ -20,6 +20,7 @@ imagedir = fullfile(filedir, 'oasis_pairs');
 fname = 'stim_table.mat';
 fpath = fullfile(sesdir, fname);
 practice = fullfile(filedir, 'practice', 'practice_images.mat');
+practicedir = fullfile(filedir, 'practice');
 fpartialfill = fullfile(sesdir, 'stim_table_partial.mat');
 f_all = fullfile(sesdir, 'stim_table_full.mat');
 
@@ -47,7 +48,7 @@ load(fpath);
 load(practice);
 nrow = size(stim_table, 1);
 
-%% Initialize PsychToolbox defaults
+%% Initialize PsychToolbox defaults %%
 global p;
 %%% Remove or comment when working on hospital laptop
 if getenv('USERNAME') == 'bgrau'
@@ -121,7 +122,8 @@ fixTime                        = 1.2;
 
 imageTime                      = 3.5;
 
-%% Text strings and images per block
+%% INSTRUCTIONS %% 
+% Text strings and images per block
 
 instructtext1 = ['Thank you for helping us with this test. \n\n\n\n ' ...
     'You will see a series of pictures. \n\n\n\n' ...
@@ -131,11 +133,9 @@ Screen('Flip', p.ptb.window)
 KbStrokeWait;
 
 instructtext2 = ['We will ask you to rate each picture on a scale from \n\n '...
-    'extremely unpleasant to extremely pleasant.\n\n\n\n '];
-DrawFormattedText(p.ptb.window, instructtext2, 'center', 'center', 255);
-Screen('Flip', p.ptb.window)
-KbStrokeWait;
-
+    'extremely unpleasant to extremely pleasant.\n\n\n\n'];
+DrawFormattedText(p.ptb.window, instructtext2, 'center', p.ptb.screenYpixels*.15, 255);
+% Screen('Flip', p.ptb.window)
 draw_scale(p)
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
@@ -143,23 +143,27 @@ KbStrokeWait;
 instructtext3 = ['Each image has been rated by 10 other people. \n\n\n\n ' ...
     'Before you see the picture, you will see the ratings that other people gave each picture.'];
 DrawFormattedText(p.ptb.window, instructtext3, 'center', 'center', 255);
-Screen('Flip', p.ptb.window)
+Screen('Flip', p.ptb.window);
 KbStrokeWait;
 
-instructtext4 = ['This is how you will see the ratings of other people.'] ;
+instructtext4 = ['Each line represents one rating that someone gave to the picture you will see next.'];
 DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15, 255);
-%%% MAKE CELL FOR PRACTICE IMAGES, not drawn from table
- cuemat = cell2mat(stim_table.image_cue_values(2));
- cue_xPixel = zeros(1,10);
+  % Convert expectation cue lines based on screen size
+    cuemat = cell2mat(practice_images.image_cue_values(1));
+    cue_xPixel = zeros(1,10);
         for c = 1:10 
             pix_prcnt = ((cuemat(c)-1)/6);
-            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1);
+            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1*p.ptb.screenXpixels);
             cue_xPixel(1,c) = xpix_coord;
-        end
-draw_cue(p,cue_xPixel)
-draw_scale(p)
-Screen('Flip', p.ptb.window)
+        end    
+    % Show expectation cue
+    draw_scale(p);
+    draw_cue(p,cue_xPixel);
+    % draw white rectangle in bottom right corner of screen for external timing validation
+    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+    Screen('Flip', p.ptb.window);
 KbStrokeWait;
+
 
 instructtext5 = ['After seeing what others rated the picture, we will ask you how pleasant or unpleasant you expect \n\n' ...
     'the next picture to be. \n\n\n\n\n' ...
@@ -174,16 +178,65 @@ Screen('Flip', p.ptb.window);
 KbStrokeWait;
 record_rating(30,p,'Practice Rating')
 
-instructtext6 = ['After you rate how pleasant or unpleasant you expect the picture to be, you will see the picture.']
+instructtext6 = ['After you rate how pleasant or unpleasant you expect the picture to be, you will see the picture.' ...
+    '\n\n\n\n\n\n\n We will now practice the whole process.'];
 DrawFormattedText(p.ptb.window, instructtext6, 'center', 'center', 255);
-Screen('Flip', p.ptb.window)
+Screen('Flip', p.ptb.window);
 KbStrokeWait;
 
-%%% Two rounds of practice like the real thing
-%  imagename = append(stim_table.Theme(trial), ".jpg");
-%     imagepath = fullfile(imagedir, imagename);
-%     imagetex = Screen('MakeTexture', p.ptb.window, imread(imagepath));
-%     Screen('DrawTexture', p.ptb.window, imagetex, [], p.image.coords);
+for practice = 1:2
+      
+    % Convert expectation cue lines based on screen size
+    cuemat = cell2mat(practice_images.image_cue_values(practice));
+    cue_xPixel = zeros(1,10);
+        for c = 1:10 
+            pix_prcnt = ((cuemat(c)-1)/6);
+            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1*p.ptb.screenXpixels);
+            cue_xPixel(1,c) = xpix_coord;
+
+        end    
+
+Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
+    Screen('Flip', p.ptb.window);
+    KbCheck;
+    
+    WaitSecs(fixTime);
+   
+    % Show expectation cue
+    draw_scale(p);
+    draw_cue(p,cue_xPixel);
+    % draw white rectangle in bottom right corner of screen for external timing validation
+    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+    Screen('Flip', p.ptb.window);
+    
+    WaitSecs(imageTime);
+   
+    % Show empty scale and record rating 
+    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Expectation');
+
+    % Show fixation cross
+    Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
+    Screen('Flip', p.ptb.window);
+    
+    WaitSecs(fixTime);
+   
+    % Show image
+    imagename = append(practice_images.Theme(practice), ".jpg");
+    imagepath = fullfile(practicedir, imagename);
+    imagetex = Screen('MakeTexture', p.ptb.window, imread(imagepath));
+    Screen('DrawTexture', p.ptb.window, imagetex, [], p.image.coords);
+
+    % draw white rect in bottom right corner of screen
+    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+    Screen('Flip', p.ptb.window);
+    
+    WaitSecs(imageTime);
+    
+    % Show empty scale and record rating
+    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Valence');
+    Screen('Flip', p.ptb.window);
+
+end
 
 practtext2 = 'Do you have any questions?';
 DrawFormattedText(p.ptb.window, practtext2, 'center', 'center', 255);
@@ -205,6 +258,7 @@ thanktext = 'Thank you for your help with this experiment. Press any key to end.
 perblock = 8;
 loopcount = 0;
 HideCursor;
+
 %% Full Experiment
 for trial = 1:nrow
       
@@ -214,16 +268,13 @@ for trial = 1:nrow
         for c = 1:10 
             pix_prcnt = ((cuemat(c)-1)/6);
             xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1*p.ptb.screenXpixels);
-%%% Rewrite line to preallocate memory, not dynamically increase each loop
             cue_xPixel(1,c) = xpix_coord;
-
         end
-%%
+
     % Show fixation cross
      
     Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
     Screen('Flip', p.ptb.window);
-    KbCheck;
     
     WaitSecs(fixTime);
    

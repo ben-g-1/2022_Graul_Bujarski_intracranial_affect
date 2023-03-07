@@ -8,8 +8,8 @@
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
-subnum = '900';
-sesnum = '99';
+subnum = '01';
+sesnum = '01';
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
 basedir = 'C:\Users\bgrau\GitHub\ieeg_affect';
