@@ -75,7 +75,7 @@ p.ptb.ifi                      = Screen('GetFlipInterval',p.ptb.window);
 Screen('BlendFunction', p.ptb.window,'GL_SRC_ALPHA','GL_ONE_MINUS_SRC_ALPHA'); % Set up alpha-blending for smooth (anti-aliased) lines
 Screen('TextFont', p.ptb.window, 'Arial');
 
-Screen('TextSize', p.ptb.window, 72);
+Screen('TextSize', p.ptb.window, 96);
 
 [p.ptb.xCenter, p.ptb.yCenter] = RectCenter(p.ptb.rect);
 p.fix.sizePix                  = 40; % size of the arms of our fixation cross

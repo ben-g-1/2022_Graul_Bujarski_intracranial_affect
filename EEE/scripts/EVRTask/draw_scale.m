@@ -52,7 +52,7 @@ function draw_scale(p)
     % Add text labels
     DrawFormattedText(p.ptb.window,p.neutral,'center',p.ptb.screenYpixels*.70,255);
     DrawFormattedText(p.ptb.window,p.unpleasant,p.ptb.screenXpixels*0.05,p.ptb.screenYpixels*.70,255);
-    DrawFormattedText(p.ptb.window,p.pleasant,p.ptb.screenXpixels*0.85,p.ptb.screenYpixels*.70,255);
+    DrawFormattedText(p.ptb.window,p.pleasant,p.ptb.screenXpixels*0.8,p.ptb.screenYpixels*.70,255);
 end %function
 
 

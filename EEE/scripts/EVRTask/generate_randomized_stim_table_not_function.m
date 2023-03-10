@@ -8,7 +8,7 @@
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
-subnum = '900';
+subnum = '999';
 sesnum = '99';
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
@@ -189,13 +189,13 @@ pairtable.cue_observed_mean = cue_observed_mean;
 
 pairtable.cue_observed_std = cue_observed_std;
 
-
+%%
 % Visual check: Draw lines for each trials
 % (Drawing would be done at run-time most likely)
 % k = 3; % pick a trial/image number; or loop through all
 figure; hold on;
 set(gcf, 'Color', 'w')
-
+% k=1
 for k = 1:2*npairs
     clf
     hold on;
@@ -206,7 +206,7 @@ for k = 1:2*npairs
     strpos = {'Extremely', 'Positive'};
     strneg = {'Extremely', 'Negative'};
     text(0.5, -.4, 'Extremely Negative', 'FontSize', 18)
-    text(6.5, -.4, 'Extremely Positive', 'FontSize', 18)
+    text(6.0, -.4, 'Extremely Positive', 'FontSize', 18)
     text(3.8, -.4, 'Neutral', 'FontSize', 18)
     plot([1 1], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
     plot([7 7], 0.2 * [1 3.7], 'k', 'LineWidth', 3);
@@ -218,6 +218,9 @@ for k = 1:2*npairs
 
     set(gca, 'XLim', [0 8], 'YLim', [-2 2])
     axis off
+%      set(gcf,'Units','pixels','Position',[200 200 800 300]);  %# Modify figure size
+% 
+%     frame = getframe(gcf);                   %# Capture the current window
     drawnow
     pause(0.1)
 end
