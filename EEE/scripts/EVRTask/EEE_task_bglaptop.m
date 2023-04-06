@@ -2,13 +2,14 @@
 % RunExpectationTask
 %function 
 % v1.1
-% Adapted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
+% Ad        apted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
 
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
 % subjectnum and sessionnum needs to be only numbers
 
-subjectnum = 900;
-sessionnum = 99;
+subjectnum = '01';
+sessionnum = '01';
+
 %%% Input Path ID 
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
 % projdir = projdirectorypath
@@ -16,6 +17,7 @@ filedir = fullfile(projdir, 'files');
 scriptdir = fullfile(projdir, 'scripts', 'EVRTask');
 subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);
 sesdir = fullfile(subjdir, ['ses-', num2str(sessionnum)]);
+funcdir = fullfile(scriptdir, 'functions');
 imagedir = fullfile(filedir, 'oasis_pairs');
 fname = 'stim_table.mat';
 fpath = fullfile(sesdir, fname);
@@ -25,6 +27,7 @@ fpartialfill = fullfile(sesdir, 'stim_table_partial.mat');
 f_all = fullfile(sesdir, 'stim_table_full.mat');
 
 addpath(scriptdir);
+addpath(funcdir)
 
 % Make sure the subject and session have been created. 
 if not(isfolder(subjdir))
@@ -75,7 +78,11 @@ p.ptb.ifi                      = Screen('GetFlipInterval',p.ptb.window);
 Screen('BlendFunction', p.ptb.window,'GL_SRC_ALPHA','GL_ONE_MINUS_SRC_ALPHA'); % Set up alpha-blending for smooth (anti-aliased) lines
 Screen('TextFont', p.ptb.window, 'Arial');
 
-Screen('TextSize', p.ptb.window, 96);
+% Wide Monitor
+% Screen('TextSize', p.ptb.window, 96);
+
+% Laptop
+Screen('TextSize', p.ptb.window, 72);
 
 [p.ptb.xCenter, p.ptb.yCenter] = RectCenter(p.ptb.rect);
 p.fix.sizePix                  = 40; % size of the arms of our fixation cross
@@ -115,13 +122,11 @@ p.neutral = 'Neutral';
 
 %% Additional timing variables
 %%% create jitter and save to stim_table
-fixTime                        = 1.2; 
-% fixJitter
-% for j = 1:npairs
-%   
+stim_table.fixJitter = (1.4-0.9).*rand(nrow,1) + 0.9;
+stim_table.imageJitter = (4.2-3.5).*rand(nrow,1)+3.5;
 
-imageTime                      = 3.5;
-
+fixJitter = stim_table.fixJitter(1);
+imageJitter = stim_table.imageJitter(1);
 %% INSTRUCTIONS %% 
 % Text strings and images per block
 
@@ -167,13 +172,14 @@ KbStrokeWait;
 
 instructtext5 = ['After seeing what others rated the picture, we will ask you how pleasant or unpleasant you expect \n\n' ...
     'the next picture to be. \n\n\n\n\n' ...
-    'We will now practice making a rating.'];
+    'We will now practice making a rating. Press any key to begin.'];
 DrawFormattedText(p.ptb.window, instructtext5, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
 KbStrokeWait;
 
-practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating.'];
-DrawFormattedText(p.ptb.window, practtext1, 'center', p.ptb.screenYpixels*.3, 255);
+practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating. \n\n\n\n\n' ...
+    'Press any key to continue.'];
+DrawFormattedText(p.ptb.window, practtext1, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
 record_rating(30,p,'Practice Rating')
@@ -185,7 +191,6 @@ Screen('Flip', p.ptb.window);
 KbStrokeWait;
 
 for practice = 1:2
-      
     % Convert expectation cue lines based on screen size
     cuemat = cell2mat(practice_images.image_cue_values(practice));
     cue_xPixel = zeros(1,10);
@@ -200,7 +205,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     Screen('Flip', p.ptb.window);
     KbCheck;
     
-    WaitSecs(fixTime);
+    WaitSecs(fixJitter);
    
     % Show expectation cue
     draw_scale(p);
@@ -209,7 +214,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
-    WaitSecs(imageTime);
+    WaitSecs(imageJitter);
    
     % Show empty scale and record rating 
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Expectation');
@@ -218,7 +223,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
     Screen('Flip', p.ptb.window);
     
-    WaitSecs(fixTime);
+    WaitSecs(fixJitter);
    
     % Show image
     imagename = append(practice_images.Theme(practice), ".jpg");
@@ -230,7 +235,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
-    WaitSecs(imageTime);
+    WaitSecs(imageJitter);
     
     % Show empty scale and record rating
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Valence');
@@ -261,7 +266,9 @@ HideCursor;
 
 %% Full Experiment
 for trial = 1:nrow
-      
+    escCheck(p, trial)
+    fixJitter = stim_table.fixJitter(trial);
+    imageJitter = stim_table.imageJitter(trial);
     % Convert expectation cue lines based on screen size
     cuemat = cell2mat(stim_table.image_cue_values(trial));
     cue_xPixel = zeros(1,10);
@@ -276,7 +283,7 @@ for trial = 1:nrow
     Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
     Screen('Flip', p.ptb.window);
     
-    WaitSecs(fixTime);
+    WaitSecs(fixJitter);
    
 
     % Show expectation cue
@@ -286,7 +293,7 @@ for trial = 1:nrow
     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
-    WaitSecs(imageTime);
+    WaitSecs(imageJitter);
    
 
     % Show empty scale and record rating 
@@ -304,7 +311,7 @@ for trial = 1:nrow
     Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
     Screen('Flip', p.ptb.window);
     
-    WaitSecs(fixTime);
+    WaitSecs(fixJitter);
    
     % Show image
     imagename = append(stim_table.Theme(trial), ".jpg");
@@ -316,7 +323,7 @@ for trial = 1:nrow
     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
-    WaitSecs(imageTime);
+    WaitSecs(imageJitter);
     
 
     % Show empty scale and record rating
@@ -333,24 +340,25 @@ for trial = 1:nrow
 
     %collapse converted pixel size for cue lines to single cell
     stim_table.cue_converted(trial) = num2cell(cue_xPixel, [1 2]);
+    save(fpartialfill, "stim_table");
     
     % Check if break is needed
     loopcount = loopcount + 1;
     buttons = 0;
-    if loopcount == perblock %&& trial ~= 2
+    if loopcount == perblock 
         while buttons == 0
         loopcount = 0;
         DrawFormattedText(p.ptb.window,breaktext,'center', 'center', 255);
         Screen('Flip', p.ptb.window);
         [x,y,buttons] = GetMouse;
-        save(fpartialfill, "stim_table");
         end
-    end %if    
+    end %if
+    Screen('Close')
 end %trial
 
 
 %% Debrief
-% show slides or make in PTB?
+
 save(f_all, "stim_table");
 DrawFormattedText(p.ptb.window,thanktext,'center','center',255);
 Screen('Flip', p.ptb.window);
