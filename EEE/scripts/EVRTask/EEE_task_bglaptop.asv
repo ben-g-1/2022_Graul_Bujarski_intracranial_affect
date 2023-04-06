@@ -17,7 +17,7 @@ filedir = fullfile(projdir, 'files');
 scriptdir = fullfile(projdir, 'scripts', 'EVRTask');
 subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);
 sesdir = fullfile(subjdir, ['ses-', num2str(sessionnum)]);
-funcdir = fullfile(scriptdir, 'functions')
+funcdir = fullfile(scriptdir, 'functions');
 imagedir = fullfile(filedir, 'oasis_pairs');
 fname = 'stim_table.mat';
 fpath = fullfile(sesdir, fname);
@@ -177,7 +177,8 @@ DrawFormattedText(p.ptb.window, instructtext5, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
 KbStrokeWait;
 
-practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating.'];
+practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating. \n\n\n\n\n' ...
+    'Press any key to continue.'];
 DrawFormattedText(p.ptb.window, practtext1, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
@@ -265,7 +266,7 @@ HideCursor;
 
 %% Full Experiment
 for trial = 1:nrow
-    escCheck(p, trial)
+%     escCheck(p, trial)
     fixJitter = stim_table.fixJitter(trial);
     imageJitter = stim_table.imageJitter(trial);
     % Convert expectation cue lines based on screen size

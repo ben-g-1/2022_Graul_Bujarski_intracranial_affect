@@ -152,7 +152,8 @@ DrawFormattedText(p.ptb.window, instructtext3, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
 
-instructtext4 = ['Each line represents one rating that someone gave to the picture you will see next.'];
+instructtext4 = ['Each line represents one rating that someone gave to the picture you will see next. \n\n\n\n' ...
+    'This pleasantness is also known as valence.'];
 DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15, 255);
   % Convert expectation cue lines based on screen size
     cuemat = cell2mat(practice_images.image_cue_values(1));
@@ -178,11 +179,12 @@ DrawFormattedText(p.ptb.window, instructtext5, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
 KbStrokeWait;
 
-practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating.'];
+practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating. \n\n\n\n' ...
+    'Press any key to see the rating.'];
 DrawFormattedText(p.ptb.window, practtext1, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
-record_rating(30,p,'Practice Rating')
+record_rating(50,p,'Practice Rating')
 
 instructtext6 = ['After you rate how pleasant or unpleasant you expect the picture to be, you will see the picture.' ...
     '\n\n\n\n\n\n\n We will now practice the whole process.'];

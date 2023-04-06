@@ -266,7 +266,7 @@ HideCursor;
 
 %% Full Experiment
 for trial = 1:nrow
-    escCheck(p, trial)
+%     escCheck(p, trial)
     fixJitter = stim_table.fixJitter(trial);
     imageJitter = stim_table.imageJitter(trial);
     % Convert expectation cue lines based on screen size
