@@ -2,13 +2,14 @@
 % RunExpectationTask
 %function 
 % v1.1
-% Ad        apted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
+% Adapted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
 
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
 % subjectnum and sessionnum needs to be only numbers
 
-subjectnum = '01';
+subjectnum = '02';
 sessionnum = '01';
+DEBUG = false;
 
 %%% Input Path ID 
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
@@ -120,16 +121,24 @@ p.pleasant = 'Extremely Pleasant';
 p.unpleasant = 'Extremely Unpleasant';
 p.neutral = 'Neutral';
 
+% if DEBUG == true
+%     KbStrokeWait;
+%     sca;
+% end
+
 %% Additional timing variables
 %%% create jitter and save to stim_table
 stim_table.fixJitter = (1.4-0.9).*rand(nrow,1) + 0.9;
-stim_table.imageJitter = (4.2-3.5).*rand(nrow,1)+3.5;
+% stim_table.imageJitter = (4.2-3.5).*rand(nrow,1)+3.5;
+stim_table.imageJitter = 4*ones(nrow,1)
 
 fixJitter = stim_table.fixJitter(1);
 imageJitter = stim_table.imageJitter(1);
+HideCursor;
+
 %% INSTRUCTIONS %% 
 % Text strings and images per block
-
+if DEBUG == false
 instructtext1 = ['Thank you for helping us with this test. \n\n\n\n ' ...
     'You will see a series of pictures. \n\n\n\n' ...
     'We are interested in how pleasant or unpleasant you find each picture.'];
@@ -165,7 +174,7 @@ DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15
     draw_scale(p);
     draw_cue(p,cue_xPixel);
     % draw white rectangle in bottom right corner of screen for external timing validation
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
 KbStrokeWait;
 
@@ -211,7 +220,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     draw_scale(p);
     draw_cue(p,cue_xPixel);
     % draw white rectangle in bottom right corner of screen for external timing validation
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
     WaitSecs(imageJitter);
@@ -232,7 +241,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     Screen('DrawTexture', p.ptb.window, imagetex, [], p.image.coords);
 
     % draw white rect in bottom right corner of screen
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
     WaitSecs(imageJitter);
@@ -247,6 +256,7 @@ practtext2 = 'Do you have any questions?';
 DrawFormattedText(p.ptb.window, practtext2, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
 KbStrokeWait;
+end % tutorial skip for DEBUG == true 
 
 practtext3 = 'Please click the mouse to begin.';
 buttons = 0;

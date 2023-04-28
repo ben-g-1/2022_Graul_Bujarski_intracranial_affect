@@ -7,8 +7,9 @@
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
 % subjectnum and sessionnum needs to be only numbers
 
-subjectnum = '01';
+subjectnum = '02';
 sessionnum = '01';
+DEBUG = false;
 
 %%% Input Path ID 
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
@@ -120,13 +121,21 @@ p.pleasant = 'Extremely Pleasant';
 p.unpleasant = 'Extremely Unpleasant';
 p.neutral = 'Neutral';
 
+if DEBUG == true
+    KbStrokeWait;
+    sca;
+end
+
 %% Additional timing variables
 %%% create jitter and save to stim_table
 stim_table.fixJitter = (1.4-0.9).*rand(nrow,1) + 0.9;
-stim_table.imageJitter = (4.2-3.5).*rand(nrow,1)+3.5;
+% stim_table.imageJitter = (4.2-3.5).*rand(nrow,1)+3.5;
+stim_table.imageJitter = 4*ones(nrow,1)
 
 fixJitter = stim_table.fixJitter(1);
 imageJitter = stim_table.imageJitter(1);
+HideCursor;
+
 %% INSTRUCTIONS %% 
 % Text strings and images per block
 
@@ -165,7 +174,7 @@ DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15
     draw_scale(p);
     draw_cue(p,cue_xPixel);
     % draw white rectangle in bottom right corner of screen for external timing validation
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
 KbStrokeWait;
 
@@ -211,7 +220,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     draw_scale(p);
     draw_cue(p,cue_xPixel);
     % draw white rectangle in bottom right corner of screen for external timing validation
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
     WaitSecs(imageJitter);
@@ -232,7 +241,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     Screen('DrawTexture', p.ptb.window, imagetex, [], p.image.coords);
 
     % draw white rect in bottom right corner of screen
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
     WaitSecs(imageJitter);

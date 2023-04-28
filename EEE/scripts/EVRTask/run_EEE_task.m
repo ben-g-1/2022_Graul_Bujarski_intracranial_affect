@@ -18,7 +18,7 @@ filedir = fullfile(projdir, 'files');
 scriptdir = fullfile(projdir, 'scripts', 'EVRTask');
 subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);
 sesdir = fullfile(subjdir, ['ses-', num2str(sessionnum)]);
-funcdir = fullfile(scriptdir, 'functions')
+funcdir = fullfile(scriptdir, 'functions');
 imagedir = fullfile(filedir, 'oasis_pairs');
 fname = 'stim_table.mat';
 fpath = fullfile(sesdir, fname);
@@ -55,12 +55,12 @@ nrow = size(stim_table, 1);
 %% Initialize PsychToolbox defaults %%
 global p;
 %%% Remove or comment when working on hospital laptop
-if getenv('USERNAME') == 'bgrau'
-    Screen('Preference', 'SkipSyncTests', 1);
-else 
-    disp('PsychToolbox probably won`t work correctly. Change the SyncTests setting.')
-    return
-end
+% if getenv('USERNAME') == 'bgrau'
+%     Screen('Preference', 'SkipSyncTests', 1);
+% else 
+%     disp('PsychToolbox probably won`t work correctly. Change the SyncTests setting.')
+%     return
+% end
 
 PsychDefaultSetup(2);
 screens                        = Screen('Screens'); % Get the screen numbers
@@ -124,13 +124,16 @@ p.neutral = 'Neutral';
 %% Additional timing variables
 %%% create jitter and save to stim_table
 stim_table.fixJitter = (1.4-0.9).*rand(nrow,1) + 0.9;
-stim_table.imageJitter = (4.2-3.5).*rand(nrow,1)+3.5;
+% stim_table.imageJitter = (4.2-3.5).*rand(nrow,1)+3.5;
+stim_table.imageJitter = 4*ones(nrow,1)
 
 fixJitter = stim_table.fixJitter(1);
 imageJitter = stim_table.imageJitter(1);
+HideCursor;
+
 %% INSTRUCTIONS %% 
 % Text strings and images per block
-
+if DEBUG == false
 instructtext1 = ['Thank you for helping us with this test. \n\n\n\n ' ...
     'You will see a series of pictures. \n\n\n\n' ...
     'We are interested in how pleasant or unpleasant you find each picture.'];
@@ -152,8 +155,7 @@ DrawFormattedText(p.ptb.window, instructtext3, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
 
-instructtext4 = ['Each line represents one rating that someone gave to the picture you will see next. \n\n\n\n' ...
-    'This pleasantness is also known as valence.'];
+instructtext4 = ['Each line represents one rating that someone gave to the picture you will see next.'];
 DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15, 255);
   % Convert expectation cue lines based on screen size
     cuemat = cell2mat(practice_images.image_cue_values(1));
@@ -167,7 +169,7 @@ DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15
     draw_scale(p);
     draw_cue(p,cue_xPixel);
     % draw white rectangle in bottom right corner of screen for external timing validation
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
 KbStrokeWait;
 
@@ -179,12 +181,12 @@ DrawFormattedText(p.ptb.window, instructtext5, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
 KbStrokeWait;
 
-practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating. \n\n\n\n' ...
-    'Press any key to see the rating.'];
+practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating. \n\n\n\n\n' ...
+    'Press any key to continue.'];
 DrawFormattedText(p.ptb.window, practtext1, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
-record_rating(50,p,'Practice Rating')
+record_rating(30,p,'Practice Rating')
 
 instructtext6 = ['After you rate how pleasant or unpleasant you expect the picture to be, you will see the picture.' ...
     '\n\n\n\n\n\n\n We will now practice the whole process.'];
@@ -213,7 +215,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     draw_scale(p);
     draw_cue(p,cue_xPixel);
     % draw white rectangle in bottom right corner of screen for external timing validation
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
     WaitSecs(imageJitter);
@@ -234,7 +236,7 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     Screen('DrawTexture', p.ptb.window, imagetex, [], p.image.coords);
 
     % draw white rect in bottom right corner of screen
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
+%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
     
     WaitSecs(imageJitter);
@@ -249,6 +251,7 @@ practtext2 = 'Do you have any questions?';
 DrawFormattedText(p.ptb.window, practtext2, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
 KbStrokeWait;
+end % tutorial skip for DEBUG == true 
 
 practtext3 = 'Please click the mouse to begin.';
 buttons = 0;
@@ -268,7 +271,7 @@ HideCursor;
 
 %% Full Experiment
 for trial = 1:nrow
-    escCheck(p, trial)
+%     escCheck(p, trial)
     fixJitter = stim_table.fixJitter(trial);
     imageJitter = stim_table.imageJitter(trial);
     % Convert expectation cue lines based on screen size
@@ -366,5 +369,6 @@ DrawFormattedText(p.ptb.window,thanktext,'center','center',255);
 Screen('Flip', p.ptb.window);
 KbStrokeWait;
 sca;
+
 
 end %function

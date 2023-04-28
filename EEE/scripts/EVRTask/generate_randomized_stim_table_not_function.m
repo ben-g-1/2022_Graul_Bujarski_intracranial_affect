@@ -8,7 +8,7 @@
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
-subnum = '01';
+subnum = '02';
 sesnum = '01';
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
@@ -286,7 +286,15 @@ end
     errorcount
     return
  end
-  
+ 
+%% 
+set(gcf,'Units','pixels','Position', [200 200 800 250]);  %# Modify figure size
+
+    frame = getframe(gcf);                   %# Capture the current window
+    
+    filename = fullfile(sesdir, "stats_vis.jpg");
+%     saveas(gcf, append([rand_dir, num2str(k), rand_settings, "_stats_vis.jpg" ]))
+    saveas(gcf, filename);
 % figure; hold on; plot(stim_table.cue_observed_mean, 'LineWidth', 2)
 % refline
 % title('Cue observed mean over time');
@@ -332,13 +340,6 @@ for k = 1:2*npairs
 end
 
 %%
-set(gcf,'Units','pixels','Position', [200 200 800 250]);  %# Modify figure size
-
-    frame = getframe(gcf);                   %# Capture the current window
-    
-    filename = fullfile(sesdir, "stats_vis.jpg");
-%     saveas(gcf, append([rand_dir, num2str(k), rand_settings, "_stats_vis.jpg" ]))
-    saveas(gcf, filename);
 
 save(fwritename, 'stim_table')
 %end % function
