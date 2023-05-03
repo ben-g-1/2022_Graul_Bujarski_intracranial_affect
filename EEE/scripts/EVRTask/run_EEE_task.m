@@ -1,4 +1,4 @@
-function run_EEE_task(subjectnumber, sessionnumber, projdirectorypath)
+function run_EEE_task(subjectnumber, sessionnumber, projdirectorypath, debug)
 % RunExpectationTask
 %function 
 % v1.1
@@ -8,6 +8,11 @@ function run_EEE_task(subjectnumber, sessionnumber, projdirectorypath)
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
 % subjectnum and sessionnum needs to be only numbers
 
+if ~debug
+    DEBUG = false;
+else
+    DEBUG = debug;
+end
 
 %%% Input Path ID 
 % projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
@@ -56,12 +61,13 @@ nrow = size(stim_table, 1);
 global p;
 %%% Remove or comment when working on hospital laptop
 % if getenv('USERNAME') == 'bgrau'
-%     Screen('Preference', 'SkipSyncTests', 1);
+
 % else 
 %     disp('PsychToolbox probably won`t work correctly. Change the SyncTests setting.')
 %     return
 % end
 
+Screen('Preference', 'SkipSyncTests', 1);
 PsychDefaultSetup(2);
 screens                        = Screen('Screens'); % Get the screen numbers
 p.ptb.screenNumber             = max(screens); % Draw to the external screen if avaliable

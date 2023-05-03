@@ -30,14 +30,20 @@ sesdir = fullfile(subjdir, 'ses-01', 'ieeg');
 
 eegfile = fullfile(sesdir, 'EEEPT#1.EDF');
 
+%%
 % Find and label unneeded channels
 cfg            = [];
 cfg.dataset    = eegfile;
 cfg.continuous = 'yes';
 cfg.channel    = 'all';
 
+% Initial data variable with all channels
 data           = ft_preprocessing(cfg);
 
+%%
+ft_databrowser(cfg,data)
+
+%%
 extrachan = {};
 rowcnt = 1;
 for i = 123:128
@@ -57,15 +63,36 @@ for i = 182:256
     emptychan{rowcnt} = chan;
     rowcnt = rowcnt + 1;
 end
+%% Find bad channels
+
+% Major Drift ['-LTHA6', '-RPAG7', '-RPAG11', '-RFC5', ]
+% LTHA6 is really consistent in strong deviation. Maybe look to see if
+% sinal pattern emerges correlated to any task moment?
+
+% LTHA11/12, RFC4-6,
+
+% Minor Drift ['-LTA5', '-RPAG8', '-RPRS13', '-LTA8', '-RPAG3', '-RTF2']
+% Major Spike ['-LTHA1', '-LTHA2', '-RTF4', '-RPRS15', '-LTA2',   
+% Scalp EEG 163:181
+% NOTE THAT FIELDTRIP HAS FUNCTIONALITY TO REMOVE THIS WITH 'eeg' FLAG BELOW
+% scalpchan = {'FP1','F7','T3','T5','O1','F3','C3','P3','FP2','F8','T4','T6','O2','F4','C4','P4','Fz','Cz','Pz'};
+% rm_scalpchan = {'-FP1','-F7','-T3','-T5','-O1','-F3','-C3','-P3','-FP2','F8','-T4','-T6','-O2','-F4','-C4','-P4','-Fz','-Cz','-Pz'};
+% C182:C256 seem empty?
+% C123:128 not empty, but signal is small. Lacking label?
+% All are 'unknown' signal type except scalp EEG, TRIG incorrect as trigger
+eegchan          = strcat('-', ft_channelselection({'eeg'}, data.label));
+
+badchan = {'-LTHA6', '-RPAG7', '-RPAG11', '-RFC5','-LTA5', '-RPAG8', '-RPRS13', '-LTA8', '-RPAG3', '-RTF2','-LTHA1', '-LTHA2', '-RTF4', '-RPRS15', '-LTA2'};
+
+
+%% iEEG Channels for pasting later
+% RPXA*, RPPC*, RPRS*, RPAG*, RTA*, RTHA*, RTF*, RTS*, RIA*, LFC*, RFC*, LTA*, LTHA*
+
 eegchan          = strcat('-', ft_channelselection({'eeg'}, data.label));
 cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
-    '-OSAT', '-*DC*', eegchan{:}, emptychan{:}, extrachan{:}}, data.label);
+    '-OSAT', '-*DC*', eegchan{:}, emptychan{:}, extrachan{:}, badchan{:}}, data.label);
 
-% Find bad channels
-% ft_databrowser(cfg,data)
-% LTHA11/12, RFC4-6,
-% iEEG Channels
-% RPXA*, RPPC*, RPRS*, RPAG*, RTA*, RTHA*, RTF*, RTS*, RIA*, LFC*, RFC*, LTA*, LTHA*
+
 %%
 cfg.dataset      = eegfile;
 
@@ -80,14 +107,6 @@ for e = 1:numel(event)
 end
 
 event(idx)       = [];
-
-
-for i = 1:length([event.sample])
-    event(i).timestamp = event(i).sample / data.fsample;
-    if i < length([event.sample])
-        event(i).duration = event(i+1).timestamp - event(i).timestamp;
-    end
-end
 
 t = 1;
 trial = 0;
@@ -127,7 +146,58 @@ for i = 1:length([event.sample])
         t = 1;
     end
 end
-%%
+
+% Fill Duration Column
+for i = 1:length([event.sample])
+    event(i).timestamp = event(i).sample / data.fsample;
+end
+for i = 1:length([event.sample])
+    if i < length([event.sample])
+        event(i).duration = event(i+1).timestamp - event(i).timestamp;
+    end
+end
+
+%% Add necessary columns for analysis from stim_table
+% Current thought is to add all columns for each trial to each row 
+% Maybe too much, but easier to analyze what's needed when pulling 
+% rows without overhead. 
+
+% Note that for working with the event table, the row index comes BEFORE
+% the dot index
+
+% Columns
+col_names = fieldnames(stim_table);
+%% Look at image rating period 
+% 
+% Compare valence rating reaction times between stim_table and photodiode
+idx = [];
+for e = 1:numel(event)
+  if ~isequal(event(e).label, 'img_rate')
+%   if event(e).trial == 0
+    idx = [idx e]; % events to be tossed
+  end
+end
+
+event(idx)       = [];
+imgs            = [event.sample]';
+
+
+pre              = round(1 * hdr.Fs);
+post             = round(1 * hdr.Fs);
+cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre];
+
+ft_definetrial(cfg)
+%% Move from stim_table
+
+
+for e = 1:numel(event)
+    event(e).duration_from_table = stim_table.val_RT(e);
+end
+
+for e = 1:numel(event)
+    event(e).dur_diff = event(e).duration - event(e).duration_from_table;
+end
+%% Only take the image portion of each trial
 idx = [];
 for e = 1:numel(event)
   if ~isequal(event(e).label, 'img')
@@ -144,7 +214,7 @@ pre              = round(1 * hdr.Fs);
 post             = round(3 * hdr.Fs);
 cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre]; 
 % 1 seconds before and 3 seconds after trigger onset
-% cfg.trl(any(cfg.trl>hdr.nSamples,2),:) = []; % ensure presence of samples
+
 
 % Bring columns from stim table
 %cfg.trl.trialnumber = stim_table.trial_number

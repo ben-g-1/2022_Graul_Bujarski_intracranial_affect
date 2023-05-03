@@ -1,6 +1,6 @@
 %% Initial Stim Table Analysis
 
-subjectnum = '01';
+subjectnum = '02';
 sessionnum = '01';
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
 filedir = fullfile(projdir, 'files');
@@ -43,27 +43,41 @@ st = movevars(st, 'Valence_mean', 'Before', 'cue_observed_mean');
 % No directionality
 mean(abs(st.Valence_mean - st.val_rating))
 mean(st.Valence_mean - st.val_rating)
-st.valenceDiff = (st.val_rating - st.Valence_mean)
-st.valenceDiffIdx = abs(st.valenceDiff).*st.highcue_indx
-st.IdxMismatch = st.valenceDiff+st.valenceDiffIdx
-count(st.IdxMismatch == 0)
+st.valenceDiff = (st.val_rating - st.Valence_mean);
+st.valenceDiffIdx = abs(st.valenceDiff).*st.highcue_indx;
+st.IdxMismatch = st.valenceDiff+st.valenceDiffIdx;
 %% Cue and reported
 mean(abs(st.val_rating - st.cue_observed_mean))
 
 %% Cue and expected
 mean(abs(st.cue_observed_mean - st.exp_rating))
 
+%% Finding difference between rating pairs
+sth = st((st.highcue_indx > 0),:);
+stl = st((st.highcue_indx < 0),:);
+% Organize by pair number
+sth = sortrows(sth, 'Pair', 'ascend');
+stl = sortrows(stl,"Pair","ascend");
+
+sth.pairdiff = sth.val_rating - stl.val_rating;
+sth.expdiff = sth.exp_rating - stl.exp_rating;
+sth.cuediff = sth.cue_observed_mean - stl.cue_observed_mean;
+
 %% Vis?
-highrows = st.highcue_indx > 0 %& st.val_rating > 1 & st.val_rating < 7;
-% highrows = highrows.val_rating < 7 & highrows.val_rating > 1
-% highrows = highrows.val_rating > 1
-lowrows = st.highcue_indx < 0 %& st.val_rating > 1 & st.val_rating < 7;
-sth = st(highrows,:);
-stl = st(lowrows,:);
+
 % [h,p] = ttest2(stl.val_rating, sth.val_rating)
 % [h,p] = ttest2(sth.cue_observed_mean, stl.cue_observed_mean)%, 'Vartype','unequal')
 % [h,p] = ttest2(sth.Valence_mean, stl.Valence_mean, 'Vartype','unequal')
-[h,p] = ttest2(sth.cue_observed_mean, stl.cue_observed_mean)%, 'Vartype','unequal') %%% Significant
+% [h,p] = ttest2(sth.cue_observed_mean, stl.cue_observed_mean)%, 'Vartype','unequal') %%% Significant
+
+[h,p] = ttest2(sth.Valence_mean, sth.val_rating)
+[h,p] = ttest2(stl.Valence_mean, stl.val_rating)
+[h,p] = ttest2(sth.val_rating, sth.cue_observed_mean)
+[h,p] = ttest2(sth.val_rating, sth.cue_observed_mean)
+%%
+[h,p] = ttest2(sth.exp_rating, stl.exp_rating) %% SIGNIFICANT
+[h,p] = ttest2(sth.exp_rating, sth.val_rating)
+[h,p] = ttest2(stl.exp_rating, stl.val_rating)
 
 % 
 % mean(sth.Valence_mean - stl.Valence_mean)
@@ -74,38 +88,51 @@ stl = st(lowrows,:);
 %% Figure comparing ratings with high and low cue
 figure;
 subplot(2,2,1); hold on;
-plot(stim_table.cue_mean, stim_table.cue_observed_mean, 'ko'); refline; xlabel('cue mean'); ylabel('subject observed mean');
+plot(stim_table.cue_observed_mean, stim_table.cue_mean, 'ko'); refline; xlabel('subject observed mean'); ylabel('cue mean');
 refline; 
 wh_high = stim_table.highcue_indx > 0;
-plot(stim_table.cue_mean(wh_high), stim_table.cue_observed_mean(wh_high), 'ko', 'MarkerFaceColor', 'r'); 
+plot(stim_table.cue_observed_mean(wh_high), stim_table.cue_mean(wh_high), 'ko', 'MarkerFaceColor', 'r'); 
 wh_low = stim_table.highcue_indx < 0;
-plot(stim_table.cue_mean(wh_low), stim_table.cue_observed_mean(wh_low), 'ko', 'MarkerFaceColor', 'b'); 
-xlabel('cue mean'); ylabel('subject observed mean');
+plot(stim_table.cue_observed_mean(wh_low), stim_table.cue_mean(wh_low),  'ko', 'MarkerFaceColor', 'b'); 
+xlabel('subject observed mean'); ylabel('cue mean');
 
 subplot(2,2,2); hold on;
-plot(stim_table.cue_mean, stim_table.val_rating, 'ko'); refline; xlabel('cue normative mean'); ylabel('subject rated valence');
+plot(stim_table.val_rating, stim_table.cue_mean, 'ko'); refline; xlabel('subject rated valence'); ylabel('cue normative mean');
 refline;
-plot(stim_table.cue_mean(wh_high), stim_table.val_rating(wh_high), 'ko', 'MarkerFaceColor', 'r');
-plot(stim_table.cue_mean(wh_low), stim_table.val_rating(wh_low), 'ko', 'MarkerFaceColor', 'b'); 
+plot(stim_table.val_rating(wh_high), stim_table.cue_mean(wh_high), 'ko', 'MarkerFaceColor', 'r');
+plot(stim_table.val_rating(wh_low), stim_table.cue_mean(wh_low), 'ko', 'MarkerFaceColor', 'b'); 
 
 subplot(2,2,3); hold on;
-plot(stim_table.cue_observed_mean, stim_table.val_rating, 'ko'); refline; xlabel('cue observed mean'); ylabel('subject rated valence');
+plot(stim_table.val_rating, stim_table.cue_observed_mean,  'ko'); refline; xlabel('subject rated valence'); ylabel('cue observed mean');
 refline;
-plot(stim_table.cue_observed_mean(wh_high), stim_table.val_rating(wh_high), 'ko', 'MarkerFaceColor', 'r');
-plot(stim_table.cue_observed_mean(wh_low), stim_table.val_rating(wh_low), 'ko', 'MarkerFaceColor', 'b'); 
+plot(stim_table.val_rating(wh_high), stim_table.cue_observed_mean(wh_high),  'ko', 'MarkerFaceColor', 'r');
+plot(stim_table.val_rating(wh_low), stim_table.cue_observed_mean(wh_low), 'ko', 'MarkerFaceColor', 'b'); 
 % boxplot([stim_table.val_rating(wh_high), stim_table.val_rating(wh_low)], 'Notch', 'on', 'Labels', {'High Cue', 'Low Cue'}, 'Whisker', 1);
 % NOT WORKING % violinplot([stim_table.val_rating(wh_high), stim_table.val_rating(wh_low)], {'High Cue', 'Low Cue'}, 'ShowData', true);
 % ylabel('subject rated valence')
 
 subplot(2,2,4); hold on;
-% plot(stim_table.Pair, stim_table.val_rating, 'ko'); refline; xlabel('Pair Number'); ylabel('Subject Rated Valence');
+% plot(stim_table.Pair, stim_table.val_rating, 'ko'); refline; ;
 % refline;
-plot(stim_table.Pair(wh_high), (stim_table.val_rating(wh_high) - stim_table.cue_observed_mean(wh_high)), 'ko', 'MarkerFaceColor', 'r');
-plot(stim_table.Pair(wh_low), (stim_table.val_rating(wh_low) - stim_table.cue_observed_mean(wh_low)), 'ko', 'MarkerFaceColor', 'b');
-% plot(stim_table.Pair(wh_high), stim_table.Valence_mean_women(wh_high), 'ko', 'MarkerFaceColor', 'g')
-%%
-figure;
-plot(stim_table.Pair(wh_high), (stim_table.val_rating(wh_high) - stim_table.cue_observed_mean(wh_high)), 'ko', 'MarkerFaceColor', 'r'); hold on;
+xlabel('Subject Rated Valence'); ylabel('Pair Number')
+% plot(stim_table.Pair(wh_high), (stim_table.val_rating(wh_high) - stim_table.cue_observed_mean(wh_high)), 'ko', 'MarkerFaceColor', 'r');
+% plot(stim_table.Pair(wh_low), (stim_table.val_rating(wh_low) - stim_table.cue_observed_mean(wh_low)), 'ko', 'MarkerFaceColor', 'b');
+% plot(stim_table.Pair(wh_high), stim_table.Valence_mean(wh_high), 'ko', 'MarkerFaceColor', 'g')
 
-plot(stim_table.Pair(wh_low), (stim_table.val_rating(wh_low) - stim_table.cue_observed_mean(wh_low)), 'ko', 'MarkerFaceColor', 'b');
-plot(stim_table.Pair(wh_high), (stim_table.Valence_mean_women(wh_high) - stim_table.cue_observed_mean(wh_high)), 'ko', 'MarkerFaceColor', 'g')
+% figure;
+plot((stim_table.val_rating(wh_high)), stim_table.Pair(wh_high), 'ko', 'MarkerFaceColor', 'r'); hold on;
+
+plot((stim_table.val_rating(wh_low)), stim_table.Pair(wh_low), 'ko', 'MarkerFaceColor', 'b');
+% plot(((stim_table.Arousal_mean(wh_high) + stim_table.Arousal_mean(wh_low)) / 2), stim_table.Pair(wh_low), 'c*')
+%plot(stim_table.Pair(wh_high), (stim_table.Valence_mean_women(wh_high) - stim_table.cue_observed_mean(wh_high)), 'c*', 'MarkerFaceColor', 'g')
+
+%%
+figure; hold on;
+plot(stim_table.val_rating(wh_high), stim_table.Pair(wh_high), 'ko', 'MarkerFaceColor', 'r');
+% plot(stim_table.exp_rating(wh_high), stim_table.Pair(wh_high), 'ko', 'MarkerFaceColor', 'g');
+plot(stim_table.cue_observed_mean(wh_high), stim_table.Pair(wh_high), 'ko', 'MarkerFaceColor', 'g');
+plot(stim_table.Valence_mean(wh_high), stim_table.Pair(wh_high), 'c*')
+%%
+figure; hold on;
+plot(stim_table.val_rating(wh_low), stim_table.Pair(wh_low), 'ko', 'MarkerFaceColor', 'b');
+plot(stim_table.exp_rating(wh_low), stim_table.Pair(wh_low), 'ko', 'MarkerFaceColor', 'g');

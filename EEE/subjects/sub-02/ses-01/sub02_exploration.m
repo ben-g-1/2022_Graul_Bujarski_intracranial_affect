@@ -1,4 +1,26 @@
+%% Initial Stim Table Analysis
 
+subjectnum = '02';
+sessionnum = '01';
+projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
+filedir = fullfile(projdir, 'files');
+scriptdir = fullfile(projdir, 'scripts', 'EVRTask');
+subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);
+sesdir = fullfile(subjdir, ['ses-', num2str(sessionnum)]);
+funcdir = fullfile(scriptdir, 'functions');
+imagedir = fullfile(filedir, 'oasis_pairs');
+fname = 'stim_table.mat';
+fpath = fullfile(sesdir, fname);
+practice = fullfile(filedir, 'practice', 'practice_images.mat');
+practicedir = fullfile(filedir, 'practice');
+fpartialfill = fullfile(sesdir, 'stim_table_partial.mat');
+f_all = fullfile(sesdir, 'stim_table_full.mat');
+
+addpath(scriptdir);
+addpath(funcdir);
+addpath(genpath(subjdir));
+
+ load(f_all)
 
 %% Load iEEG Data
 
@@ -21,7 +43,9 @@ data           = ft_preprocessing(cfg);
 %% Downsample data to match other subject- maybe unnecessary?
 % cfg.resamplefs  = 1024;
 % data            = ft_resampledata(cfg,data);
-
+cfg.channel = []
+cfg.channel = ['DC3']
+ft_databrowser(cfg, data)
 %%
 
 % extrachan = {};
@@ -56,18 +80,40 @@ cfg.dataset      = eegfile;
 
 % trigger detection (appear to be 3-sec long)
 hdr              = ft_read_header(cfg.dataset);
-event            = ft_read_event(cfg.dataset, 'detectflank', 'both', 'threshold', 26500, 'chanindx', find(ismember(hdr.label, 'DC3')));
+event            = ft_read_event(cfg.dataset, 'detectflank', 'both', 'chanindx', find(ismember(hdr.label, 'DC2')));
 idx              = [];
-
+%%
 for e = 1:numel(event)
   if isequal(event(e).type, 'annotation')% | ~isequal(event(e).type, 'DC3_down')
     idx = [idx e]; % events to be tossed
   end
 end
-
+%%
 % Reverse engineer to find samples that aren't getting picked up
 % Correlate timing with theoretical photodiode signal (could do first)
 event(idx)       = [];
+%%
+% To corrolate with stim_table, should look at first image time
+% DC Down @ row 14 is start of first break. 311.6685 seconds
+event(1:13)    = [];
+% Last event is row 371. 1512.4340 seconds. 
+% Total time according to photodiode: 20.01 minutes
+%%
+% Stim table first time recorded: 
+st_init = stim_table.exp_init(1) - stim_table.imageJitter(1) - stim_table.fixJitter(1); % 791.2779
+% Final time
+st_end = stim_table.val_clickTime(64); %19470 e3
+
+st_runtime = (st_end - st_init)/60;
+% Total runtime according to stim_table: 19.26 minutes
+
+% Well.... shit.
+
+% Plan of attack:
+% Remove all events < 0.02 seconds? Maybe all the way up to 1 second...
+%   Does anything relevant happen in less than 1 second of a photodiode?
+% Rework labeling function to label viewing/rating periods and breaks
+% Then add a break of ~ 0.0088 seconds at 4.117
 %%
 
 for i = 1:length([event.sample])
@@ -78,7 +124,7 @@ for i = 1:length([event.sample])
 end
 %%
 t = 1;
-trial = 0;
+trial = 1;
 for i = 1:length([event.sample])
     event(i).trial = trial;
     if t == 1 || t == 5
@@ -106,13 +152,6 @@ for i = 1:length([event.sample])
         event(i).phase = t;
         t = 1;
         trial = trial + 1;
-    end
-    if i < 28 || i > length([event.sample])-3
-        event(i).label = [];
-        event(i).trial = 0;
-        event(i).phase = [];
-        trial = 1;
-        t = 1;
     end
 end
 %%
