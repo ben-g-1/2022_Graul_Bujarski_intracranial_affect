@@ -1,7 +1,7 @@
 function run_EEE_task(subjectnumber, sessionnumber, projdirectorypath, debug)
 % RunExpectationTask
 %function 
-% v1.1
+% v1.3
 % By Ben Graul
 % Adapted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
 
@@ -143,25 +143,35 @@ if DEBUG == false
 instructtext1 = ['Thank you for helping us with this test. \n\n\n\n ' ...
     'You will see a series of pictures. \n\n\n\n' ...
     'We are interested in how pleasant or unpleasant you find each picture.'];
-DrawFormattedText(p.ptb.window, instructtext1, 'center', 'center', 255);
-Screen('Flip', p.ptb.window)
-KbStrokeWait;
+buttons = 0;
+ while buttons == 0
+    DrawFormattedText(p.ptb.window, instructtext1, 'center', 'center', 255);
+    Screen('Flip', p.ptb.window)
+    [x,y,buttons] = GetMouse;
+ end
 
 instructtext2 = ['We will ask you to rate each picture on a scale from \n\n '...
     'extremely unpleasant to extremely pleasant.\n\n\n\n'];
-DrawFormattedText(p.ptb.window, instructtext2, 'center', p.ptb.screenYpixels*.15, 255);
-% Screen('Flip', p.ptb.window)
-draw_scale(p)
-Screen('Flip', p.ptb.window);
-KbStrokeWait;
+buttons = 0;
+ while buttons == 0
+    DrawFormattedText(p.ptb.window, instructtext2, 'center', p.ptb.screenYpixels*.15, 255);
+    draw_scale(p)
+    Screen('Flip', p.ptb.window);
+    [x,y,buttons] = GetMouse;
+ end
     
 instructtext3 = ['Each image has been rated by 10 other people. \n\n\n\n ' ...
     'Before you see the picture, you will see the ratings that other people gave each picture.'];
+buttons = 0;
+ while buttons == 0
 DrawFormattedText(p.ptb.window, instructtext3, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
-KbStrokeWait;
+    [x,y,buttons] = GetMouse;
+ end
 
 instructtext4 = ['Each line represents one rating that someone gave to the picture you will see next.'];
+buttons = 0;
+ while buttons == 0
 DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15, 255);
   % Convert expectation cue lines based on screen size
     cuemat = cell2mat(practice_images.image_cue_values(1));
@@ -177,28 +187,38 @@ DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15
     % draw white rectangle in bottom right corner of screen for external timing validation
 %     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
     Screen('Flip', p.ptb.window);
-KbStrokeWait;
+    [x,y,buttons] = GetMouse;
+ end
 
 
 instructtext5 = ['After seeing what others rated the picture, we will ask you how pleasant or unpleasant you expect \n\n' ...
     'the next picture to be. \n\n\n\n\n' ...
     'We will now practice making a rating. Press any key to begin.'];
+buttons = 0;
+ while buttons == 0
 DrawFormattedText(p.ptb.window, instructtext5, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
-KbStrokeWait;
+    [x,y,buttons] = GetMouse;
+ end
 
 practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating. \n\n\n\n\n' ...
     'Press any key to continue.'];
+buttons = 0;
+ while buttons == 0
 DrawFormattedText(p.ptb.window, practtext1, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
-KbStrokeWait;
+    [x,y,buttons] = GetMouse;
+ end
 record_rating(30,p,'Practice Rating')
 
 instructtext6 = ['After you rate how pleasant or unpleasant you expect the picture to be, you will see the picture.' ...
     '\n\n\n\n\n\n\n We will now practice the whole process.'];
+buttons = 0;
+ while buttons == 0
 DrawFormattedText(p.ptb.window, instructtext6, 'center', 'center', 255);
 Screen('Flip', p.ptb.window);
-KbStrokeWait;
+    [x,y,buttons] = GetMouse;
+ end
 
 for practice = 1:2
     % Convert expectation cue lines based on screen size
@@ -248,23 +268,26 @@ Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.whi
     WaitSecs(imageJitter);
     
     % Show empty scale and record rating
-    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Valence');
+    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating_norect(50,p,'Valence');
     Screen('Flip', p.ptb.window);
 
 end
 
 practtext2 = 'Do you have any questions?';
+buttons = 0;
+ while buttons == 0
 DrawFormattedText(p.ptb.window, practtext2, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
-KbStrokeWait;
+    [x,y,buttons] = GetMouse;
+ end
 end % tutorial skip for DEBUG == true 
 
 practtext3 = 'Please click the mouse to begin.';
 buttons = 0;
  while buttons == 0
-     DrawFormattedText(p.ptb.window, practtext3, 'center', 'center', 255);
+    DrawFormattedText(p.ptb.window, practtext3, 'center', 'center', 255);
     Screen('Flip', p.ptb.window);
-        [x,y,buttons] = GetMouse;
+    [x,y,buttons] = GetMouse;
  end
 
 breaktext = 'You may take a break here. Please click when you are ready to continue.';
@@ -306,9 +329,15 @@ for trial = 1:nrow
     
     WaitSecs(imageJitter);
    
-    % ADDED 5/8/23, AFTER PTs 1,2
+    % ADDED 5/10/23 AFTER PTs 1,2,3
+    % Shows black screen, but PTB was angry about just doing an empty flip
+    % Required to ensure photodiode had enough time to reset with black
+    % screen.
+    Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
+    
     Screen('Flip', p.ptb.window);
-    WaitSecs(p.ptb.ifi * 20)
+    WaitSecs(.08);
+    % END /ADDED
 
     % Show empty scale and record rating 
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Expectation');
@@ -339,9 +368,11 @@ for trial = 1:nrow
     
     WaitSecs(imageJitter);
     
-    % ADDED 5/8/23, AFTER PTs 1,2
+    % ADDED 5/10/23, AFTER PTs 1,2,3
+    Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
     Screen('Flip', p.ptb.window);
-    WaitSecs(p.ptb.ifi * 20)
+    WaitSecs(.08);
+    % END /ADDED
 
     % Show empty scale and record rating
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Valence');
