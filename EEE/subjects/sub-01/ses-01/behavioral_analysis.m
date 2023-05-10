@@ -1,6 +1,6 @@
 %% Initial Stim Table Analysis
 
-subjectnum = '02';
+subjectnum = '01';
 sessionnum = '01';
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
 filedir = fullfile(projdir, 'files');
@@ -22,6 +22,9 @@ addpath(genpath(subjdir));
 
 %%
  load(f_all)
+
+% Comparison points to look at:
+
 % Expectation and rating
 % Cue mean and rating
 % Normative rating and rating
@@ -53,6 +56,7 @@ mean(abs(st.val_rating - st.cue_observed_mean))
 mean(abs(st.cue_observed_mean - st.exp_rating))
 
 %% Finding difference between rating pairs
+
 sth = st((st.highcue_indx > 0),:);
 stl = st((st.highcue_indx < 0),:);
 % Organize by pair number
@@ -86,13 +90,14 @@ sth.cuediff = sth.cue_observed_mean - stl.cue_observed_mean;
 [h,p] = ttest2(st.Valence_mean, st.val_rating, 'Vartype', 'unequal')
 
 %% Figure comparing ratings with high and low cue
+wh_low = stim_table.highcue_indx < 0;
+wh_high = stim_table.highcue_indx > 0;
+
 figure;
 subplot(2,2,1); hold on;
 plot(stim_table.cue_observed_mean, stim_table.cue_mean, 'ko'); refline; xlabel('subject observed mean'); ylabel('cue mean');
 refline; 
-wh_high = stim_table.highcue_indx > 0;
 plot(stim_table.cue_observed_mean(wh_high), stim_table.cue_mean(wh_high), 'ko', 'MarkerFaceColor', 'r'); 
-wh_low = stim_table.highcue_indx < 0;
 plot(stim_table.cue_observed_mean(wh_low), stim_table.cue_mean(wh_low),  'ko', 'MarkerFaceColor', 'b'); 
 xlabel('subject observed mean'); ylabel('cue mean');
 
@@ -112,6 +117,10 @@ plot(stim_table.val_rating(wh_low), stim_table.cue_observed_mean(wh_low), 'ko', 
 % ylabel('subject rated valence')
 
 subplot(2,2,4); hold on;
+% Ideally want this one to quickly show difference in rating per pair.
+%   Should it be normalized? 
+%   Should the middle point be the mean normative valence OASIS pics?
+
 % plot(stim_table.Pair, stim_table.val_rating, 'ko'); refline; ;
 % refline;
 xlabel('Subject Rated Valence'); ylabel('Pair Number')

@@ -7,9 +7,11 @@
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
 % subjectnum and sessionnum needs to be only numbers
 
-subjectnum = '02';
+clear all
+subjectnum = '03';
 sessionnum = '01';
-DEBUG = false;
+DEBUG = true;
+
 
 %%% Input Path ID 
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
@@ -122,7 +124,8 @@ p.unpleasant = 'Extremely Unpleasant';
 p.neutral = 'Neutral';
 
 % if DEBUG == true
-%     KbStrokeWait;
+% %     KbStrokeWait;
+%     
 %     sca;
 % end
 
@@ -305,6 +308,9 @@ for trial = 1:nrow
     
     WaitSecs(imageJitter);
    
+    % ADDED 5/8/23, AFTER PTs 1,2
+    Screen('Flip', p.ptb.window);
+    WaitSecs(p.ptb.ifi * 20)
 
     % Show empty scale and record rating 
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Expectation');
@@ -335,6 +341,9 @@ for trial = 1:nrow
     
     WaitSecs(imageJitter);
     
+    % ADDED 5/8/23, AFTER PTs 1,2
+    Screen('Flip', p.ptb.window);
+    WaitSecs(p.ptb.ifi * 20)
 
     % Show empty scale and record rating
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Valence');

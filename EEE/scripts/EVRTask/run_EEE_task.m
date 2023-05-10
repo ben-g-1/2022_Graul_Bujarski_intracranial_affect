@@ -88,8 +88,8 @@ Screen('TextFont', p.ptb.window, 'Arial');
 % Wide Monitor
 % Screen('TextSize', p.ptb.window, 96);
 
-% Laptop
-Screen('TextSize', p.ptb.window, 72);
+% Cart Laptop
+Screen('TextSize', p.ptb.window, 48);
 
 [p.ptb.xCenter, p.ptb.yCenter] = RectCenter(p.ptb.rect);
 p.fix.sizePix                  = 40; % size of the arms of our fixation cross
@@ -306,6 +306,9 @@ for trial = 1:nrow
     
     WaitSecs(imageJitter);
    
+    % ADDED 5/8/23, AFTER PTs 1,2
+    Screen('Flip', p.ptb.window);
+    WaitSecs(p.ptb.ifi * 20)
 
     % Show empty scale and record rating 
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Expectation');
@@ -336,6 +339,9 @@ for trial = 1:nrow
     
     WaitSecs(imageJitter);
     
+    % ADDED 5/8/23, AFTER PTs 1,2
+    Screen('Flip', p.ptb.window);
+    WaitSecs(p.ptb.ifi * 20)
 
     % Show empty scale and record rating
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Valence');
@@ -356,7 +362,7 @@ for trial = 1:nrow
     % Check if break is needed
     loopcount = loopcount + 1;
     buttons = 0;
-    if loopcount == perblock 
+    if loopcount == perblock
         while buttons == 0
         loopcount = 0;
         DrawFormattedText(p.ptb.window,breaktext,'center', 'center', 255);

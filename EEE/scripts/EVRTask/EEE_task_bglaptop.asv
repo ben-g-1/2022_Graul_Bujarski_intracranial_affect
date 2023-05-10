@@ -2,14 +2,16 @@
 % RunExpectationTask
 %function 
 % v1.1
-% Ad        apted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
+% Adapted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
 
 % function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
 % subjectnum and sessionnum needs to be only numbers
 
-subjectnum = '02';
+clear all
+subjectnum = '03';
 sessionnum = '01';
-DEBUG = false;
+DEBUG = true;
+
 
 %%% Input Path ID 
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
@@ -138,7 +140,7 @@ HideCursor;
 
 %% INSTRUCTIONS %% 
 % Text strings and images per block
-
+if DEBUG == false
 instructtext1 = ['Thank you for helping us with this test. \n\n\n\n ' ...
     'You will see a series of pictures. \n\n\n\n' ...
     'We are interested in how pleasant or unpleasant you find each picture.'];
@@ -256,6 +258,7 @@ practtext2 = 'Do you have any questions?';
 DrawFormattedText(p.ptb.window, practtext2, 'center', 'center', 255);
 Screen('Flip', p.ptb.window)
 KbStrokeWait;
+end % tutorial skip for DEBUG == true 
 
 practtext3 = 'Please click the mouse to begin.';
 buttons = 0;
@@ -304,6 +307,9 @@ for trial = 1:nrow
     
     WaitSecs(imageJitter);
    
+    % ADDED 5/8/23, AFTER PTs 1,2
+    Screen('Flip', p.ptb.window);
+    WaitSecs(p.ptb.ifi * 10)
 
     % Show empty scale and record rating 
     [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Expectation');
