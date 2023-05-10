@@ -84,7 +84,7 @@ event(idx)       = [];
 
 
 for i = 1:length([event.sample])
-    event(i).timestamp = event(i).sample / 512;
+    event(i).timestamp = event(i).sample / hdr.Fs;
     if i < length([event.sample])
         event(i).duration = event(i+1).timestamp - event(i).timestamp;
     end
@@ -94,14 +94,10 @@ t = 1;
 trial = 0;
 for i = 1:length([event.sample])
     event(i).trial = trial;
-    if t == 1
-        event(i).label = 'break_a';
+    if t == 1 || t == 5
+        event(i).label = 'break';
         event(i).phase = t;
         t = t + 1;
-    elseif t == 5
-        event(i).label = 'break_b';
-        event(i).phase = t;
-        t = t + 1;        
     elseif t == 2
         event(i).label = 'exp';
         event(i).phase = t;
@@ -135,7 +131,7 @@ end
 %%
 idx = [];
 for e = 1:numel(event)
-  if ~isequal(event(e).label, 'break_a')
+  if ~isequal(event(e).label, 'img')
 %   if event(e).trial == 0
     idx = [idx e]; % events to be tossed
   end
@@ -146,7 +142,7 @@ imgs            = [event.sample]';
 
 % trial definition
 pre              = round(1 * hdr.Fs);
-post             = round(2 * hdr.Fs);
+post             = round(3 * hdr.Fs);
 cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre]; 
 % 1 seconds before and 3 seconds after trigger onset
 % cfg.trl(any(cfg.trl>hdr.nSamples,2),:) = []; % ensure presence of samples
@@ -203,8 +199,7 @@ cfg.parameter = 'powspctrm';
 cfg.baselinetype = 'relchange';
 cfg.zlim = [-1 3];
 
-for c = 1:5
-% for c = 1:numel(reref.label)
+for c = 1:numel(reref.label)
     cfg.channel = reref.label{c};
 % cfg.channel = reref.label{story(c)}; % top figure
     % freq             - ft_freqbaseline(cfg,freq)
@@ -223,45 +218,45 @@ end
 % Huge RTA gamma spike at 1.6 seconds. Early gamma activity in RTA1-2
 % Possible seizure during image trial 62, timestamp ~1584
 % story = [5 10 25 36 49 59 70 71 80 82 97 115 124 122];
-% %%
-% cfg.channel = reref.label{103}; % top figure
-% % freq             - ft_freqbaseline(cfg,freq)
-% figure; ft_singleplotTFR(cfg, freq);
-% 
-% %%  Frequency analysis from https://www.fieldtriptoolbox.org/workshop/madrid2019/tutorial_freq/
-% 
-% cfg1 = [];
-% cfg1.length = 1;
-% cfg1.overlap = 0;
-% base_rpt1 = ft_redefinetrial(cfg1, reref);
-% 
-% cfg1.length = 2;
-% base_rpt2 = ft_redefinetrial(cfg1, reref);
-% 
-% cfg1.length = 4;
-% base_rpt4 = ft_redefinetrial(cfg1, reref);
-% %%
-% cfg2 = [];
-% cfg2.output  = 'pow';
-% cfg2.channel = 'all';
-% cfg2.method  = 'mtmfft';
-% cfg2.taper   = 'boxcar';
-% cfg2.foi     = 0.5:1:45; % 1/cfg1.length  = 1;
-% base_freq1   = ft_freqanalysis(cfg2, base_rpt1);
-% 
-% cfg2.foi     = 0.5:0.5:45; % 1/cfg1.length  = 2;
-% base_freq2   = ft_freqanalysis(cfg2, base_rpt2);
-% 
-% cfg2.foi     = 0.5:0.25:45; % 1/cfg1.length  = 4;
-% base_freq4   = ft_freqanalysis(cfg2, base_rpt4);
-% 
-% %%
-% 
-% figure;
-% hold on;
-% plot(base_freq1.freq, base_freq1.powspctrm(4,:))
-% plot(base_freq2.freq, base_freq2.powspctrm(4,:))
-% plot(base_freq4.freq, base_freq4.powspctrm(4,:))
-% legend('1 sec window','2 sec window','4 sec window')
-% xlabel('Frequency (Hz)');
-% ylabel('absolute power (uV^2)');
+%%
+cfg.channel = reref.label{103}; % top figure
+% freq             - ft_freqbaseline(cfg,freq)
+figure; ft_singleplotTFR(cfg, freq);
+
+%%  Frequency analysis from https://www.fieldtriptoolbox.org/workshop/madrid2019/tutorial_freq/
+
+cfg1 = [];
+cfg1.length = 1;
+cfg1.overlap = 0;
+base_rpt1 = ft_redefinetrial(cfg1, reref);
+
+cfg1.length = 2;
+base_rpt2 = ft_redefinetrial(cfg1, reref);
+
+cfg1.length = 4;
+base_rpt4 = ft_redefinetrial(cfg1, reref);
+%%
+cfg2 = [];
+cfg2.output  = 'pow';
+cfg2.channel = 'all';
+cfg2.method  = 'mtmfft';
+cfg2.taper   = 'boxcar';
+cfg2.foi     = 0.5:1:45; % 1/cfg1.length  = 1;
+base_freq1   = ft_freqanalysis(cfg2, base_rpt1);
+
+cfg2.foi     = 0.5:0.5:45; % 1/cfg1.length  = 2;
+base_freq2   = ft_freqanalysis(cfg2, base_rpt2);
+
+cfg2.foi     = 0.5:0.25:45; % 1/cfg1.length  = 4;
+base_freq4   = ft_freqanalysis(cfg2, base_rpt4);
+
+%%
+
+figure;
+hold on;
+plot(base_freq1.freq, base_freq1.powspctrm(4,:))
+plot(base_freq2.freq, base_freq2.powspctrm(4,:))
+plot(base_freq4.freq, base_freq4.powspctrm(4,:))
+legend('1 sec window','2 sec window','4 sec window')
+xlabel('Frequency (Hz)');
+ylabel('absolute power (uV^2)');

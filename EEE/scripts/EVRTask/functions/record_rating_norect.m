@@ -1,4 +1,4 @@
-function [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(duration, p, rating_type)
+function [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating_norect(duration, p, rating_type)
 % global screenNumber window windowRect xCenter yCenter screenXpixels screenYpixels
 % shows a linear rating scale and records mouse position
 %
