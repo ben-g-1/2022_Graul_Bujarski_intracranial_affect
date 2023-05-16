@@ -1,6 +1,8 @@
-rand_settings = "rand1_sd6_high";
+rand_settings = "rand4_sd7";
 high_low = "high";
-cuesd = 0.6;
+cuesd = 0.7;
+randomize = true;
+
 clf
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
 basedir = 'C:\Users\bgrau\GitHub\ieeg_affect';
@@ -34,86 +36,88 @@ fname = fullfile(filedir, 'pair_matrix.xlsx');
 % end
 fwritename = fullfile(rand_path,'stim_table.mat');
 
-% %% Preliminary identification of pairs
-% pairtable = readtable(fname);
-% 
-% 
-% 
-% 
-% first_indx = pairtable.Half == 1;
-% second_indx = pairtable.Half == 2;
-% 
-% n1 = sum(first_indx); 
-% n2 = sum(second_indx); 
-% 
-% if n1 ~= n2, error('WRONG INPUT: unpaired stimuli'), end
-% npairs = n1;
-% clear n1 n2
-% 
-% % These are indices for paired images, and will match in order (e.g., 1 in
-% % each for pair 1, 2 in each for pair 2, etc., as long as the pairs are next to one another in the original list
-% 
-% wh_first = find(first_indx);
-% wh_second = find(second_indx);
-% 
-% unsorted_pairs_wh = [wh_first wh_second];
-% 
-% %% Assign one member of each pair to be high and low cue at random
-% 
-% unsorted_highlow = [ones(npairs ./ 2, 1); 2*ones(npairs ./ 2, 1)];
-% 
-% wh_rand = randperm(npairs);
-% 
-% sorted_highlow = unsorted_highlow(wh_rand);
-% 
-% % Turn this into a list of -1 for low and 1 for high, in the order of the original images 
-% % -----------------------------------------------------------------------
-% % Find the indices of images that are high cues.  
-% % Take the first image for sorted_highlow==1, and the second image for sorted_highlow==2
-% wh_highcue = [unsorted_pairs_wh(sorted_highlow == 1, 1) unsorted_pairs_wh(sorted_highlow == 2, 2)];
-% wh_highcue = wh_highcue(:); % vectorize; order doesn't matter
-% 
-% % Turn them into a vector f ones for high cues
-% highcue_indx = zeros(2*npairs, 1);
-% highcue_indx(wh_highcue) = 1;
-% 
-% highcue_indx(highcue_indx == 0) = -1; % all the rest are -1, low cues.
-% % Could check this code by creating wh_lowcue just as above, and should be
-% % mutually exclusive with high cues. and check match as you re-randomize
-% 
-% % add this to the table
-% pairtable.highcue_indx = highcue_indx;
-% 
-% %% Now sort the table rows randomly
-% % stratifying one member of each pair into first and 2nd half, so the
-% % paired images don't occur next to one another
-% 
-% wh_rand1 = randperm(npairs);
-% wh_rand2 = npairs + randperm(npairs);  % 2nd half
-% 
-% trial_order = zeros(size(first_indx)); % initalize
-% 
-% trial_order(first_indx) = wh_rand1;  % random order within first half
-% 
-% trial_order(second_indx) = wh_rand2;  % random order within first half
-% 
-% % Note: if there are any zeros, this is a coding error
-% 
-% pairtable.trial_number = trial_order;
-% 
-% 
-% % now sort rows
-% stim_table = sortrows(pairtable, 'trial_number');
+%% Preliminary identification of pairs
+if randomize == true
+pairtable = readtable(fname);
 
+
+
+
+first_indx = pairtable.Half == 1;
+second_indx = pairtable.Half == 2;
+
+n1 = sum(first_indx); 
+n2 = sum(second_indx); 
+
+if n1 ~= n2, error('WRONG INPUT: unpaired stimuli'), end
+npairs = n1;
+clear n1 n2
+
+% These are indices for paired images, and will match in order (e.g., 1 in
+% each for pair 1, 2 in each for pair 2, etc., as long as the pairs are next to one another in the original list
+
+wh_first = find(first_indx);
+wh_second = find(second_indx);
+
+unsorted_pairs_wh = [wh_first wh_second];
+
+%% Assign one member of each pair to be high and low cue at random
+
+unsorted_highlow = [ones(npairs ./ 2, 1); 2*ones(npairs ./ 2, 1)];
+
+wh_rand = randperm(npairs);
+
+sorted_highlow = unsorted_highlow(wh_rand);
+
+% Turn this into a list of -1 for low and 1 for high, in the order of the original images 
+% -----------------------------------------------------------------------
+% Find the indices of images that are high cues.  
+% Take the first image for sorted_highlow==1, and the second image for sorted_highlow==2
+wh_highcue = [unsorted_pairs_wh(sorted_highlow == 1, 1) unsorted_pairs_wh(sorted_highlow == 2, 2)];
+wh_highcue = wh_highcue(:); % vectorize; order doesn't matter
+
+% Turn them into a vector f ones for high cues
+highcue_indx = zeros(2*npairs, 1);
+highcue_indx(wh_highcue) = 1;
+
+highcue_indx(highcue_indx == 0) = -1; % all the rest are -1, low cues.
+% Could check this code by creating wh_lowcue just as above, and should be
+% mutually exclusive with high cues. and check match as you re-randomize
+
+% add this to the table
+pairtable.highcue_indx = highcue_indx;
+
+%% Now sort the table rows randomly
+% stratifying one member of each pair into first and 2nd half, so the
+% paired images don't occur next to one another
+
+wh_rand1 = randperm(npairs);
+wh_rand2 = npairs + randperm(npairs);  % 2nd half
+
+trial_order = zeros(size(first_indx)); % initalize
+
+trial_order(first_indx) = wh_rand1;  % random order within first half
+
+trial_order(second_indx) = wh_rand2;  % random order within first half
+
+% Note: if there are any zeros, this is a coding error
+
+pairtable.trial_number = trial_order;
+
+
+% now sort rows
+stim_table = sortrows(pairtable, 'trial_number');
+end %randomization
 %% Calculate cue means and add to table
 
-mean_shift = 1;  % value by which to shift up or down, in units of original 7-point scale used in Valence_mean
+mean_shift = .8;  % value by which to shift up or down, in units of original 7-point scale used in Valence_mean
 
 %%%
 if high_low == "high"
     stim_table.cue_mean = stim_table.Valence_mean + mean_shift .* stim_table.highcue_indx;
 elseif high_low == "low"
-    stim_table.cue_mean = stim_table.Valence_mean - mean_shift .* stim_table.highcue_indx;
+    stim_table.highcue_indx = stim_table.highcue_indx .* -1;
+    stim_table.cue_mean = stim_table.Valence_mean + mean_shift .* stim_table.highcue_indx;
 else
     warning('Set the high_low variable')
 end
@@ -183,8 +187,8 @@ if bad_table_flag, error('Some cue_observed_mean values out of range');
     errorcount = errorcount + 1
  end
 
-bad_table_flag = any(stim_table.cue_observed_std  < 0.4);
-if bad_table_flag, warning('Some cues have very low std, < 0.4');
+bad_table_flag = any(stim_table.cue_observed_std  < 0.3);
+if bad_table_flag, warning('Some cues have very low std, < 0.3');
     errorcount = errorcount + 1;
  end
 
@@ -282,6 +286,42 @@ set(gcf,'Units','pixels','Position', [200 200 800 250]);  %# Modify figure size
 %     saveas(gcf, append([rand_dir, num2str(k), rand_settings, "_stats_vis.jpg" ]))
     saveas(gcf, append(rand_path, filesep, filename));
 
-save(fwritename, 'stim_table')
+clf
 %end % function
 
+%% Move around existing table for necessary values
+stim_table = sortrows(stim_table,"Pair","ascend");
+stim_table.Properties.VariableNames(1) = "image_order_1";
+
+stim_table.cue_order_1b = zeros(64, 1);
+for n = 1:64
+    if mod(n,2) == 1
+        stim_table.cue_order_1b(n) = stim_table.image_order_1(n + 1);
+    else
+        stim_table.cue_order_1b(n) = stim_table.image_order_1(n - 1);
+    end
+end
+
+stim_table = sortrows(stim_table,"Half","ascend");
+stim_table.image_order_2 = zeros(64, 1);
+half_1 = (randperm(32) + 32)';
+half_2 = randperm(32)';
+stim_table.image_order_2 = [half_2; half_1];
+stim_table = sortrows(stim_table,"Pair","ascend");
+stim_table.cue_order_2b = zeros(64, 1);
+
+for n = 1:64
+    if mod(n,2) == 1
+        stim_table.cue_order_2b(n) = stim_table.image_order_2(n + 1);
+    else
+        stim_table.cue_order_2b(n) = stim_table.image_order_2(n - 1);
+    end
+end
+
+
+stim_table = movevars(stim_table, 'cue_order_1b', 'After', 'image_order_1');
+stim_table = movevars(stim_table, 'image_order_2', 'After', 'cue_order_1b');
+stim_table = movevars(stim_table, 'cue_order_2b', 'After', 'image_order_2');
+stim_table = sortrows(stim_table,"image_order_1","ascend");
+
+save(fwritename, 'stim_table')

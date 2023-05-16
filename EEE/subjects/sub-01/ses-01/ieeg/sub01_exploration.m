@@ -36,6 +36,10 @@ cfg            = [];
 cfg.dataset    = eegfile;
 cfg.continuous = 'yes';
 cfg.channel    = 'all';
+cfg.hpfilter = 'yes';
+cfg.hpfreq   = 1;
+cfg.lofilter = 'yes';
+cfg.lpfreq = 200;
 
 % Initial data variable with all channels
 data           = ft_preprocessing(cfg);
@@ -172,7 +176,7 @@ col_names = fieldnames(stim_table);
 % Compare valence rating reaction times between stim_table and photodiode
 idx = [];
 for e = 1:numel(event)
-  if ~isequal(event(e).label, 'img_rate')
+  if ~isequal(event(e).label, 'img')
 %   if event(e).trial == 0
     idx = [idx e]; % events to be tossed
   end
@@ -223,7 +227,7 @@ cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre];
 cfg.demean         = 'yes';
 cfg.baselinewindow = 'all';
 cfg.lpfilter       = 'yes';
-cfg.lpfreq         = 200;
+cfg.lpfreq         = 80;
 % cfg.padding        = .5;
 % cfg.padtype        = 'data';
 cfg.bsfilter       = 'yes';
@@ -248,9 +252,9 @@ end
 %%
 cfg = [];
 reref = ft_appenddata(cfg,reref_depths{:});
-%%
-% ft_databrowser(cfg, data);
 
+ft_databrowser(cfg, reref);
+%%
 cfg              = [];
 cfg.method       = 'mtmconvol';
 cfg.toi          = -.4:.1:2.4;

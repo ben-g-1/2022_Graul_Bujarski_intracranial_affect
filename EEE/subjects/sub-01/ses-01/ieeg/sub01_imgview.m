@@ -49,6 +49,9 @@ for i = 123:128
     rowcnt = rowcnt + 1;
 end
 % 
+% Find bad channels
+badchan = {'-LTHA6', '-RPAG7', '-RPAG11', '-RFC5','-LTA5', '-RPAG8', '-RPRS13', '-LTA8', '-RPAG3', '-RTF2','-LTHA1', '-LTHA2', '-RTF4', '-RPRS15', '-LTA2'};
+
 rowcnt = 1;
 emptychan = {};
 for i = 182:256
@@ -60,9 +63,9 @@ for i = 182:256
 end
 eegchan          = strcat('-', ft_channelselection({'eeg'}, data.label));
 cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
-    '-OSAT', '-*DC*', eegchan{:}, emptychan{:}, extrachan{:}}, data.label);
+    '-OSAT', '-*DC*', eegchan{:},badchan{:}, emptychan{:}, extrachan{:}}, data.label);
 
-% Find bad channels
+
 % ft_databrowser(cfg,data)
 % LTHA11/12, RFC4-6,
 % iEEG Channels
