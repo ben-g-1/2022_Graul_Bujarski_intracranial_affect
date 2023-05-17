@@ -28,7 +28,7 @@ addpath(genpath(subjdir));
 subjdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE\subjects\sub-01';
 sesdir = fullfile(subjdir, 'ses-01', 'ieeg');
 
-eegfile = fullfile(sesdir, 'EEEPT#1.EDF');
+eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
 %%
 % Find and label unneeded channels
@@ -36,10 +36,10 @@ cfg            = [];
 cfg.dataset    = eegfile;
 cfg.continuous = 'yes';
 cfg.channel    = 'all';
-cfg.hpfilter = 'yes';
-cfg.hpfreq   = 1;
-cfg.lofilter = 'yes';
-cfg.lpfreq = 200;
+% cfg.hpfilter = 'yes';
+% cfg.hpfreq   = 1;
+% cfg.lofilter = 'yes';
+% cfg.lpfreq = 200;
 
 % Initial data variable with all channels
 data           = ft_preprocessing(cfg);

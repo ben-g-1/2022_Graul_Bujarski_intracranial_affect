@@ -28,7 +28,7 @@ addpath(genpath(subjdir));
 subjdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE\subjects\sub-02';
 sesdir = fullfile(subjdir, 'ses-01', 'ieeg');
 
-eegfile = fullfile(sesdir, 'EEEPT#2.EDF');
+eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
 % Find and label unneeded channels
 cfg            = [];
@@ -46,6 +46,12 @@ data           = ft_preprocessing(cfg);
 cfg.channel = []
 cfg.channel = ['DC3']
 ft_databrowser(cfg, data)
+%%%%%%
+% NOTES
+% Trigger Channel: DC4
+% First Cue at 793 seconds
+% Last Rating at 1830 seconds
+% Photodiode ON is DOWN
 %%
 
 % extrachan = {};

@@ -60,14 +60,15 @@ nrow = size(stim_table, 1);
 %% Initialize PsychToolbox defaults %%
 global p;
 %%% Remove or comment when working on hospital laptop
-% if getenv('USERNAME') == 'bgrau'
-
+if getenv('USERNAME') ~= 'ztlee'
+  Screen('Preference', 'SkipSyncTests', 1);
+end
 % else 
 %     disp('PsychToolbox probably won`t work correctly. Change the SyncTests setting.')
 %     return
 % end
 
-Screen('Preference', 'SkipSyncTests', 1);
+% Screen('Preference', 'SkipSyncTests', 1);
 PsychDefaultSetup(2);
 screens                        = Screen('Screens'); % Get the screen numbers
 p.ptb.screenNumber             = max(screens); % Draw to the external screen if avaliable

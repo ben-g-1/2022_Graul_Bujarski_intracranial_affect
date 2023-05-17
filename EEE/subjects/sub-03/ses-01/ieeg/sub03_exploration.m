@@ -28,7 +28,7 @@ addpath(genpath(subjdir));
 subjdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE\subjects\sub-03';
 sesdir = fullfile(subjdir, 'ses-01', 'ieeg');
 
-eegfile = fullfile(sesdir, 'EEE_3_09May23.EDF');
+eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
 %%
 % Find and label unneeded channels
