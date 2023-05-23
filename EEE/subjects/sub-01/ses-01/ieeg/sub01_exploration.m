@@ -45,7 +45,7 @@ cfg.channel    = 'all';
 data           = ft_preprocessing(cfg);
 
 %%
-ft_databrowser(cfg,data)
+% ft_databrowser(cfg,data)
 
 %%
 extrachan = {};
