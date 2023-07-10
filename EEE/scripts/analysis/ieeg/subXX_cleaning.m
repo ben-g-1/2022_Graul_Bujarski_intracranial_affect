@@ -1,10 +1,10 @@
 %% Initial Stim Table Analysis
 
-subjectnum = '03';
-sessionnum = '01';
+subjectnum = '0X';
+sessionnum = '0X';
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
 filedir = fullfile(projdir, 'files');
-scriptdir = fullfile(projdir, 'scripts', 'EEE_task');
+scriptdir = fullfile(projdir, 'scripts', 'EVRTask');
 subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);
 sesdir = fullfile(subjdir, ['ses-', num2str(sessionnum)]);
 funcdir = fullfile(scriptdir, 'functions');
@@ -27,120 +27,87 @@ addpath(genpath(subjdir));
 
 eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
+% Find and label unneeded channels
 cfg            = [];
 cfg.dataset    = eegfile;
 cfg.continuous = 'yes';
-hdr              = ft_read_header(cfg.dataset);
-cfg.channel    = 'all'; %% For first pass
+cfg.channel    = 'all';
 
-% data           = ft_preprocessing(cfg);
-
-% INPUT INITIAL BAD CHANNELS HERE
-% Exclusion criteria:
-%   Empty
-% '-PR', '-Pleth', '-TRIG', '-OSAT'
-% '-C*',
-
-% triggerchan = 4; %% Change per subject %%
-% DCs = {};
-% c = 1;
-% for d = 1:16
-%     if d == triggerchan
-%         continue
-%     end
-%     chan = strcat('-DC', string(d));
-%     chan = convertStringsToChars(chan); 
-%     DCs{c} = chan;
-%     c = c + 1;
-% end
-
-rowcnt = 1;
-emptychan = {};
-for i = 182:256
-    i_str = string(i);
-    chan = strcat('-C', i_str);
-    chan = convertStringsToChars(chan);
-    emptychan{rowcnt} = chan;
-    rowcnt = rowcnt + 1;
-end
-% Index = find(startsWith(data.label,'C'));
-
-%   Scalp EEG
-eegchan          = strcat('-', ft_channelselection({'eeg'}, hdr.label));
+data           = ft_preprocessing(cfg);
 
 
-cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
-    '-OSAT', '-*DC*' eegchan{:}, emptychan{:}}, hdr.label);
 %%
-
-
-
-
-% %%
-% ft_databrowser(cfg,data)
-% 
-% %% Find bad channels
-% 
-% % Major Drift ['-LTHA6', '-RPAG7', '-RPAG11', '-RFC5', ]
-% % LTHA6 is really consistent in strong deviation. Maybe look to see if
-% % sinal pattern emerges correlated to any task moment?
-% 
-% % LTHA11/12, RFC4-6,
-% 
-% % Minor Drift ['-LTA5', '-RPAG8', '-RPRS13', '-LTA8', '-RPAG3', '-RTF2']
-% % Major Spike ['-LTHA1', '-LTHA2', '-RTF4', '-RPRS15', '-LTA2',   
-% % Scalp EEG 163:181
-% % NOTE THAT FIELDTRIP HAS FUNCTIONALITY TO REMOVE THIS WITH 'eeg' FLAG BELOW
-% % scalpchan = {'FP1','F7','T3','T5','O1','F3','C3','P3','FP2','F8','T4','T6','O2','F4','C4','P4','Fz','Cz','Pz'};
-% % rm_scalpchan = {'-FP1','-F7','-T3','-T5','-O1','-F3','-C3','-P3','-FP2','F8','-T4','-T6','-O2','-F4','-C4','-P4','-Fz','-Cz','-Pz'};
-% % C182:C256 seem empty?
-% % C123:128 not empty, but signal is small. Lacking label?
-% % All are 'unknown' signal type except scalp EEG, TRIG incorrect as trigger
-% eegchan          = strcat('-', ft_channelselection({'eeg'}, data.label));
-% 
-% badchan = {};
-
-
-%% Find trials
+ft_databrowser(cfg,data)
 
 % Marker is DC4
 % Downward deflections mean that light is on
+% First on at 786
+% End around 1835
+
+%%
+% extrachan = {};
+% rowcnt = 1;
+% for i = 123:128
+%     i_str = string(i);
+%     chan = strcat('-C', i_str);
+%     chan = convertStringsToChars(chan);
+%     extrachan{rowcnt} = chan;
+%     rowcnt = rowcnt + 1;
+% end
+% % 
+% rowcnt = 1;
+% emptychan = {};
+% for i = 182:256
+%     i_str = string(i);
+%     chan = strcat('-C', i_str);
+%     chan = convertStringsToChars(chan);
+%     emptychan{rowcnt} = chan;
+%     rowcnt = rowcnt + 1;
+% end
+%% Find bad channels
+
+% Major Drift ['-LTHA6', '-RPAG7', '-RPAG11', '-RFC5', ]
+% LTHA6 is really consistent in strong deviation. Maybe look to see if
+% sinal pattern emerges correlated to any task moment?
+
+% LTHA11/12, RFC4-6,
+
+% Minor Drift ['-LTA5', '-RPAG8', '-RPRS13', '-LTA8', '-RPAG3', '-RTF2']
+% Major Spike ['-LTHA1', '-LTHA2', '-RTF4', '-RPRS15', '-LTA2',   
+% Scalp EEG 163:181
+% NOTE THAT FIELDTRIP HAS FUNCTIONALITY TO REMOVE THIS WITH 'eeg' FLAG BELOW
+% scalpchan = {'FP1','F7','T3','T5','O1','F3','C3','P3','FP2','F8','T4','T6','O2','F4','C4','P4','Fz','Cz','Pz'};
+% rm_scalpchan = {'-FP1','-F7','-T3','-T5','-O1','-F3','-C3','-P3','-FP2','F8','-T4','-T6','-O2','-F4','-C4','-P4','-Fz','-Cz','-Pz'};
+% C182:C256 seem empty?
+% C123:128 not empty, but signal is small. Lacking label?
+% All are 'unknown' signal type except scalp EEG, TRIG incorrect as trigger
+eegchan          = strcat('-', ft_channelselection({'eeg'}, data.label));
+
+badchan = {};
 
 
+%% iEEG Channels for pasting later
+% RPXA*, RPPC*, RPRS*, RPAG*, RTA*, RTHA*, RTF*, RTS*, RIA*, LFC*, RFC*, LTA*, LTHA*
+
+eegchan          = strcat('-', ft_channelselection({'eeg'}, data.label));
+cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
+    '-OSAT', '-*DC*', eegchan{:}, emptychan{:}, extrachan{:}, badchan{:}}, data.label);
+
+
+%%
 cfg.dataset      = eegfile;
 
-% trigger detection 
+% trigger detection (appear to be 3-sec long)
 hdr              = ft_read_header(cfg.dataset);
-event            = ft_read_event(cfg.dataset, 'detectflank', 'both', 'chanindx', find(ismember(hdr.label, 'DC4')));
+event            = ft_read_event(cfg.dataset, 'detectflank', 'both', 'chanindx', find(ismember(hdr.label, 'DC3')));
 idx              = [];
 for e = 1:numel(event)
-  if isequal(event(e).type, 'annotation')
+  if isequal(event(e).type, 'annotation')% | ~isequal(event(e).type, 'DC3_down')
     idx = [idx e]; % events to be tossed
   end
 end
 
-
-%%
 event(idx)       = [];
-
-
-%%
-% First on at 786
-% End around 1835
-
-% find starting sample 
-% 558454/data.fsample
-% 786*data.fsample % starts at row 54
-% (64*8) + 54 % ends at row 566
-
-event(1:54)      = [];
-
-
-
-
-
-
-%%
 
 t = 1;
 trial = 0;
@@ -172,6 +139,13 @@ for i = 1:length([event.sample])
         t = 1;
         trial = trial + 1;
     end
+    if i < 28 || i > length([event.sample])-3
+        event(i).label = [];
+        event(i).trial = 0;
+        event(i).phase = [];
+        trial = 1;
+        t = 1;
+    end
 end
 
 % Fill Duration Column
@@ -184,21 +158,6 @@ for i = 1:length([event.sample])
     end
 end
 
-% Now that duration is filled, remove extra rows
-event(513:end)   = [];
-
-%% Label sanity checks
-
-if length([event.label]) > 512
-    warning('Too many events were labeled. Number of events:')
-    height(event)
-end
-
-% for i = 1:512
-%     if event(i).duration > .05 && event(i).phase == 3 
-%         warning('Timing seems to be mismatched.')
-%     end
-% end
 %% Add necessary columns for analysis from stim_table
 % Current thought is to add all columns for each trial to each row 
 % Maybe too much, but easier to analyze what's needed when pulling 
@@ -208,48 +167,48 @@ end
 % the dot index
 
 % Columns
-% col_names = fieldnames(stim_table);
+col_names = fieldnames(stim_table);
 %% Look at image rating period 
 % 
 % Compare valence rating reaction times between stim_table and photodiode
-% idx = [];
-% for e = 1:numel(event)
-%   if ~isequal(event(e).label, 'img_rate')
-% %   if event(e).trial == 0
-%     idx = [idx e]; % events to be tossed
-%   end
-% end
-% 
-% event(idx)       = [];
-% imgs            = [event.sample]';
-% 
-% 
-% pre              = round(1 * hdr.Fs);
-% post             = round(1 * hdr.Fs);
-% cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre];
-% 
-% ft_definetrial(cfg)
-%% Move from stim_table
-
-% 
-% for e = 1:numel(event)
-%     event(e).duration_from_table = stim_table.val_RT(e);
-% end
-% 
-% for e = 1:numel(event)
-%     event(e).dur_diff = event(e).duration - event(e).duration_from_table;
-% end
-%% Only take the image portion of each trial
 idx = [];
 for e = 1:numel(event)
-  if ~isequal(event(e).phase, 6)
+  if ~isequal(event(e).label, 'img_rate')
 %   if event(e).trial == 0
     idx = [idx e]; % events to be tossed
   end
 end
-pics = event;
-pics(idx)       = [];
-imgs            = [pics.sample]';
+
+event(idx)       = [];
+imgs            = [event.sample]';
+
+
+pre              = round(1 * hdr.Fs);
+post             = round(1 * hdr.Fs);
+cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre];
+
+ft_definetrial(cfg)
+%% Move from stim_table
+
+
+for e = 1:numel(event)
+    event(e).duration_from_table = stim_table.val_RT(e);
+end
+
+for e = 1:numel(event)
+    event(e).dur_diff = event(e).duration - event(e).duration_from_table;
+end
+%% Only take the image portion of each trial
+idx = [];
+for e = 1:numel(event)
+  if ~isequal(event(e).label, 'img')
+%   if event(e).trial == 0
+    idx = [idx e]; % events to be tossed
+  end
+end
+
+event(idx)       = [];
+imgs            = [event.sample]';
 
 % trial definition
 pre              = round(1 * hdr.Fs);
@@ -265,55 +224,33 @@ cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre];
 cfg.demean         = 'yes';
 cfg.baselinewindow = 'all';
 cfg.lpfilter       = 'yes';
-cfg.lpfreq         = 80;
+cfg.lpfreq         = 200;
 % cfg.padding        = .5;
 % cfg.padtype        = 'data';
 cfg.bsfilter       = 'yes';
 cfg.bsfiltord      = 3;
 cfg.bsfreq         = [59 61; 119 121; 179 181];
 
-data           = [];
+data           = []
 data           = ft_preprocessing(cfg);
 
 %%
-% Initialize an empty array to store the matching strings
-elecs = {};
-
-% Iterate over each cell element
-for i = 1:numel(cfg.channel)
-    % Check if the current cell element contains '6', but skip if 16
-    if ~isempty(strfind(cfg.channel{i}, '16'))
-        continue
-    elseif ~isempty(strfind(cfg.channel{i}, '6'))
-        % If it contains '6', add it to the matching array
-        elecs{end+1} = cfg.channel{i};
-    end
-end
-
-% Display the matching strings
-elecs = strrep(elecs, '6', '*');
-%%
-
-depths         = elecs;
+depths         = {'RPXA*', 'RPPC*', 'RPRS*', 'RPAG*', 'RTA*', 'RTHA*', 'RTF*', 'RTS*', 'RIA*', 'LFC*', 'RFC*', 'LTA*', 'LTHA*'};
 for d = 1:numel(depths)
-    cfg2            = [];
-    cfg2.channel    = ft_channelselection(depths{d}, data.label);
-    cfg2.reref      = 'yes';
-    cfg2.refchannel = 'all';
-    cfg2.refmethod  = 'bipolar';
-    cfg2.updatesens = 'no';
-    reref_depths{d} = ft_preprocessing(cfg2, data);
+    cfg            = [];
+    cfg.channel    = ft_channelselection(depths{d}, data.label);
+    cfg.reref      = 'yes';
+    cfg.refchannel = 'all';
+    cfg.refmethod  = 'bipolar';
+    cfg.updatesens = 'no';
+    reref_depths{d} = ft_preprocessing(cfg, data);
 end
 
 %%
-cfge = [];
-
-reref = ft_appenddata(cfg2,reref_depths{:});
-
+cfg = [];
+reref = ft_appenddata(cfg,reref_depths{:});
 %%
-ft_databrowser(cfge, data);
-
-%%
+% ft_databrowser(cfg, data);
 
 cfg              = [];
 cfg.method       = 'mtmconvol';

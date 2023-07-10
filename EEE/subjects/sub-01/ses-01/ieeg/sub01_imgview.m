@@ -29,7 +29,7 @@ addpath(genpath(subjdir));
 subjdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE\subjects\sub-01';
 sesdir = fullfile(subjdir, 'ses-01', 'ieeg');
 
-eegfile = fullfile(sesdir, 'EEEPT#1.EDF');
+eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
 % Find and label unneeded channels
 cfg            = [];
@@ -66,7 +66,7 @@ cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
     '-OSAT', '-*DC*', eegchan{:},badchan{:}, emptychan{:}, extrachan{:}}, data.label);
 
 
-% ft_databrowser(cfg,data)
+ft_databrowser(cfg,data)
 % LTHA11/12, RFC4-6,
 % iEEG Channels
 % RPXA*, RPPC*, RPRS*, RPAG*, RTA*, RTHA*, RTF*, RTS*, RIA*, LFC*, RFC*, LTA*, LTHA*
@@ -132,20 +132,29 @@ for i = 1:length([event.sample])
     end
 end
 %%
+e2 = event;
+% idx = [];
+% for e = 1:numel(e2)
+%   if ~isequal(e2(e).Pair, 6)
+% %   if event(e).trial == 0
+%     idx = [idx e]; % events to be tossed
+%   end
+% end
+
+e2(idx)       = [];
 idx = [];
-for e = 1:numel(event)
-  if ~isequal(event(e).label, 'img')
+for e = 1:numel(e2)
+  if ~isequal(e2(e).phase, 6)
 %   if event(e).trial == 0
     idx = [idx e]; % events to be tossed
   end
 end
-
-event(idx)       = [];
-imgs            = [event.sample]';
+e2(idx)         = [];
+imgs            = [e2.sample]';
 
 % trial definition
 pre              = round(1 * hdr.Fs);
-post             = round(3 * hdr.Fs);
+post             = round(5 * hdr.Fs);
 cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre]; 
 % 1 seconds before and 3 seconds after trigger onset
 % cfg.trl(any(cfg.trl>hdr.nSamples,2),:) = []; % ensure presence of samples
@@ -154,10 +163,15 @@ cfg.trl          = [imgs-pre imgs+post+1 ones(numel(imgs),1)*-pre];
 %cfg.trl.trialnumber = stim_table.trial_number
 
 %%
+%%
+% cfg.dataset      = eegfile;
+% hdr              = ft_read_header(cfg.dataset);
 cfg.demean         = 'yes';
 cfg.baselinewindow = 'all';
 cfg.lpfilter       = 'yes';
-cfg.lpfreq         = 200;
+cfg.lpfreq         = 150;
+cfg.hpfilter       = 'yes';
+cfg.hpfreq         = 0.3;
 % cfg.padding        = .5;
 % cfg.padtype        = 'data';
 cfg.bsfilter       = 'yes';
@@ -168,7 +182,9 @@ data           = []
 data           = ft_preprocessing(cfg);
 
 %%
-depths         = {'RPXA*', 'RPPC*', 'RPRS*', 'RPAG*', 'RTA*', 'RTHA*', 'RTF*', 'RTS*', 'RIA*', 'LFC*', 'RFC*', 'LTA*', 'LTHA*'};
+% depths         = {'RPXA*', 'RPPC*', 'RPRS*', 'RPAG*', 'RTA*', 'RTHA*', 'RTF*', 'RTS*', 'RIA*', 'LFC*', 'RFC*', 'LTA*', 'LTHA*'};
+depths         = {{'RTA1', 'RTA2'},{'RTHA1', 'RTHA2'}};
+
 for d = 1:numel(depths)
     cfg            = [];
     cfg.channel    = ft_channelselection(depths{d}, data.label);
@@ -183,8 +199,8 @@ end
 cfg = [];
 reref = ft_appenddata(cfg,reref_depths{:});
 %%
-% ft_databrowser(cfg, data);
-
+ft_databrowser(cfg, reref);
+%%
 cfg              = [];
 cfg.method       = 'mtmconvol';
 cfg.toi          = -.4:.1:2.4;
@@ -200,11 +216,11 @@ cfg = [];
 cfg.baseline = [-1 -0.1];
 cfg.parameter = 'powspctrm';
 cfg.baselinetype = 'relchange';
-cfg.zlim = [-1 3];
+% cfg.zlim = [-1 3];
 
 for c = 1:numel(reref.label)
-    cfg.channel = reref.label{c};
-% cfg.channel = reref.label{story(c)}; % top figure
+    % cfg.channel = reref.label{55};
+cfg.channel = reref.label{c}; % top figure
     % freq             - ft_freqbaseline(cfg,freq)
     figure; 
 %     hold on
