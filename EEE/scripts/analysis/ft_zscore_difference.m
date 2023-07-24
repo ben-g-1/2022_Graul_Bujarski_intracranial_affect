@@ -33,6 +33,7 @@ condB = ft_zscore_pow(condB);
 % average frequency contribution
 cfg             = [];
 cfg.avgoverfreq = 'yes';
+cfg.avgoverrpt  = 'yes';
 cfg.nanmean     = 'yes';
 avg_condA = ft_selectdata(cfg, condA);
 avg_condB = ft_selectdata(cfg, condB);

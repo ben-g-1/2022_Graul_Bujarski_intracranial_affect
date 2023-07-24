@@ -8,7 +8,11 @@ function [sigelecs, sigelecs_labels] = zscore_thresholds(data, threshtype, thres
 sigelecs = {};
 sigelecs_labels = {};
 for c = 1:length(data.label)
+    try
   avg = squeeze(nanmean(data.powspctrm(:,c,1,:),1));
+    catch
+  avg = squeeze(nanmean(data.powspctrm(c,1,:),1));
+    end %try
     switch threshtype      
         case 'max'
         if max(avg) > thresh

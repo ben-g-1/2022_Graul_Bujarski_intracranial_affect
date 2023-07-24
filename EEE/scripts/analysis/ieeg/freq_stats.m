@@ -26,14 +26,14 @@ cfg.keeptrial = 'yes';
 cfg = ft_definetrial(cfg);
 
 %%
-cfg.demean = 'yes'; 
-cfg.detrend = 'yes';
+% cfg.demean = 'yes'; 
+% cfg.detrend = 'yes';
 % cfg.demean = 'no';
 % cfg.baselinewindow = 'all';
 cfg.lpfilter = 'yes';
 cfg.lpfreq  = 200;
 cfg.preproc.hpfilter = 'yes';
-cfg.preproc.hpfreq = 3;
+cfg.preproc.hpfreq = 2;
 % cfg.padding = 2;
 %
 % 
@@ -46,7 +46,7 @@ cfg.bsfreq = [59 61; 119 121; 179 181];
 % cfg.channel = 53;
 
 data = ft_preprocessing(cfg);
-
+%%
 pairorder = sortrows(data.trialinfo,"Pair","ascend");
 
 %%
@@ -109,11 +109,11 @@ imgview_freq_RTA1 = ft_freqanalysis(cfg, imgview)
 cfg.channel = 'RTA1';
 cfg.trials      = imgview.trialinfo.highcue_indx == 1;
 
-imgview_hicue_RTA1 = ft_freqanalysis(cfg, imgview);
+imgview_hicue_RTA1 = ft_selectdata(cfg, imgview);
 
 cfg.trials      = imgview.trialinfo.highcue_indx == -1;
 
-imgview_lowcue_RTA1 = ft_freqanalysis(cfg, imgview);
+imgview_lowcue_RTA1 = ft_selectdata(cfg, imgview);
 
 
 %%
@@ -158,19 +158,19 @@ graveyard_lo_freq = ft_selectdata(cfg, imgview_freq);
 graveyard_diff = ft_math(cfg, graveyard_hi_freq, graveyard_lo_freq);
 %%
 cfg = [];
+cfg.channel = 'RTA1';
 
-
-cfg.xlim = [0 1.5]; % trim the empty space
-cfg.ylim = [25 190]; %focus on mid/high gamma
+% cfg.xlim = [0 1.5]; % trim the empty space
+cfg.ylim = [25 80]; %focus on mid/high gamma
 % cfg.zlim = [0 10]; % set scale to be the same across figures
 cfg.parameter = 'powspctrm';
-cfg.baseline = [-0.5 -0.01];
-cfg.baselinetype = 'zscore';
+% cfg.baseline = [-0.5 -0.01];
+cfg.baselinetype = 'db';
 
 % cfg.channel = 'RTA1';
-% cfg.trials      = 'all';
+cfg.trials      = 'all';
 % cfg.title = sprintf('%s Average Image Response', cfg.channel);
 % ylabel({'Frequency (Hz)'; '5 Hz Step'})
 % xlabel({'Time (s)'})
-% ft_singleplotTFR(cfg, imgview_freq)
-ft_singleplotTFR(cfg, graveyard_diff)
+ft_singleplotTFR(cfg, imgview_freq)
+% ft_singleplotTFR(cfg, graveyard_diff)

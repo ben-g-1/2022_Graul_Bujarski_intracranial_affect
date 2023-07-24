@@ -2,12 +2,12 @@
 
 %%%
 projdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\PBS\2023_Graul_EEE';
-subnum = '01';
-freq = 'tab';
+subnum = '02';
+freq = 'fullspec';
 cond = 'imgview';
 %%%
 
-datadir = fullfile(projdir, 'data', 'processed', ['sub-' subnum]);
+datadir = fullfile(projdir, 'Data', 'processed', ['sub-' subnum]);
 freqdir = fullfile(datadir, cond, 'freq');
 filename = strcat('sub-', subnum, '_', cond, "_freq_", freq);
 %%%
@@ -34,6 +34,7 @@ end
 % average frequency contribution
 cfg             = [];
 cfg.avgoverfreq = 'yes';
+% cfg.avgoverchan = 'yes';
 cfg.nanmean     = 'yes';
 avgfreq = ft_selectdata(cfg, imgview_freq_z);
 %%
