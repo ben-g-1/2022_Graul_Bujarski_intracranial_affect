@@ -16,7 +16,7 @@ trl = table();
 event = table();
 for j = 1:(length(etable.phase))
 
-trg1 = etable.phase(j);
+trg1 = etable.onstim(j);
 
 if trg1 == eventvalue 
 
@@ -31,6 +31,12 @@ end
 
 end
 trl = horzcat(trl, event);
+try 
 if isequal([trl.begsample], [trl.sample])
     trl = rmfield(trl, 'sample');
 end
+catch 
+    warning('No beg sample')
+
+end
+end %function

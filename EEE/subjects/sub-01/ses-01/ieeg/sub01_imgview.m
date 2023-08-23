@@ -75,7 +75,7 @@ cfg.dataset      = eegfile;
 
 % trigger detection (appear to be 3-sec long)
 hdr              = ft_read_header(cfg.dataset);
-event            = ft_read_event(cfg.dataset, 'detectflank', 'both', 'chanindx', find(ismember(hdr.label, 'DC3')));
+event            = ft_read_event(cfg.dataset, 'detectflank', 'up', 'chanindx', find(ismember(hdr.label, 'DC4')));
 idx              = [];
 for e = 1:numel(event)
   if isequal(event(e).type, 'annotation')% | ~isequal(event(e).type, 'DC3_down')
@@ -84,7 +84,7 @@ for e = 1:numel(event)
 end
 
 event(idx)       = [];
-
+%%
 
 for i = 1:length([event.sample])
     event(i).timestamp = event(i).sample / hdr.Fs;

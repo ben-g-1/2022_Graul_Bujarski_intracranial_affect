@@ -2,8 +2,8 @@
 
 %%%
 projdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\PBS\2023_Graul_EEE';
-subnum = '02';
-freq = 'fullspec';
+subnum = '01';
+freq = 'broadband';
 cond = 'imgview';
 %%%
 

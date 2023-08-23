@@ -10,7 +10,7 @@
 clear all
 subjectnum = '99';
 sessionnum = '99';
-DEBUG = true;
+DEBUG = false;
 
 
 %%% Input Path ID 
