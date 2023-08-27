@@ -4,14 +4,15 @@
 import pandas as pd
 import numpy as np
 
-def dataload(datadir, index_label):
+def dataload(datadir, index_label, transp=True):
     pd.set_option("display.max_column", None)
     data = np.loadtxt(datadir, delimiter=',')
     df = pd.DataFrame(data)
     # Arrange the 48 df index to trial numbers
     df.set_index(index_label, inplace=True)
     # Make time as rows and trials as columns
-    df = df.T
+    if transp is True:
+        df = df.T
     # Now the trial numbers should be the columns
     print("List of columns")
     print(df.columns)
