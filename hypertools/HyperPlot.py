@@ -28,7 +28,8 @@ def hyperplot(*data, n_iter, ndims, labels, label_names, reduce='IncrementalPCA'
                                             align='hyper', internal_reduce='IncrementalPCA'):
 
     title = input("What is the title of hyper plot")
-    png_file = input("What is name of hyper plot csv file")
+    png_file = input("What is name of hyper plot png file")
+    mp4_file = input("What is name of hyper plot mp4 file")
 
     if len(data) == 1:
         if type(data) == list:
@@ -51,7 +52,7 @@ def hyperplot(*data, n_iter, ndims, labels, label_names, reduce='IncrementalPCA'
                      save_path= png_file)
 
             hyp.plot(hyperalignedlist, reduce=reduce, legend=False, title=title, animate=True,
-                     save_path= png_file)
+                     save_path= mp4_file)
         else:
             # step 1: reduce dataset before aligning (runs much faster)
             reduced_data1 = hyp.reduce(data, reduce=internal_reduce, ndims=ndims)
@@ -67,7 +68,7 @@ def hyperplot(*data, n_iter, ndims, labels, label_names, reduce='IncrementalPCA'
             # MP4
             hyp.plot(smoothed_data1, group=labels, legend=False,
                      title=title, animate=True,
-                     save_path= png_file)
+                     save_path= mp4_file)
 
     if len(data) == 2:
         if type(data[0]) == list:
@@ -101,7 +102,7 @@ def hyperplot(*data, n_iter, ndims, labels, label_names, reduce='IncrementalPCA'
                      save_path=png_file)
 
             hyp.plot(hyperalignedlist, reduce=reduce, legend=False, title=title, animate=True,
-                     save_path=png_file)
+                     save_path=mp4_file)
         else:
             # step 1: reduce dataset before aligning (runs much faster)
             reduced_data1 = hyp.reduce(data[0], reduce=internal_reduce, ndims=ndims)
@@ -121,4 +122,4 @@ def hyperplot(*data, n_iter, ndims, labels, label_names, reduce='IncrementalPCA'
             # MP4
             hyp.plot(alignedlist, reduce=reduce, legend=False,
                      title=title, animate=True,
-                     save_path = png_file)
+                     save_path = mp4_file)
