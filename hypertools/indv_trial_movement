@@ -1,0 +1,209 @@
+# ----------------------------------------------------------------------
+#                               libraries
+# ----------------------------------------------------------------------
+import numpy as np
+import hypertools as hyp
+from sklearn.decomposition import PCA
+from matplotlib import pyplot as plt
+import pandas as pd
+import timecorr as tc
+import seaborn as sns
+import os
+from scipy.stats import friedmanchisquare
+from scikit_posthocs import posthoc_nemenyi_friedman
+from mpl_toolkits import mplot3d
+from mpl_toolkits.mplot3d import Axes3D
+
+# Set path to location of the file
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+
+os.chdir(dname)
+
+
+subjects = ['sub01', 'sub02', 'sub03']
+freq_time = ['alpha', 'beta', 'gamma']
+channels = {'RTA1': 'Amygdala - Basal nucleus', 'LFC9': 'Superior Frontal Cortex'}
+
+# ----------------------------------------------------------------------
+#                               functions
+# ----------------------------------------------------------------------
+# Access CSV files from directory
+def directory(data, sub, freq, chan):
+    # Change directory to AveragePower folder
+    os.chdir(data.format(sub, freq))
+    cwd = os.getcwd()
+    file_list = os.listdir(cwd)
+    file_name = ""
+    for i in file_list:
+        if i == '{}_{}_{}_avgpow.csv'.format(sub, freq, chan):
+            file_name = data.format(sub, freq) + i
+    os.chdir(dname)
+    print(file_name)
+    return file_name
+
+def dataload(datadir, index_label, transp=True):
+    pd.set_option("display.max_column", None)
+    data = np.loadtxt(datadir, delimiter=',')
+    df = pd.DataFrame(data)
+    # Arrange the 48 df index to trial numbers
+    df.set_index(index_label, inplace=True)
+    # Make time as rows and trials as columns
+    if transp is True:
+        df = df.T
+    # Now the trial numbers should be the columns
+    print("List of columns")
+    print(df.columns)
+    return df
+
+
+def getclasslabels(trialinfo, class_labels_name):
+    pd.set_option("display.max_column", None)
+    # data = np.loadtxt(trialinfo, delimiter=',')
+    data = pd.read_csv(trialinfo)
+    # data.index = np.arange(1, len(data) + 1)
+    class_labels = data.pop(class_labels_name)
+    # pair_labels.index = np.arange(1, len(pair_labels ) + 1)
+    print(class_labels)
+    return class_labels
+
+def phaseclass(phase_dict):
+    # Phases of stimuli list setup:
+    phase_labels = []
+    for phase_num, phase_count in phase_dict.items():
+        for p in range(phase_count):
+            phase_labels.append(phase_num)
+    print(phase_labels)
+    return phase_labels
+
+
+def hyper_analyze(*data, normalize='within', reduce='IncrementalPCA', ndims=3, align='hyper'):
+    if len(data) == 1:
+        # Row dimensions
+        print(data.shape[0])
+        # Column dimensions
+        print(data.shape[1])
+        # Visualizes raw data
+        plt.title("Raw Data")
+        sns.heatmap(data)
+        png_file = input("Name of raw data png file")
+        plt.savefig(png_file)
+        plt.show()
+        # Normalize data
+        norm_data = hyp.analyze(data, normalize)
+        # Visualize normalized data
+        plt.title("Normalized Data")
+        sns.heatmap(norm_data)
+        png_file = input("Name of normalized data png file")
+        plt.savefig(png_file)
+        plt.show()
+        # Normalized and reduced data
+        norm_reduced_data = hyp.analyze(data, normalize, reduce, ndims)
+        plt.title("Normalized and Reduced Data")
+        sns.heatmap(norm_reduced_data)
+        png_file = input("Name of normalized and reduced data png file")
+        plt.savefig(png_file)
+        plt.show()
+    # If analyzing two dataframes
+    if len(data) == 2:
+        for x in data:
+            # Row dimensions
+            print(x.shape[0])
+            # Column dimensions
+            print(x.shape[1])
+
+        for idx, x in enumerate(data):
+            # Visualizes raw data
+            plt.title("Raw Data")
+            sns.heatmap(x)
+            png_file = '/Users/evansalvarez/PycharmProjects/iEEG Data Analysis/sub01/raw{}.png'.format(str(idx+1))
+            plt.savefig(png_file)
+            plt.show()
+
+        # Normalize data
+        data_array = []
+        for x in data:
+            data_array.append(np.array(x))
+        norm_data = hyp.analyze(data_array, normalize)
+        # Visualize normalized data
+        for idx, x in enumerate(norm_data):
+            # Visualizes raw data
+            plt.title("Normalized Data")
+            sns.heatmap(x)
+            png_file = input("Name of normalized data png file")
+            plt.savefig(png_file)
+            plt.show()
+
+        # Normalized and reduced data
+        norm_reduced_data = hyp.analyze(data_array, normalize, reduce, ndims)
+        for idx, x in enumerate(norm_reduced_data):
+            plt.title("Normalized and Reduced Data")
+            sns.heatmap(x)
+            png_file = input("Name of normalized and reduced data png file")
+            plt.savefig(png_file)
+            plt.show()
+        # Visualize normalized reduced aligned data
+        norm_red_algn_data = hyp.analyze(data_array, normalize, reduce, ndims, align)
+        for idx, x in enumerate(norm_red_algn_data):
+            plt.title("Normalized and Reduced and Aligned Data")
+            sns.heatmap(x)
+            png_file = input("Name of normalized, reduced, aligned data png file")
+            plt.savefig(png_file)
+            plt.show()
+
+
+
+# ----------------------------------------------------------------------
+#                               main code
+# ----------------------------------------------------------------------
+def main():
+    # iEEG data directory
+    data = "/Users/evansalvarez/PycharmProjects/iEEG Data Analysis/{}/Analysis/{}/Data/"
+    # Collect all class labels from subject number trial info csv
+    task_info = '/Users/evansalvarez/PycharmProjects/iEEG Data Analysis/sub01/broadband_trialinfo.csv'
+    png_file = input("What is name of hyper plot png file")
+    mp4_file = input("What is name of hyper plot mp4 file")
+    # Trial numbers
+    trial_labels = getclasslabels(task_info, 'trial')
+
+    # Stimuli label phase labels
+    # Stimuli phase setup
+    phase_dict = {
+        1: 101,
+        2: 100,
+        3: 100,
+        4: 100
+    }
+    phase_labels = phaseclass(phase_dict)
+    mapping_dict = {1: '0-999ms', 2: '1000-1999ms', 3: '2000-2999ms', 4: '3000-3999ms'}
+    mapped_list = [mapping_dict[value] for value in phase_labels]
+    phase_names = list(set([mapped_list]))
+    for sub in subjects:
+        for freq in freq_time:
+            for chan, chan_name in channels.items():
+                print('check: current subject number and electrode channel')
+                print(sub, freq, chan)
+                datadir = directory(data, sub, freq, chan)
+                dataframe = dataload(datadir, trial_labels, transp=False)
+                print('check: current loaded dataframe')
+                print(dataframe.shape)
+                hyper_analyze(dataframe)
+                for index, trial in dataframe.iterrows():
+                    print(trial)
+                    print(trial.shape)
+                    hyper_analyze(trial)
+
+                    # step 1: reduce dataset before aligning (runs much faster)
+                    reduced_data = hyp.reduce(trial, reduce='IncrementalPCA', ndims=3)
+                    # step 2: smooth trajectories so they look prettier
+                    smoothed_data = tc.smooth(reduced_data, kernel_fun=tc.helpers.gaussian_weights,
+                                                  kernel_params={'var': 3})
+                    hyp.plot(smoothed_data,  legend=phase_names, title="Trial {}".format(index),
+                             save_path=png_file)
+
+                    hyp.plot(smoothed_data, legend=False, title="Trial {}".format(index), animate=True,
+                             save_path=mp4_file)
+
+
+if __name__ == "__main__":
+    main()
