@@ -16,7 +16,7 @@ def friedmantest(data, cond_names):
         test_stat, pval = friedmanchisquare(samples)
         print("Test-stat:", test_stat, "P-value:", pval)
         stats_df.loc[i, 'Test Statisic'] = test_stat
-        stats_df.loc[i, 'P Value'] = test_stat
+        stats_df.loc[i, 'P Value'] = pval
         if pval <= 0.05:
             pos_pval = posthoc_nemenyi_friedman(samples)
             for j, new_name in enumerate(cond_names[i]):
