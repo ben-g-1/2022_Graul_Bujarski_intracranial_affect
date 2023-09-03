@@ -8,14 +8,14 @@
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
-subnum = '03';
+subnum = '04';
 sesnum = '01';
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
 basedir = 'C:\Users\bgrau\GitHub\ieeg_affect';
 projdir = fullfile(basedir, 'EEE');
-filedir = fullfile(projdir, 'files');
-scriptdir = fullfile(projdir, 'scripts', 'EVRTask');
+filedir = fullfile(projdir, 'assets', 'referenceLists');
+scriptdir = fullfile(projdir, 'scripts', 'EEE_task');
 subjectnum = subnum;
 sessionnum = sesnum;
 subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);

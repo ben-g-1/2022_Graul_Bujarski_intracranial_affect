@@ -55,7 +55,7 @@ for i = 1:numel([event.sample])
     if c < 4
         event(i).onstim = 0;
     else
-        event(i).onstim = 1;
+        event(i).onstim = 0; %% CHANGING FOR NOW
     end
     c = c + 1;
     if c == 9
@@ -83,11 +83,12 @@ nostim = ft_preprocessing(cfg);
 cfg = [];
 cfg.reref = 'yes';
 cfg.refmethod = 'bipolar';
-cfg.refchannel = 'all';
+% cfg.refchannel = 'all';
+cfg.groupchans = 'yes';
 % cfg.demean         = 'yes';
 cfg.baselinewindow = 'all';
-% cfg.lpfilter       = 'yes';
-% cfg.lpfreq         = 150;
+cfg.lpfilter       = 'yes';
+cfg.lpfreq         = 99;
 % cfg.hpfilter       = 'yes';
 % cfg.hpfreq         = 0.3;
 % cfg.padding        = .5;
@@ -108,7 +109,7 @@ nostim = ft_preprocessing(cfg, nostim);
 %%
 cfg  = [];
 cfg.viewmode = 'vertical';
-% ft_databrowser(cfg, nostim)
+ft_databrowser(cfg, nostim)
 
 
 %%

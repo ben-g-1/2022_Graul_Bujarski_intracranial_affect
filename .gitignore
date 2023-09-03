@@ -2,7 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
-**/*.edf
+*.edf
 **/*.edf
 **/*.asv
 *.pptx
