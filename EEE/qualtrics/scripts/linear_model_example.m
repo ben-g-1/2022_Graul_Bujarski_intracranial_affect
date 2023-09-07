@@ -32,7 +32,7 @@ xlabel('Normative Mean Score')
 ylabel('Valence Rating')
 %%
 
-lme = fitlme(master, 'img_rate ~ Valence_mean + (Pair|subj) + (1 - highcue_indx| Pair)')
+lme = fitlme(master, 'img_rate ~ Valence_mean + (Pair|subj) + (1 - highcue_indx|Pair)')
 
 figure();
 plotResiduals(lme, 'fitted')
