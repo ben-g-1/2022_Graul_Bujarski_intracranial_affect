@@ -1,6 +1,6 @@
 %% Initial Stim Table Analysis
 
-clear all
+% clear all
 subjectnum = '02';
 sessionnum = '01';
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
@@ -40,6 +40,10 @@ stim_table{:,cs} = (stim_table{:,cs})/6*100;
 
 cs = find(contains(stim_table.Properties.VariableNames, 'rating'));
 stim_table{:,cs} = (stim_table{:,cs} - 1)/6*100;
+
+cs = find(contains(stim_table.Properties.VariableNames, 'image_cue_values'));
+stim_table(:,cs) = cellfun(@(x) (x-1)/6*100, stim_table{:,cs}, 'UniformOutput', false);
+
 %% Adding new group label types
 % Positive valence, negative valence, neutral valence
 % First thought is neg < 40 neu < 60 < pos

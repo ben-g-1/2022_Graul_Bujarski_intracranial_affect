@@ -109,9 +109,6 @@ cfg.continuous = 'yes';
 
 hdr              = ft_read_header(cfg.dataset);
 
-
-
-
 rowcnt = 1;
 emptychan = {};
 for i = 182:256
@@ -124,12 +121,6 @@ end
 
 %   Scalp EEG
 eegchan          = strcat('-', ft_channelselection({'eeg'}, hdr.label));
-
-
-
-%%% Example from Patient 1 %%%
-% cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
-%     '-OSAT', '-*DC*', eegchan{:},badchan{:}, emptychan{:}, extrachan{:}}, hdr.label);
 
 % CHANNELS
 % 

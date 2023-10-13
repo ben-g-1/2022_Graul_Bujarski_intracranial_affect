@@ -16,9 +16,9 @@ cfg = [];
 cfg.dataset = eegfile;
 cfg.channel = chans;
 cfg.trialfun = 'trl_singlephase';
-cfg.trialdef.pre = 2.5; % Picture viewing is at T = 0
-cfg.trialdef.post = 5.5;
-cfg.trialdef.offset = -2.5;
+cfg.trialdef.pre = 6; % Picture viewing is at T = 0
+cfg.trialdef.post = 6;
+cfg.trialdef.offset = -6;
 cfg.trialdef.event = event_full;
 cfg.trialdef.eventvalue = 6;
 cfg.keeptrial = 'yes';
@@ -31,9 +31,9 @@ cfg = ft_definetrial(cfg);
 % cfg.demean = 'no';
 % cfg.baselinewindow = 'all';
 cfg.lpfilter = 'yes';
-cfg.lpfreq  = 200;
+cfg.lpfreq  =8;
 cfg.preproc.hpfilter = 'yes';
-cfg.preproc.hpfreq = 2;
+cfg.preproc.hpfreq = 8;
 % cfg.padding = 2;
 %
 % 
@@ -43,9 +43,12 @@ cfg.preproc.hpfreq = 2;
 cfg.bsfilter = 'yes';
 cfg.bsfiltord = 3;
 cfg.bsfreq = [59 61; 119 121; 179 181];
-% cfg.channel = 53;
+cfg.channel = 'RTA*';
 
 data = ft_preprocessing(cfg);
+
+%%
+ft_databrowser(cfg, data)
 %%
 pairorder = sortrows(data.trialinfo,"Pair","ascend");
 

@@ -52,7 +52,7 @@ cfg.lpfilter = 'yes';
 cfg.lpfreq  = 200;
 cfg.preproc.hpfilter = 'yes';
 cfg.preproc.hpfreq = 2;
-cfg.padding = 10;
+% cfg.padding = 10;
 %
 % 
 % 
@@ -61,14 +61,14 @@ cfg.padtype = 'data';
 cfg.bsfilter = 'yes';
 cfg.bsfiltord = 3;
 cfg.bsfreq = [59 61; 119 121; 179 181];
-cfg.reref = 'yes';
+% cfg.reref = 'yes';
 % cfg.refmethod = 'bipolar';
-cfg.refchannel = 'LTHA7';
+% cfg.refchannel = 'LTHA7';
 % cfg.groupchans = 'yes';
 cfg.trialfun = 'trl_singlephase';
-cfg.trialdef.pre = 2.5; % Picture viewing is at T = 0
-cfg.trialdef.post = 5.5;
-cfg.trialdef.offset = -2.5;
+cfg.trialdef.pre = 4; % Picture viewing is at T = 0
+cfg.trialdef.post = 2;
+cfg.trialdef.offset = -4;
 cfg.trialdef.event = event;
 cfg.trialdef.eventvalue = 6;
 cfg.keeptrial = 'yes';

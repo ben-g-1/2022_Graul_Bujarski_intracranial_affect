@@ -1,30 +1,67 @@
 freqpath = 'C:\Users\bgrau\Dropbox (Dartmouth College)\PBS\2023_Graul_EEE\Data\EEE\processed\sub-01\imgview_freq_2b5a';
-preproc = 'C:\Users\bgrau\Dropbox (Dartmouth College)\PBS\2023_Graul_EEE\Data\EEE\processed\sub-01\imgview_preproc_2b5a';
+preproc = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\processed\sub-01\imgview\imgview_preproc_2b5a';
 % erp = 'C:\Users\bgrau\Dropbox (Dartmouth College)\PBS\2023_Graul_EEE\Data\EEE\processed\sub-01\imgview_ERP_2b5a';
-load(freqpath);
+% load(freqpath);
 load(preproc);
 % load(erp);
 %%
+% cfg = [];
+
+
+% cfg.demean = 'yes'; 
+% cfg.detrend = 'yes';
+% cfg.demean = 'no';
+% cfg.baselinewindow = 'all';
+cfg.lpfilter = 'yes';
+cfg.lpfreq  = 8;
+cfg.preproc.hpfilter = 'yes';
+cfg.preproc.hpfreq = 2;
+% cfg.padding = 10;
+%
+% 
+% 
+% 
+cfg.padtype = 'data';
+cfg.bsfilter = 'yes';
+cfg.bsfiltord = 3;
+cfg.bsfreq = [59 61; 119 121; 179 181];
+% cfg.reref = 'yes';
+% cfg.refmethod = 'bipolar';
+% cfg.refchannel = 'LTHA7';
+% cfg.groupchans = 'yes';
+cfg.trialfun = 'trl_singlephase';
+cfg.trialdef.pre = 2; % Picture viewing is at T = 0
+cfg.trialdef.post = 3;
+cfg.trialdef.offset = -2;
+cfg.trialdef.event = event_full;
+cfg.trialdef.eventvalue = 6;
+cfg.keeptrial = 'yes';
+
+cfg = ft_definetrial(cfg);
+data = ft_preprocessing(cfg);
+%%
+
+
 % spectral decomposition
     timres          = .01; % 10 ms steps
     cfg             = [];
-    % cfg.channel     =  'RTA1';
+    cfg.channel     =  'RTA1';
 
     cfg.output      = 'pow';
     cfg.method      = 'mtmconvol';
     cfg.taper       = 'dpss';
     % cfg.foi = [40 45 50 55 65 70 75 80 85 90 95 100 105 110 115 125 130 135 140 145 150 155 160 165 170 175 185 190]; % 80 - 190 Hz, leave out harmonics of 60 Hz
-    cfg.foi = [5 8 11 14 17 20 23 26 29 32 35 40 45 50 55 65 70 75 80 85 90 95 100 105 110 115 125 130 135 140 145 150 155 160 165 170 175 180 185 190]
-    % cfg.foi = [4:1:30 31:2:59 61:2:118 121:2:178 181:2:199];
+    % cfg.foi = [5 8 11 14 17 20 23 26 29 32 35 40 45 50 55 65 70 75 80 85 90 95 100 105 110 115 125 130 135 140 145 150 155 160 165 170 175 180 185 190]
+    cfg.foi = [4:1:30 31:2:59 61:2:118 121:2:178 181:2:199];
     cfg.tapsmofrq   = 10;
     cfg.t_ftimwin   = .2*ones(length(cfg.foi),1); % 200 ms
-    cfg.toi         = imgview.time{1}(1):timres:imgview.time{1}(end);  % begin to end of defined event
+    cfg.toi         = data.time{1}(1):timres:data.time{1}(end);  % begin to end of defined event
     % cfg.toi         = round(data.time{1}(hdr.Fs * 1.99)):timres:round(data.time{1}(hdr.Fs * 3.51));  
     cfg.keeptrials  = 'yes';
     cfg.pad         = 'nextpow2';
 
     % imgview_freq_hires = ft_freqanalysis(cfg,imgview);
-imgview_freq = ft_freqanalysis(cfg,imgview);
+imgview_freq = ft_freqanalysis(cfg,data);
 % imgview_freq_RTA1 = ft_freqanalysis(cfg, imgview)
 %%
 % It's easiest to have a quick table to reference for the direct high-low cue comparisons within pair. It can be made from the trial info within the FieldTrip objects.
@@ -379,8 +416,8 @@ cfg = [];
 cfg.title = 'Gamma Activity Following Image Onset';
 cfg.fontsize = 32;
 cfg.figure = gcf;
-cfg.xlim = [0 1.5]; % trim the empty space
-cfg.ylim = [35 101]; %focus on mid/high gamma
+% cfg.xlim = [0 1.5]; % trim the empty space
+% cfg.ylim = [35 101]; %focus on mid/high gamma
 % cfg.zlim = [-2 5]; % set scale to be the same across figures
 cfg.parameter = 'powspctrm';
 cfg.baseline = [-0.5 -0.001];

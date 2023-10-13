@@ -4,8 +4,8 @@ clear all
 subjectnum = '01';
 sessionnum = '01';
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
-filedir = fullfile(projdir, 'files');
-scriptdir = fullfile(projdir, 'scripts', 'EVRTask');
+filedir = fullfile(projdir, 'assets');
+scriptdir = fullfile(projdir, 'scripts', 'EEE_task');
 subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);
 sesdir = fullfile(subjdir, ['ses-', num2str(sessionnum)]);
 funcdir = fullfile(scriptdir, 'functions');
