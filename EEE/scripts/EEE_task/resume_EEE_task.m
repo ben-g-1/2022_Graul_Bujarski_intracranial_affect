@@ -1,12 +1,8 @@
-function run_EEE_task(subjectnumber, sessionnumber, projdirectorypath, debugging)
-% RunExpectationTask
-% function 
-% v1.5
+function resume_EEE_task(subjectnumber, sessionnumber, projdirectorypath, startingimage, debugging)
+%%
+% Resume EEE Task after ending prematurely during testing
+% v0.1
 % By Ben Graul
-% Adapted from scripts by Zachary Leeds, Philip Kragel, Heejung Jung 
-
-% function RunExpectationTask(subjectnum, sessionnum, projdirectorypath) 
-% subjectnum and sessionnum needs to be only numbers
 
 if ~debugging
     DEBUG = false;
@@ -15,7 +11,6 @@ else
 end
 
 %%% Input Path ID 
-% projdir = 'C:\Users\bgrau\GitHub\ieeg_DDaffect\EEE';
 subjectnum = subjectnumber;
 sessionnum = sessionnumber;
 projdir = projdirectorypath;
@@ -27,9 +22,7 @@ funcdir = fullfile(scriptdir, 'functions');
 imagedir = fullfile(filedir, 'pair_1');
 fname = 'stim_table.mat';
 fpath = fullfile(sesdir, fname);
-practice = fullfile(filedir, 'practice', 'practice_images.mat');
-practicedir = fullfile(filedir, 'practice');
-fpartialfill = fullfile(sesdir, 'stim_table_partial.mat');
+fpartialfill = fullfile(sesdir, ['stim_table_partial_from_', num2str(startingimage), '.mat']);
 f_all = fullfile(sesdir, 'stim_table_full.mat');
 
 addpath(scriptdir);
@@ -52,18 +45,20 @@ if not(isfile(fpath))
     return
 end
 
+if not(isfile(fullfile(sesdir, 'stim_table_partial.mat')))
+    disp('Previous partial matrix not found. Execute `run_EEE_task` instead.')
+    return
+end
+
 % Load randomized matrix, then add empty columns for recordings
 load(fpath);
-load(practice);
 nrow = size(stim_table, 1);
 
 %% Initialize PsychToolbox defaults %%
 global p;
-
+%%% Remove or comment when working on hospital laptop
 if DEBUG == true
   Screen('Preference', 'SkipSyncTests', 1);
-else 
-  Screen('Preference', 'SkipSyncTests', 0);
 end
 % else 
 %     disp('PsychToolbox probably won`t work correctly. Change the SyncTests setting.')
@@ -139,205 +134,30 @@ stim_table.imageJitter = 4*ones(nrow,1);
 
 fixJitter = stim_table.fixJitter(1);
 imageJitter = stim_table.imageJitter(1);
-HideCursor;
-
-%% INSTRUCTIONS %% 
-% Text strings and images per block
-if DEBUG == false
-instructtext1 = ['Thank you for helping us with this test. \n\n\n\n ' ...
-    'You will see a series of pictures. \n\n\n\n' ...
-    'We are interested in how pleasant or unpleasant you find each picture.'];
-buttons = 0;
- while buttons == 0
-    DrawFormattedText(p.ptb.window, instructtext1, 'center', 'center', 255);
-    Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect); %mark beginning of instructions
-    Screen('Flip', p.ptb.window)
-    [x,y,buttons] = GetMouse;
- end
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-
-instructtext2 = ['We will ask you to rate each picture on a scale from \n\n '...
-    'extremely unpleasant to extremely pleasant.\n\n\n\n'];
-buttons = 0;
- while buttons == 0
-       DrawFormattedText(p.ptb.window, instructtext2, 'center', p.ptb.screenYpixels*.15, 255);
-       draw_scale(p)
-       Screen('Flip', p.ptb.window);
-       [x,y,buttons] = GetMouse;
- end
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-
-instructtext3 = ['Each image has been rated by 10 other people. \n\n\n\n ' ...
-    'Before you see the picture, you will see the ratings that other people gave each picture.'];
-buttons = 0;
- while buttons == 0
-       DrawFormattedText(p.ptb.window, instructtext3, 'center', 'center', 255);
-       Screen('Flip', p.ptb.window);
-       [x,y,buttons] = GetMouse;
- end
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-
-
-instructtext4 = ['Each line represents one rating that someone gave to the picture you will see next.'];
-buttons = 0;
- while buttons == 0
-    DrawFormattedText(p.ptb.window, instructtext4, 'center', p.ptb.screenYpixels*.15, 255);
-  % Convert expectation cue lines based on screen size
-    cuemat = cell2mat(practice_images.image_cue_values(1));
-    cue_xPixel = zeros(1,10);
-        for c = 1:10 
-            pix_prcnt = ((cuemat(c)-1)/6);
-            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1*p.ptb.screenXpixels);
-            cue_xPixel(1,c) = xpix_coord;
-        end % for drawing lines   
-    % Show expectation cue
-    draw_scale(p);
-    draw_cue(p,cue_xPixel);
-    % draw white rectangle in bottom right corner of screen for external timing validation
-%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
-    Screen('Flip', p.ptb.window);
-    [x,y,buttons] = GetMouse;
- end %while no click
-
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-
-
-instructtext5 = ['After seeing what others rated the picture, we will ask you how pleasant or unpleasant you expect \n\n' ...
-    'the next picture to be. \n\n\n\n\n' ...
-    'We will now practice making a rating. Click the mouse to begin.'];
-buttons = 0;
- while buttons == 0
-    DrawFormattedText(p.ptb.window, instructtext5, 'center', 'center', 255);
-    Screen('Flip', p.ptb.window)
-    [x,y,buttons] = GetMouse;
- end
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-
-
-practtext1 = ['Move the line using the mouse. Click when the line is where you would like to report your rating. \n\n\n\n\n' ...
-    'Click the mouse to continue.'];
-buttons = 0;
- while buttons == 0
-DrawFormattedText(p.ptb.window, practtext1, 'center', 'center', 255);
-Screen('Flip', p.ptb.window);
-    [x,y,buttons] = GetMouse;
- end
-
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-record_rating(30,p,'Practice Rating')
-
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-
-instructtext6 = ['After you rate how pleasant or unpleasant you expect the picture to be, you will see the picture.' ...
-    '\n\n\n\n\n\n\n We will now practice the whole process.'];
-buttons = 0;
- while buttons == 0
-DrawFormattedText(p.ptb.window, instructtext6, 'center', 'center', 255);
-Screen('Flip', p.ptb.window);
-    [x,y,buttons] = GetMouse;
- end
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-
-
-for practice = 1:2
-    % Convert expectation cue lines based on screen size
-    cuemat = cell2mat(practice_images.image_cue_values(practice));
-    cue_xPixel = zeros(1,10);
-        for c = 1:10 
-            pix_prcnt = ((cuemat(c)-1)/6);
-            xpix_coord = (pix_prcnt*0.8*p.ptb.screenXpixels) + (.1*p.ptb.screenXpixels);
-            cue_xPixel(1,c) = xpix_coord;
-
-        end    
-
-    Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
-    Screen('Flip', p.ptb.window);
-    KbCheck;
-    
-    WaitSecs(fixJitter);
-   
-    % Show expectation cue
-    draw_scale(p);
-    draw_cue(p,cue_xPixel);
-    % draw white rectangle in bottom right corner of screen for external timing validation
-    %     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
-    Screen('Flip', p.ptb.window);
-    
-    WaitSecs(imageJitter);
-   
-    % Show empty scale and record rating 
-    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating(50,p,'Expectation');
-
-    % Show fixation cross
-    Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
-    Screen('Flip', p.ptb.window);
-    
-    WaitSecs(fixJitter);
-   
-    % Show image
-    imagename = append(practice_images.Theme(practice), ".jpg");
-    imagepath = fullfile(practicedir, imagename);
-    imagetex = Screen('MakeTexture', p.ptb.window, imread(imagepath));
-    Screen('DrawTexture', p.ptb.window, imagetex, [], p.image.coords);
-
-    % draw white rect in bottom right corner of screen
-%     Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect);
-    Screen('Flip', p.ptb.window);
-    
-    WaitSecs(imageJitter);
-    
-    % Show empty scale and record rating
-    [timing_initialized, x_coord, RT, buttonPressOnset] = record_rating_norect(50,p,'Valence');
-    Screen('Flip', p.ptb.window);
-
-end
-
-practtext2 = 'Do you have any questions?';
-buttons = 0;
- while buttons == 0
-DrawFormattedText(p.ptb.window, practtext2, 'center', 'center', 255);
-Screen('Flip', p.ptb.window)
-    [x,y,buttons] = GetMouse;
- end
-end % tutorial skip for DEBUG == true 
-Screen('DrawLines', p.ptb.window, p.fix.allCoords, p.fix.lineWidthPix, p.ptb.black, [p.ptb.xCenter p.ptb.yCenter], 2);
-Screen('Flip', p.ptb.window);
-WaitSecs(.2);
-
-practtext3 = 'Please click the mouse to begin.';
-buttons = 0;
- while buttons == 0
-    DrawFormattedText(p.ptb.window, practtext3, 'center', 'center', 255);
-    Screen('Flip', p.ptb.window);
-    [x,y,buttons] = GetMouse;
- end
 
 breaktext = 'You may take a break here. Please click when you are ready to continue.';
 thanktext = 'Thank you for your help with this experiment. Press any key to end.';
+starttext = 'Please click when you are ready to continue.';
 
-%% Offer self-timed break every {perblock} images.
+%% Resume showing images after last saved image
+% Number should be one higher than the last image saved
+
 perblock = 8;
-loopcount = 0;
+loopcount = mod(startingimage, perblock);
 HideCursor;
 
+buttons = 0;
+ while buttons == 0
+    DrawFormattedText(p.ptb.window, starttext, 'center', 'center', 255);
+    % Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect); %mark beginning of instructions
+    Screen('Flip', p.ptb.window)
+    [x,y,buttons] = GetMouse;
+ end
+
+
+
 %% Full Experiment
-for trial = 1:nrow
+for trial = startingimage:nrow
 %     escCheck(p, trial)
     fixJitter = stim_table.fixJitter(trial);
     imageJitter = stim_table.imageJitter(trial);

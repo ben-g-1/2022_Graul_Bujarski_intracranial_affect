@@ -8,7 +8,7 @@
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
-subnum = '04';
+subnum = '06';
 sesnum = '01';
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
@@ -267,8 +267,8 @@ if bad_table_flag, error('Some cue_observed_mean values out of range');
     errorcount = errorcount + 1
  end
 
-bad_table_flag = any(stim_table.cue_observed_std  < 0.25);
-if bad_table_flag, warning('Some cues have very low std, < 0.25');
+bad_table_flag = any(stim_table.cue_observed_std  < 0.4);
+if bad_table_flag, warning('Some cues have very low std, < 0.4');
     errorcount = errorcount + 1;
  end
 
@@ -280,7 +280,7 @@ end
  if errorcount == 1
     warning('Consider rerunning the script')
     errorcount
-    return
+    % return
  elseif errorcount > 1
     warning('Poor randomization. Rerun the script. Exiting now.')
     errorcount
