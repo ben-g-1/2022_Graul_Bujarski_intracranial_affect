@@ -1,6 +1,6 @@
 bsline = [-0.5 -0.01];
-mc_latency = [0 2];
-freqtype = 'broadband_gamma';  % 'hi_gamma' 'lo_gamma', 'all'
+% mc_latency = [0 2];
+freqtype = 'lo_gamma';  % 'hi_gamma' 'lo_gamma', 'all'
 comparison = 'valtype'; %'cuetype' 'valtype' 'cueconverge' 'cueagree' 'cuetype_valneg'
 event = event_full;
 
@@ -27,13 +27,13 @@ cfg = [];
 cfg.dataset = eegfile;
 cfg.channel = chans;
 
-cfg.trialfun = 'trl_fullrun';
-cfg.trialdef.pre = 30; % Picture viewing is at T = 0
-cfg.trialdef.post = 30;
-cfg.trialdef.event = event_full;
-cfg.continuous = 'yes';
-
-cfg = ft_definetrial(cfg);
+% cfg.trialfun = 'trl_fullrun';
+% cfg.trialdef.pre = 30; % Picture viewing is at T = 0
+% cfg.trialdef.post = 30;
+% cfg.trialdef.event = event_full;
+% cfg.continuous = 'yes';
+% 
+% cfg = ft_definetrial(cfg);
 
 cfg.reref = 'yes';
 cfg.refmethod = 'bipolar';
@@ -41,13 +41,13 @@ cfg.refmethod = 'bipolar';
 cfg.groupchans = 'yes';
 
 cfg.preproc.lpfilter = 'yes';
-cfg.preproc.lpfreq  = 150;
+cfg.preproc.lpfreq  = 200;
 cfg.preproc.hpfilter = 'yes';
 cfg.preproc.hpfreq = 3;
 
 cfg.preproc.bsfilter = 'yes';
 cfg.preproc.bsfiltord = 3;
-cfg.preproc.bsfreq = [59 61; 119 121];
+cfg.preproc.bsfreq = [58 62; 118 122];
 
 % cfg = [];
 % cfg.resamplefs = 1024;
@@ -72,7 +72,7 @@ cfg.keeptrials = 'yes';
 cfg = ft_definetrial(cfg);
 
 cfg.trl = cfg.trl;
-imgview = ft_redefinetrial(cfg, data);
+imgview2 = ft_redefinetrial(cfg, data);
 
 %%
 event = imgview.trialinfo;
@@ -135,8 +135,9 @@ figure, ft_singleplotER(cfg, ERP_condA, ERP_condB)
 figure, ft_singleplotER(cfg, ERP_allcue)
 %% time-frequency high gamma
     cfg             = [];
-
-    cfg.keeptrials  = 'yes';
+    
+    cfg.trials = [1 2 3];
+    cfg.keeptrials  = 'no';
 
     cfg.method      = 'tfr';
     switch freqtype 
@@ -155,29 +156,42 @@ figure, ft_singleplotER(cfg, ERP_allcue)
         case 'beta'
             cfg.foi        = [13:1:30];
         case 'full_broadband'
-            cfg.foi        = [4:1:30 30:5:55 65:5:115 125:5:150];
+            cfg.foi        = [4:1:29 30:5:55 65:5:115 125:5:150];
     end
 
     cfg.width      = 10 * ones(1,length(cfg.foi));
-
-    cfg.toi         = data.time{2*imgview.hdr.Fs}; %all samples
+    % cfg.toi        = data.time{1}(1):data.time{1}(end);
+    % cfg.toi         = data.time{2*imgview.hdr.Fs}; %all samples
     cfg.pad = 'nextpow2';
 
-    cfg.trials = cond1;
+    % TFR_all = ft_freqanalysis(cfg, imgview);
+    TFR_test1 = ft_freqanalysis(cfg, imgview);
+    TFR_test2 = ft_freqanalysis(cfg, imgview2);
 
-    TFR_condA = ft_freqanalysis(cfg, imgview);
+    %%
+    cfg                 = [];
+
+    cfg.trials          = cond1;
+
+    TFR_condA           = ft_selectdata(cfg, TFR_all);
     
-    cfg.trials = cond2;
+    cfg.trials          = cond2;
 
-    TFR_condB = ft_freqanalysis(cfg, imgview);
-
+    TFR_condB           = ft_selectdata(cfg, TFR_all);
+%%
+cfg = [];
+cfg.channel = 'RTA1-RTA2';
+% cfg.trials = 1;
+cfg.baseline = 'yes'
+cfg.baselinetype = 'relchange'
+ft_singleplotTFR(cfg, TFR_condA)
 %%
     % cfg.trials = 'all';
     % TFR_allcue_hiG = ft_freqanalysis(cfg, data);
     % HGP_allcue_hiG = rmfield(ERP_allcue, {'trial'});
     
-    HGP_condA = rmfield(ERP_condA, {'trial'});
-    HGP_condB = rmfield(ERP_condB, {'trial'});
+    % HGP_condA = rmfield(ERP_condA, {'trial'});
+    % HGP_condB = rmfield(ERP_condB, {'trial'});
 
 
     %%

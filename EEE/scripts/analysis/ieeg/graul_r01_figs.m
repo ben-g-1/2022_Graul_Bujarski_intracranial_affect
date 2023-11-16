@@ -1,8 +1,8 @@
-freqpath = 'C:\Users\bgrau\Dropbox (Dartmouth College)\PBS\2023_Graul_EEE\Data\EEE\processed\sub-01\imgview_freq_2b5a';
+freqpath = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\processed\sub-01\imgview\imgview_freq_2b5a';
 preproc = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\processed\sub-01\imgview\imgview_preproc_2b5a';
-% erp = 'C:\Users\bgrau\Dropbox (Dartmouth College)\PBS\2023_Graul_EEE\Data\EEE\processed\sub-01\imgview_ERP_2b5a';
-% load(freqpath);
-load(preproc);
+erp = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\processed\sub-01\imgview\imgview_ERP_2b5a';
+load(freqpath);
+% load(preproc);
 % load(erp);
 %%
 % cfg = [];
@@ -13,9 +13,9 @@ load(preproc);
 % cfg.demean = 'no';
 % cfg.baselinewindow = 'all';
 cfg.lpfilter = 'yes';
-cfg.lpfreq  = 8;
+cfg.lpfreq  = 150;
 cfg.preproc.hpfilter = 'yes';
-cfg.preproc.hpfreq = 2;
+cfg.preproc.hpfreq = 70;
 % cfg.padding = 10;
 %
 % 
@@ -25,7 +25,7 @@ cfg.padtype = 'data';
 cfg.bsfilter = 'yes';
 cfg.bsfiltord = 3;
 cfg.bsfreq = [59 61; 119 121; 179 181];
-% cfg.reref = 'yes';
+cfg.reref = 'yes';
 % cfg.refmethod = 'bipolar';
 % cfg.refchannel = 'LTHA7';
 % cfg.groupchans = 'yes';
@@ -33,7 +33,7 @@ cfg.trialfun = 'trl_singlephase';
 cfg.trialdef.pre = 2; % Picture viewing is at T = 0
 cfg.trialdef.post = 3;
 cfg.trialdef.offset = -2;
-cfg.trialdef.event = event_full;
+cfg.trialdef.event = 'trialinfo';
 cfg.trialdef.eventvalue = 6;
 cfg.keeptrial = 'yes';
 
@@ -160,7 +160,7 @@ ft_singleplotTFR(cfg, imgview_freq)
 
 cfg          = [];
 
-imgview_ERP = ft_timelockanalysis(cfg, imgview);
+% imgview_ERP = ft_timelockanalysis(cfg, imgview);
 cfg.keeptrials = 'yes';
 
 cfg.trials = imgview_freq.trialinfo.highcue_indx == 1;
@@ -212,9 +212,9 @@ end
 disp(sigelecs)
 %%
 cfg = [];
-% cfg.channel = 'RTA1';
-cfg.xlim = [-.2 1.2];
-
+cfg.channel = 'RTA1';
+% cfg.xlim = [-.2 1.2];
+%%
 % cfg.title = (sprintf('%s Average ERP at Stimulus Onset', cfg.channel))
 % legend('High Cue', 'Low Cue')
 % xlabel('Time (s)');
@@ -231,17 +231,19 @@ ft_singleplotER(cfg, imgview_ERP_hicue_bl, imgview_ERP_locue_bl);
 %%
 
 %%
-cfg.trials = imgview_freq.trialinfo.highcue_indx == 1;
-% cfg.trials = imgview_freq.trialinfo.val_type == 1;
-% cfg.trials = imgview_freq_RTA1.trialinfo.conform == 1;
-% cfg.trials = imgview_freq_RTA1.trialinfo.agree == 1;
 
+% cfg.trials = imgview_freq.trialinfo.highcue_indx == 1;
+% cfg.trials = imgview_freq.trialinfo.val_type == 1;
+% cfg.trials = imgview_freq.trialinfo.conform == 1;
+cfg.trials = imgview_freq.trialinfo.agree == 1;
+% cfg.channel = 'RTA1';
 
 imgview_freq_hicue = ft_selectdata(cfg, imgview_freq);
-cfg.trials = imgview_freq.trialinfo.highcue_indx == -1;
+
+% cfg.trials = imgview_freq.trialinfo.highcue_indx == -1;
 % cfg.trials = imgview_freq.trialinfo.val_type == -1;
-% cfg.trials = imgview_freq_RTA1.trialinfo.conform == 0;
-% cfg.trials = imgview_freq_RTA1.trialinfo.agree == 0;
+% cfg.trials = imgview_freq.trialinfo.conform == 0;
+cfg.trials = imgview_freq.trialinfo.agree == 0;
 
 imgview_freq_locue = ft_selectdata(cfg, imgview_freq);
 
@@ -285,8 +287,8 @@ ylabel('Percent Power', 'FontSize', 24, 'FontWeight','bold')
 set(gca, 'FontSize', 32)
 
 plot([1500 5000], [1 1], 'k--') % add horizontal line
-ylim([0.7 3.5])
-xlim([2000 4500])
+% ylim([0.7 3.5])
+% xlim([2000 4500])
 plot([2500 2500], [-0.5 3.5], 'r-', 'LineWidth', 2) % vert. l
 set(gca, 'XTick', [2000:500:4500], 'XTickLabel', {'-0.5' ' 0' '0.5' '1.0' '1.5' '2.0'});
 set(gca, 'YTick', [0.3 1 2 3], 'YTickLabel', [-100 0 100 200])

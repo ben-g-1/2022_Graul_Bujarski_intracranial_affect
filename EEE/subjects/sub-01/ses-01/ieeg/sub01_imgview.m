@@ -26,8 +26,8 @@ addpath(genpath(subjdir));
 %% Load iEEG Data
 
 
-subjdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE\subjects\sub-01';
-sesdir = fullfile(subjdir, 'ses-01', 'ieeg');
+subjdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-01';
+sesdir = fullfile(subjdir, 'ses-01');
 
 eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 

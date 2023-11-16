@@ -1,7 +1,7 @@
 %% Initial Stim Table Analysis
 
 clear all
-subjectnum = '01';
+subjectnum = '03';
 sessionnum = '01';
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
 filedir = fullfile(projdir, 'assets');
@@ -94,16 +94,13 @@ for v = 1:height(stim_table)
     end % agreement
 end
 
+
 %% Load iEEG Data
 
-% iEEG Channels
-% RPXA*, RPPC*, RPRS*, RPAG*, RTA*, RTHA*, RTF*, RTS*, RIA*, LFC*, RFC*, LTA*, LTHA*
+%%% iEEG Channels %%%
+% LFMC*, LFC*, LPPC*, RSMA*, RFC*, RSMAB*, RSMAC*, LSMA* 
 
-% subjdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE\subjects\sub-01';
-% sesdir = fullfile(subjdir, 'ses-01', 'ieeg');
-
-subjectnum = '01';
-sesdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-01\ses-01';
+sesdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-03\ses-01';
 eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
 % Find and label unneeded channels
@@ -112,21 +109,6 @@ cfg.dataset    = eegfile;
 cfg.continuous = 'yes';
 
 hdr              = ft_read_header(cfg.dataset);
-
-
-
-extrachan = {}; % at DHMC, channels starting with C are empty.
-rowcnt = 1;
-for i = 123:128
-    i_str = string(i);
-    chan = strcat('-C', i_str);
-    chan = convertStringsToChars(chan);
-    extrachan{rowcnt} = chan;
-    rowcnt = rowcnt + 1;
-end
- 
-% Find bad channels
-badchan = {'-LTHA6', '-RPAG7', '-RPAG11', '-RFC5','-LTA2', '-LTA5', '-RPAG8', '-RPRS13', '-LTA8', '-RPAG3', '-RTF2','-LTHA1', '-LTHA2', '-RTF4', '-RPRS15', '-RTHA3', '-RTF10', '-RTF11', '-RPRS5', '-LFC5', '-LTHA11', '-LTHA12'};
 
 rowcnt = 1;
 emptychan = {};
@@ -137,95 +119,118 @@ for i = 182:256
     emptychan{rowcnt} = chan;
     rowcnt = rowcnt + 1;
 end
+
+%   Scalp EEG
 eegchan          = strcat('-', ft_channelselection({'eeg'}, hdr.label));
 
-chans    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
-    '-OSAT', '-*DC*', eegchan{:}, badchan{:}, emptychan{:}, extrachan{:}}, hdr.label);
+% CHANNELS
+% 
+chans             = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
+    '-OSAT', '-*DC*' eegchan{:}, emptychan{:}}, hdr.label);
 
-cfg.channel = chans;
+depths = {'LSMAB*', 'LFMC*', 'LFCA*', 'LPPC*', 'RSMAB*', 'RSMAC*', 'RSMA*',  ...
+      'LSMA*', 'RFMC*', 'RPC*', 'RPPC*', 'RFCA*', 'RFOA*', 'RFOB*', ...
+     'RFA*', 'RFC*', 'LFC*', 'LPC*'};
 
-depths         = {'RPXA*', 'RPPC*', 'RPRS*', 'RPAG*', 'RTA*', 'RTHA*', 'RTF*', 'RTS*', 'RIA*', 'LFC*', 'RFC*', 'LTA*', 'LTHA*'};
+cfg.channel    =  chans;
 
-% ft_databrowser(cfg,data)
-% LTHA11/12, RFC4-6,
+%% Detect events from photodiode
 
-data = ft_preprocessing(cfg);
 
-%% Detect event_fulls from photodiode
+% Marker is DC4
+% Downward deflections mean that light is on
 
-event_full           = ft_read_event(cfg.dataset, 'detectflank', 'both', 'chanindx', find(ismember(hdr.label, 'DC3')));
-%%
+
+cfg.dataset      = eegfile;
+
+% trigger detection 
+% hdr              = ft_read_header(cfg.dataset);
+event            = ft_read_event(cfg.dataset, 'detectflank', 'both', 'chanindx', find(ismember(hdr.label, 'DC4')));
 idx              = [];
-for e = 1:numel(event_full)
-  if isequal(event_full(e).type, 'annotation')% | ~isequal(event_full(e).type, 'DC3_down')
-    idx = [idx e]; % event_fulls to be tossed
+for e = 1:numel(event)
+  if isequal(event(e).type, 'annotation')
+    idx = [idx e]; % events to be tossed
   end
 end
 
-event_full(idx)       = [];
-%%
+event(idx)       = [];
 
-% Calculate timestamps and durations
-for i = 1:length([event_full.sample])
-    event_full(i).timestamp = event_full(i).sample / hdr.Fs;
-end
-for i = 1:length([event_full.sample])
-    if i < length([event_full.sample])
-        event_full(i).duration = event_full(i+1).timestamp - event_full(i).timestamp;
-    end
-end
+
+%%
+% First on at 786
+% End around 1835
+
+% find starting sample 
+% 558454/hdr.fsample
+% 786*hdr.fsample % starts at row 54
+% (64*8) + 54 % ends at row 566
+
+event(1:54)      = [];
+
+
+
+
+
+
 %%
 
 t = 1;
-trial = 0;
-for i = 1:length([event_full.sample])
-    event_full(i).trial = trial;
+trial = 1;
+for i = 1:length([event.sample])
+    event(i).trial = trial;
     if t == 1 || t == 5
-        event_full(i).label = 'break';
-        event_full(i).phase = t;
+        event(i).label = 'break';
+        event(i).phase = t;
         t = t + 1;
     elseif t == 2
-        event_full(i).label = 'exp';
-        event_full(i).phase = t;
+        event(i).label = 'exp';
+        event(i).phase = t;
         t = t + 1;
     elseif t == 3 || t == 7
-        event_full(i).label = 'flip';
-        event_full(i).phase = t;
+        event(i).label = 'flip';
+        event(i).phase = t;
         t = t + 1;
     elseif t == 4
-        event_full(i).label = 'exp_rate';
-        event_full(i).phase = t;
+        event(i).label = 'exp_rate';
+        event(i).phase = t;
         t = t + 1;
     elseif t == 6
-        event_full(i).label = 'img';
-        event_full(i).phase = t;
+        event(i).label = 'img';
+        event(i).phase = t;
         t = t + 1;
     else 
-        event_full(i).label = 'img_rate';
-        event_full(i).phase = t;
+        event(i).label = 'img_rate';
+        event(i).phase = t;
         t = 1;
         trial = trial + 1;
     end
-    if i < 28 || i > length([event_full.sample])-3
-        event_full(i).label = [];
-        event_full(i).trial = 0;
-        event_full(i).phase = [];
-        trial = 1;
-        t = 1;
+end
+%%
+% Fill Duration Column
+for i = 1:length([event.sample])
+    event(i).timestamp = event(i).sample / hdr.Fs;
+end
+for i = 1:length([event.sample])
+    if i < length([event.sample])
+        event(i).duration = event(i+1).timestamp - event(i).timestamp;
     end
 end
+
+% Now that duration is filled, remove extra rows
+event(513:end)   = [];
+
 %%
 % Drop empty rows
-idx = [];
-for e = 1:numel(event_full)
-    if isempty(event_full(e).label)
-        idx = [idx e];
-    end
-end
-event_full(idx)     = [];
+% idx = [];
+% for e = 1:numel(event_full)
+%     if isempty(event_full(e).label)
+%         idx = [idx e];
+%     end
+% end
+% event_full(idx)     = [];
 %%
 % Drop redundant columns
-event_full = rmfield(event_full, {'offset', 'type', 'value'});
+event_full = rmfield(event, {'offset', 'type', 'value'});
 
 %% Extend stim_table to length of event_full timing
 longstim = table();
@@ -249,32 +254,32 @@ else
     warning('Number of trials between event table and initial table do not match.')
 end
 
-
-%% Create event_full table per trial
-% fulltrial = struct;
-% for t = 1:64
-% fulltrial(t) = event_full(1 + ((t-1)*8));
-% fulldur = 0;
-% for i = (1 +((t-1)*8)):(8 + ((t-1)*8))
-%     dur = event_full(i).duration;
-%     fulldur = fulldur + dur;
-% end
-% fulltrial(t).duration = fulldur;
+% %% Extend stim_table to length of event timing
+% longstim = table();
+% for i = 1:numel(stim_table.trial_number)
+%     tbl = table();
+%     for r = 1:8
+%         tbl(r,:) = stim_table(i,:);
+%     end
+%     longstim = [longstim; tbl];
 % end
 
-% fulltrial = rmfield(fulltrial, ['phase'; 'label'; 'trial']);
-% f = struct2table(fulltrial);
-% f = sortrows(f, 'Pair', 'ascend');
-% fulltrial = table2struct(f);
+
+
+%% Label sanity checks
+
+if length([event_full]) > 512
+    warning('Too many events were labeled. Number of events:')
+    length([event_full])
+end
 %% Compare length of rating periods
-
 
 %%% Expectation %%%
 comp = event_full;
 idx = [];
 for e = 1:numel(event_full)
   if ~isequal(event_full(e).phase, 4)
-    idx = [idx e]; % event_fulls to be tossed
+    idx = [idx e]; % events to be tossed
   end
 end
 
@@ -293,7 +298,7 @@ comp = event_full;
 idx = [];
 for e = 1:numel(event_full)
   if ~isequal(event_full(e).phase, 8)
-    idx = [idx e]; % event_fulls to be tossed
+    idx = [idx e]; % events to be tossed
   end
 end
 
@@ -303,10 +308,8 @@ b = [comp.val_RT].';
 c = a - b;
 if sum(abs(c)) > 0.5
     warning('Differences in MATLAB and EEG recording periods are large.')
-    disp('Phase: Image Ratings')
+    disp('Phase: Expectation Ratings')
     disp(sum(abs(c)))
 end
 
-%%
-clearvars -except longstim event_full hdr depths chans eegfile stim_table data
-beep
+clearvars -except longstim event_full hdr depths chans eegfile stim_table
