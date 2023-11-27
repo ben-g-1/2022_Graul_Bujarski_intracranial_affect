@@ -57,7 +57,7 @@ elecs = strrep(elecs, '6', '*');
 %%
     depths = {'LFMC*', 'LFC*', 'LPPC*', 'RSMAB*', 'RSMAC*', 'RSMA*', 'RFC*', ...
      'LSMA*'};
-testchannellist = []
+testchannellist = [];
 for d = 1:numel(depths)
     cfg            = [];
     cfg.dataset    = data;

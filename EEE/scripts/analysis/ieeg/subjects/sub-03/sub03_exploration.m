@@ -29,13 +29,12 @@ eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
 cfg            = [];
 cfg.dataset    = eegfile;
-cfg.continuous = 'yes';
+% cfg.continuous = 'yes';
 hdr              = ft_read_header(cfg.dataset);
-cfg.channel    = 'all'; %% For first pass
-%%
-data           = ft_preprocessing(cfg);
-beep
-%%
+% cfg.channel    = 'all'; %% For first pass
+
+% data           = ft_preprocessing(cfg);
+
 % INPUT INITIAL BAD CHANNELS HERE
 % Exclusion criteria:
 %   Empty
@@ -57,7 +56,7 @@ beep
 
 rowcnt = 1;
 emptychan = {};
-for i = 182:256
+for i = 193:256
     i_str = string(i);
     chan = strcat('-C', i_str);
     chan = convertStringsToChars(chan);
@@ -72,6 +71,55 @@ eegchan          = strcat('-', ft_channelselection({'eeg'}, hdr.label));
 
 cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
     '-OSAT', '-*DC*' eegchan{:}, emptychan{:}}, hdr.label);
+
+cfg.demean = 'yes'; 
+cfg.detrend = 'yes';
+% cfg.demean = 'no';
+cfg.baselinewindow = 'all';
+cfg.lpfilter = 'yes';
+cfg.lpfreq  = 150;
+cfg.preproc.hpfilter = 'yes';
+cfg.preproc.hpfreq = 3;
+% cfg.padding = 10;
+%
+% 
+% 
+% 
+cfg.padtype = 'data';
+cfg.bsfilter = 'yes';
+cfg.bsfiltord = 3;
+cfg.bsfreq = [59 61; 119 121];%; 179 181];
+cfg.reref = 'yes';
+cfg.refmethod = 'bipolar';
+% cfg.refchannel = 'LTHA7';
+cfg.groupchans = 'yes';
+cfg.trialfun = 'trl_singlephase';
+cfg.trialdef.pre = 3; % Picture viewing is at T = 0
+cfg.trialdef.post = 5;
+cfg.trialdef.offset = -3;
+cfg.trialdef.event = event_full;
+cfg.trialdef.eventvalue = 6;
+cfg.keeptrial = 'yes';
+
+cfg = ft_definetrial(cfg);
+%%
+data = ft_preprocessing(cfg);
+
+%%
+cfg.trialfun = 'trl_singlephase';
+cfg.trialdef.pre = 3; % Picture viewing is at T = 0
+cfg.trialdef.post = 5;
+cfg.trialdef.offset = -3;
+cfg.trialdef.event = event_full;
+cfg.trialdef.eventvalue = 6;
+cfg.keeptrial = 'yes';
+
+cfg = ft_definetrial(cfg);
+trl_data = ft_selectdata(cfg, data);
+%%
+
+cfg = [];
+ft_databrowser(cfg,data)
 %%
 
 cfg.reref = 'yes';
@@ -79,7 +127,10 @@ cfg.refmethod = 'bipolar';
 cfg.groupchans = 'yes';
 
 bp_data = ft_preprocessing(cfg, data);
+
 %%
+
+cfg.dataset = eegfile;
 cfg.trialfun = 'trl_singlephase';
 cfg.trialdef.pre = 2; % Picture viewing is at T = 0
 cfg.trialdef.post = 3;
@@ -89,10 +140,10 @@ cfg.trialdef.eventvalue = 6;
 cfg.keeptrial = 'yes';
 
 cfg = ft_definetrial(cfg);
-bp_data = ft_preprocessing(cfg, bp_data);
-%%
-cfg = [];
-ft_databrowser(cfg,bp_data)
+bp_trl_data = ft_selectdata(cfg, bp_data);
+
+
+%%% PROBABLY NOT REAL BELOW
 % 
 % %% Find bad channels
 % 
@@ -282,7 +333,7 @@ cfg.dataset        = eegfile;
 cfg.demean         = 'yes';
 cfg.baselinewindow = 'all';
 cfg.lpfilter       = 'yes';
-cfg.lpfreq         = 80;
+cfg.lpfreq         = 150;
 % cfg.padding        = .5;
 % cfg.padtype        = 'data';
 cfg.bsfilter       = 'yes';
@@ -340,17 +391,18 @@ cfg.t_ftimwin    = ones(length(cfg.foi),1).*0.2;
 cfg.taper        = 'hanning';
 cfg.output       = 'pow';
 cfg.keeptrials   = 'no';
-freq             = ft_freqanalysis(cfg, reref);
+freq             = ft_freqanalysis(cfg, data);
 
 %%
 cfg = [];
-cfg.baseline = [-1 -0.1];
+cfg.baseline = [-0.3 -0.1];
 cfg.parameter = 'powspctrm';
-cfg.baselinetype = 'relchange';
-cfg.zlim = [-1 3];
+cfg.baselinetype = 'db';
+cfg.ylim = [30, 160];
+% cfg.zlim = [-1 3];
 
-for c = 1:numel(reref.label)
-    cfg.channel = reref.label{c};
+% for c = 1:numel(reref.label)
+    cfg.channel = 100;
 % cfg.channel = reref.label{story(c)}; % top figure
     % freq             - ft_freqbaseline(cfg,freq)
     figure; 
@@ -358,16 +410,8 @@ for c = 1:numel(reref.label)
 %     xlabel('Time (s)');
 %     ylabel('Frequency (Hz)');
     ft_singleplotTFR(cfg, freq);
-end
-% ft_singleplotER(cfg, freq)
-% Interesting: LTHA had decrease in low freq, increase in gamma around .6s
-% LTA 1-2 has great 60Hz patch at .6 sec (122)
-% Really consistent decrease in low frequency around .6-1.4s for LTA, RFC
-% RTF has huge increases in beta power at 1.6 seconds, some in gamma
-% Preceded by decrease in all sub-gamma activity
-% Huge RTA gamma spike at 1.6 seconds. Early gamma activity in RTA1-2
-% Possible seizure during image trial 62, timestamp ~1584
-% story = [5 10 25 36 49 59 70 71 80 82 97 115 124 122];
+% end
+
 %%
 cfg.channel = reref.label{103}; % top figure
 % freq             - ft_freqbaseline(cfg,freq)

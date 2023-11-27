@@ -1,6 +1,6 @@
 %% Initial Stim Table Analysis
 
-% clear all
+clear all
 subjectnum = '02';
 sessionnum = '01';
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
@@ -101,8 +101,9 @@ end
 %%% iEEG Channels %%%
 % 
 
+sesdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-02\ses-01';
 
-eegfile = fullfile(datadir, ['EEE_PT-', subjectnum, '_BG.EDF']);
+eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
 % Find and label unneeded channels
 cfg            = [];

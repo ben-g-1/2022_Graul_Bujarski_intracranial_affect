@@ -16,8 +16,9 @@ imagedir = fullfile(filedir, 'oasis_pairs');
 %%% iEEG Channels %%%
 % 
 
+sesdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-02\ses-01';
 
-eegfile = fullfile(datadir, ['EEE_PT-', subjectnum, '_BG.EDF']);
+eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 
 % Find and label unneeded channels
 cfg            = [];
@@ -43,15 +44,15 @@ cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
 % 
 % cfg = ft_definetrial(cfg);
 
-%%
-% cfg.demean = 'yes'; 
-% cfg.detrend = 'yes';
+
+cfg.demean = 'yes'; 
+cfg.detrend = 'yes';
 % cfg.demean = 'no';
-% cfg.baselinewindow = 'all';
+cfg.baselinewindow = 'all';
 cfg.lpfilter = 'yes';
-cfg.lpfreq  = 200;
+cfg.lpfreq  = 150;
 cfg.preproc.hpfilter = 'yes';
-cfg.preproc.hpfreq = 2;
+cfg.preproc.hpfreq = 3;
 % cfg.padding = 10;
 %
 % 
@@ -60,15 +61,15 @@ cfg.preproc.hpfreq = 2;
 cfg.padtype = 'data';
 cfg.bsfilter = 'yes';
 cfg.bsfiltord = 3;
-cfg.bsfreq = [59 61; 119 121; 179 181];
-% cfg.reref = 'yes';
-% cfg.refmethod = 'bipolar';
+cfg.bsfreq = [59 61; 119 121];%; 179 181];
+cfg.reref = 'yes';
+cfg.refmethod = 'bipolar';
 % cfg.refchannel = 'LTHA7';
-% cfg.groupchans = 'yes';
+cfg.groupchans = 'yes';
 cfg.trialfun = 'trl_singlephase';
-cfg.trialdef.pre = 4; % Picture viewing is at T = 0
-cfg.trialdef.post = 2;
-cfg.trialdef.offset = -4;
+cfg.trialdef.pre = 3; % Picture viewing is at T = 0
+cfg.trialdef.post = 5;
+cfg.trialdef.offset = -3;
 cfg.trialdef.event = event;
 cfg.trialdef.eventvalue = 6;
 cfg.keeptrial = 'yes';
