@@ -19,10 +19,12 @@ trlinfo.rate_diff = abs(trlinfo.val_rating - trlinfo.exp_rating);
 
 % design = [ones(63,1) trlinfo.val_type trlinfo.highcue_indx];
 
-design = [ones(63,1) trlinfo.Valence_mean trlinfo.cue_observed_mean];
+design = [ones(63,1) trlinfo.Valence_mean trlinfo.val_rating];
+% design = [ones(63,1) trlinfo.Valence_mean trlinfo.highcue_indx];
+
 % design = [ones(64,1) trlinfo.Valence_mean trlinfo.exp_rating];
 
-% design = [ones(64,1) trlinfo.rate_diff];
+% design = [ones(64,1) trlinfo.Valence_mean trlinfo.rate_diff];
 
 cfg = [];
 cfg.confound = design;
@@ -38,7 +40,7 @@ betas = ft_regressconfound_absfix(cfg, data);
 bsize = size(betas.beta)
 %%
 
-d_factor = 2;
+d_factor = 3;
 % fullp = reshape(betas.prob(d_factor,:,:,:), bsize(2)*bsize(3), bsize(4));
 fullp = reshape(betas.prob, [], 1);
 
@@ -59,7 +61,6 @@ betas.cor_prob = reshape(adj_p, bsize);
 
 cfg = [];
 cfg.avgoverrpt = 'yes';
-% cfg.trial = d_factor;
 cfg.baseline = 'yes';
 cfg.baselinetype = 'zscore';
 
@@ -78,6 +79,7 @@ for chan = 1:numel(mask_data.label)
     
 end
 
+mask_data.h = mask_p;
 fprintf('Masking complete.')
 
 
@@ -87,8 +89,8 @@ c = 1;
 sigchans = {};
 for i = 1:numel(mask_data.label)
     channame = mask_data.label{i};
-    % if sum(sum(mask_p(i,:,:))) > 800
-    if sum(sum(mask_p(i,:))) > 300
+    if sum(sum(mask_p(i,:,:))) > 600
+    % if sum(sum(mask_p(i,:))) > 300
     
         sigchans{c} = channame;
         c = c + 1;
@@ -100,20 +102,21 @@ sigchans
 %%
 cfg = [];
 for chan = 1:numel(sigchans)
-cfg.channel = sigchans{chan};
-cfg.funparameter = 'powspctrm';
-cfg.maskparameter = 'mask';
-cfg.xlim = [-0.2 1.5];
-% cfg.maskstyle = 'saturation';
-% cfg.colormap = 'RdBu';
-% cfg.zlim = [-2 2];
-% ft_singleplotTFR(cfg, mask_data)
-% ft_singleplotER(cfg, mask_data)
-   % fig = gcf;
-   % fig.Position = [1300 500 560 420];
-ft_singleplotTFR(cfg, mask_data)
-   fig = gcf;
-   fig.Position = [700 500 560 420];
+    cfg.channel = sigchans{chan};
+    cfg.funparameter = 'powspctrm';
+    cfg.maskparameter = 'h';
+    % cfg.maskalpha = .8;
+    % cfg.xlim = [-0.2 2];
+    % cfg.maskstyle = 'saturation';
+    % cfg.colormap = 'RdBu';
+    % cfg.zlim = [-2 2];
+    % ft_singleplotTFR(cfg, mask_data)
+    % ft_singleplotER(cfg, mask_data)
+       % fig = gcf;
+       % fig.Position = [1300 500 560 420];
+    ft_singleplotTFR(cfg, mask_data)
+       fig = gcf;
+       fig.Position = [700 500 560 420];
 
 end
 %%
@@ -159,9 +162,9 @@ for chan = 1%:height(betas.label)
 end
 
 %% Permutation Testing
-perm_num = 10;
+perm_num = 5;
 t_null = {perm_num};
-for k = 1:numel(betas.label)
+for k = 1:10%numel(betas.label)
    % t_val = betas.stat(2,k,:,:);
 for i = 1:perm_num
     betas_null = {};
@@ -187,7 +190,7 @@ end
 %%
 % t thresholds
 null_thresh = {};
-for k = 1:numel(betas.label)
+for k = 1:10%numel(betas.label)
     max_null = {};
     for i = 1:perm_num
     max_null{i} = max(max(abs(t_null{i,k}(2,:,:,:))));
@@ -203,7 +206,7 @@ beep
 
 %% masking
 mask_t = zeros(bsize(2), bsize(3), bsize(4));
-for k = 1:numel(betas.label)
+for k = 1:10%numel(betas.label)
     t_val = (squeeze(betas.stat(2,k,:,:)));
     t_val(abs(t_val) < abs(null_thresh{k})) = 0;
     t_val(t_val ~= 0) = 1;
