@@ -405,21 +405,20 @@ ax.FontSize = 20;
 legend([highdots lowdots], {'High Cue', 'Low Cue'})
 %%
 figure; hold on;
-set(gca, 'FontSize', 32)
-scn_export_papersetup(400);
+% scn_export_papersetup(400);
 % cfg.title = sprintf('%s Average Image Response', cfg.channel);
 % title('High Gamma Activity Following Image Onset', 'FontSize', 26)
-ylabel({'Frequency (Hz)'; '2 Hz Step'}, 'FontSize', 32, 'FontWeight','bold')
-xlabel({'Time After Image Onset (s)'}, 'FontSize', 32, 'FontWeight','bold')
+
 % zlabel({'*100'});
 % set(gca, 'ZTick', -2:9, 'ZTickLabel', ['-200%' '0']);
-
+%%
 cfg = [];
-cfg.title = 'Gamma Activity Following Image Onset';
-cfg.fontsize = 32;
-cfg.figure = gcf;
-% cfg.xlim = [0 1.5]; % trim the empty space
-% cfg.ylim = [35 101]; %focus on mid/high gamma
+% cfg.title = 'Amygdala Gamma Activity Following Image Onset';
+% cfg.fontsize = 32;
+% cfg.figure = gcf;
+cfg.latency = [-0.5 1.5];
+cfg.xlim = [0 1.3]; % trim the empty space
+cfg.ylim = [1 100]; %focus on mid/high gamma
 % cfg.zlim = [-2 5]; % set scale to be the same across figures
 cfg.parameter = 'powspctrm';
 cfg.baseline = [-0.5 -0.001];
@@ -428,7 +427,10 @@ cfg.baselinetype = 'db';
 cfg.channel = 'RTA1';
 cfg.trials      = 'all';
 ft_singleplotTFR(cfg, imgview_freq)
-
+hold on;
+ylabel({'Frequency (Hz)'; 'dB Transform'}, 'FontSize', 24)
+xlabel({'Time After Image Onset (s)'}, 'FontSize', 24)
+title('Right Amygdala Mean Image Response', 'FontSize', 24, 'FontWeight','bold')
 
 
 %%

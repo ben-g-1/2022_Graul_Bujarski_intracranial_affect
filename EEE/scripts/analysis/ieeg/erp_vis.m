@@ -3,40 +3,92 @@
 
 %%
 cfg = [];
-cfg.pad = 'nextpow2';
-
+% cfg.pad = 'nextpow2';
+cfg.latency = [-0.3 1.5];
 cfg.keeptrials = 'yes';
 % cfg.toi         = data.time{1}(hdr.Fs * 3):timres:data.time{1}(hdr.Fs * 5);  % begin to end of experiment
 
+ERP_all = ft_timelockanalysis(cfg, data_clean);
 % cfg.covariance = 'yes';
-cfg.trials = event.highcue_indx == 1;
+cfg.trials = data_clean.trialinfo.conform == 1;
+cfg.keeptrials = 'no';
 
-ERP_hi = ft_timelockanalysis(cfg, imgview);
 
-cfg.trials = event.highcue_indx == -1;
+ERP_hi = ft_timelockanalysis(cfg, data_clean);
+
+cfg.trials = data_clean.trialinfo.conform == 0;
 
 % imgview_ERP = ft_timelockanalysis(cfg, imgview);
 
-
-% 
-% 
-ERP_lo = ft_timelockanalysis(cfg, imgview);
+ERP_lo = ft_timelockanalysis(cfg, data_clean);
 
 %%
-cfg         = [];
-cfg.layout  = 'natmeg_customized_eeg1005.lay';
-cfg.channel   = c;
-% cfg.ylim    = [-50 50]; % Millivolts
-% cfg.trials = 16;
-
-ft_singleplotER(cfg, ERP_hi);
+% cfg         = [];
+% cfg.layout  = 'natmeg_customized_eeg1005.lay';
+% cfg.channel   = 53;
+% % cfg.ylim    = [-50 50]; % Millivolts
+% % cfg.trials = 16;
+% 
+% ft_singleplotER(cfg, ERP_hi, ERP_lo);
 
 % cfg.channel   = ft_channelselection('RTA1-RTA2', imgview_ERP.label);
 % cfg.figure = 'no';
 % cfg.trials = 56;
-ft_singleplotER(cfg, ERP_lo);
+% ft_singleplotER(cfg, ERP_lo);
+%%
+cfg           = [];
+
+cfg.layout        = 'natmeg_customized_eeg1005.lay';
+cfg.method    = 'analytic'; % using a parametric test
+cfg.statistic = 'ft_statfun_indepsamplesT'; % using independent samples
+cfg.correctm  = 'no'; % no multiple comparisons correction
+cfg.alpha     = 0.05;
+
+cfg.design    = data_clean.trialinfo.conform; % indicating which trials belong ...
+                                         % to what category
+
+for i = 1:numel(cfg.design)
+    if cfg.design(i,1) <= 0
+        cfg.design(i,1) = 2;
+    end
+end
 
 
+cfg.ivar      = 1; % indicating that the independent variable is found in ...
+                   % first row of cfg.design
+
+stat_t = ft_timelockstatistics(cfg, ERP_all);
+ERP_hi.mask = stat_t.mask;
+% %%
+% for i = 1:numel(ERP_all.label)
+%    if sum(stat_t.mask(i,:)) > 500
+%        disp(ERP_all.label(i))
+%    end
+% end
+    
+    
+% figure
+
+cfg     = [];
+% cfg.maskparameter = 'mask';
+cfg.maskstyle = 'box';
+cfg.maskfacealspha = '0.5';
+cfg.keeptrials = 'no';
+cfg.channel = 'RTA1';
+cfg.ylim          = [-150 100];
+
+ft_singleplotER(cfg, ERP_hi, ERP_lo);
+
+hold on;
+xlabel('Time (s)')
+ylabel('Electric Potential (uV)')
+title('Subject 1 Right Amygdala')
+plot([ERP_hi.time(1), ERP_hi.time(end)], [0 0], 'k--')
+plot([0 0], cfg.ylim, 'k--') % vert. l
+
+axes = gca;
+fontsize(24,'points')
+legend(axes, {'Conform', 'Deviate'})
 %%
 c_hi = [1 0 0];
 c_lo = [0 0 0.8];

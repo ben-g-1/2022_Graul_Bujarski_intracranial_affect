@@ -88,8 +88,7 @@ sigchans = {};
 for i = 1:numel(mask_data.label)
     channame = mask_data.label{i};
     % if sum(sum(mask_p(i,:,:))) > 800
-    if sum(sum(mask_p(i,:))) > 20
-
+    if sum(sum(mask_p(i,:))) > 300
     
         sigchans{c} = channame;
         c = c + 1;
@@ -109,21 +108,21 @@ cfg.xlim = [-0.2 1.5];
 % cfg.colormap = 'RdBu';
 % cfg.zlim = [-2 2];
 % ft_singleplotTFR(cfg, mask_data)
-ft_singleplotER(cfg, mask_data)
+% ft_singleplotER(cfg, mask_data)
    % fig = gcf;
    % fig.Position = [1300 500 560 420];
-% ft_singleplotTFR(cfg, mask_data)
+ft_singleplotTFR(cfg, mask_data)
    fig = gcf;
    fig.Position = [700 500 560 420];
 
 end
 %%
 
-for chan = 1:height(betas.label)
+for chan = 1%:height(betas.label)
 
-    % valence_betas = squeeze(betas.beta(1,chan,:,:));
-    % valence_t = squeeze(betas.stat(1,1,:,:));
-    % valence_p = squeeze(betas.prob(1,1,:,:));
+    valence_betas = squeeze(betas.beta(1,chan,:,:));
+    valence_t = squeeze(betas.stat(1,1,:,:));
+    valence_p = squeeze(betas.prob(1,1,:,:));
     
     % Normalize Frequency contributions
     norm_val = zscore(valence_betas, 0, 2);
@@ -160,7 +159,7 @@ for chan = 1:height(betas.label)
 end
 
 %% Permutation Testing
-perm_num = 1000;
+perm_num = 10;
 t_null = {perm_num};
 for k = 1:numel(betas.label)
    % t_val = betas.stat(2,k,:,:);
@@ -213,7 +212,7 @@ end
 
 
 %%
-for chan = 1:numel(t_val_mask)
+for chan = 1:10%:numel(t_val_mask)
 
     % valence_betas = squeeze(betas.beta(1,chan,:,:));
     % valence_t = squeeze(betas.stat(1,1,:,:));
@@ -246,7 +245,7 @@ for chan = 1:numel(t_val_mask)
     % Customize the colormap and set common color scale
     colormap('hsv');
     colorbar;
-    % clim(ax, [-5 5]);
+    clim(ax, [-5 5]);
     
     % 
     hold off;

@@ -21,7 +21,7 @@ datadir = fullfile(projdir, 'Data', 'raw', ['sub-', subjectnum], 'ses-01');
 fsdir   = fullfile(subjdir, 'freesurfer');
 
 event = fullfile(subjdir, ['sub-', subjectnum, '_event_clean.mat']);
-% chans = fullfile(subjdir, ['sub-', subjectnum, '_electrodes_clean.mat']);
+chans = fullfile(subjdir, ['sub-', subjectnum, '_electrodes_clean.mat']);
 depth_names = fullfile(subjdir, ['sub-', subjectnum, '_depth_names.mat']);
 eegfile = fullfile(datadir, ['EEE_PT-', subjectnum, '_BG.EDF']);
 elec = fullfile(subjdir, ['EEE_sub-', subjectnum, '_elec_acpc_f.mat']);
@@ -29,10 +29,10 @@ elec = fullfile(subjdir, ['EEE_sub-', subjectnum, '_elec_acpc_f.mat']);
 addpath(subjdir)
 cd(subjdir)
 
-% load(event);
-% % load(chans);
+load(event);
+load(chans);
 load(elec);
-% load(depth_names);
+load(depth_names);
 %% Preprocess %%
 cfg                     = [];
 cfg.dataset             = eegfile;
@@ -41,13 +41,13 @@ cfg.channel             = chans;
 cfg.demean              = 'yes'; 
 cfg.baselinewindow      = 'all'; 
 
-cfg.preproc.lpfilter    = 'yes';
-cfg.preproc.lpfiltord   = 4;
-cfg.preproc.lpfreq      = 150;
+cfg.lpfilter    = 'yes';
+cfg.lpfiltord   = 4;
+cfg.lpfreq      = 150;
 
-cfg.preproc.bsfilter    = 'yes';
-cfg.preproc.bsfiltord   = 3;
-cfg.preproc.bsfreq      = [58 62; 118 122];
+cfg.bsfilter    = 'yes';
+cfg.bsfiltord   = 3;
+cfg.bsfreq      = [58 62; 118 122];
 
 %% Define Trials %%
 
@@ -115,7 +115,7 @@ cfg.channel            = 'RTA1-RTA2';
 cfg.avgoverrpt         = 'yes';
 
 % cfg.baseline           = [-1.51 -1.01]; 
-cfg.baselinetype       = 'db';
+cfg.baselinetype       = 'relchange';
 
 cfg.latency            = [-1 3];
 
@@ -211,7 +211,7 @@ cfg.minnbchan        = 2;
 cfg.tail             = 0;
 cfg.clustertail      = 0;
 cfg.alpha            = 0.025;
-cfg.numrandomization = 1000;
+cfg.numrandomization = 100;
 
 % prepare_neighbours determines what sensors may form clusters
 cfg_neighb.elec = imgview_freq.elec;
