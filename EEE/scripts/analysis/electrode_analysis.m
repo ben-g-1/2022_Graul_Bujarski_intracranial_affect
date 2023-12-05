@@ -239,7 +239,7 @@ cfg.method           = 'montecarlo';
 cfg.correctm         = 'cluster';
 
 cfg.clusteralpha     = 0.05;
-cfg.clusterstatistic = 'wcm';
+cfg.clusterstatistic = 'wcm'; %maxsum
 cfg.neighbours       = []; % no spatial information is exploited for statistical clustering
 cfg.numrandomization = 300;
 cfg.statistic        = 'indepsamplesT'; % idependent samples test for statistical testing on the single-trial level
@@ -251,7 +251,7 @@ cfg.tail             = 0;
 cfg.clustertail      = 0;
 cfg.alpha            = 0.05;
 cfg.correcttail      = 'prob';
-cfg.design           = [ones(1,size(HGP_condA_bl.trial,1)), 2*ones(1,size(HGP_condB_bl.trial,1))];
+cfg.design           = [ones(1,size(HGP_condA_bl.trial,1)), 2*ones(1,size(HGP_condB_bl.trial,1))]; % make this task vs baseline dummy (dummy 
 % cfg.design = (event.Pair)';
 %% Find significant channels in ERP
 stats_ERP = ft_timelockstatistics(cfg,ERP_condA_bl,ERP_condB_bl);
@@ -262,7 +262,7 @@ sigchans_ERP = unique(sigchans_ERP)
 
 
 %% Find significant channels in HGP
-stats_HGP = ft_timelockstatistics(cfg,HGP_condA_bl,HGP_condB_bl);
+stats_HGP = ft_timelockstatistics(cfg,HGP_condA_bl,HGP_condB_bl); %ft_freqstatistics
 
 [sigchans_HGP time_HGP] = find(stats_HGP.mask);
 sigchans_HGP = unique(sigchans_HGP)

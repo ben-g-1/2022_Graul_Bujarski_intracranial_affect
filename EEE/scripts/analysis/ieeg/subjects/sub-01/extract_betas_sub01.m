@@ -4,59 +4,85 @@ try
     data = imgview_freq;
 catch 
     load("imgview_freq_bpref.mat");
-    % load("sub-01_imgview_freq_fullspec.mat");
     data = imgview_freq;
 end
-cfg = [];
-% cfg.channel = 1;
-% cfg.frequency = [5 10];
-% cfg.latency = [-1.5 -1.41];
-% data = ft_selectdata(cfg, data);
-%%
+
+
 data = imgview_freq;
 trlinfo = data.trialinfo;
 trlinfo.rate_diff = abs(trlinfo.val_rating - trlinfo.exp_rating);
+%%
+% design = [ones(63,1) trlinfo.Arousal_mean trlinfo.Valence_mean];
 
-% design = [ones(63,1) trlinfo.val_type trlinfo.highcue_indx];
+%arousal is much less varied than valence
+% best combo is Valence_mean val_rating
+% Intercept makes a pretty big difference
 
-design = [ones(63,1) trlinfo.Valence_mean trlinfo.val_rating];
 % design = [ones(63,1) trlinfo.Valence_mean trlinfo.highcue_indx];
+% design = [trlinfo.Valence_mean trlinfo.cue_observed_mean];
+% design = [ones(63,1)];
 
-% design = [ones(64,1) trlinfo.Valence_mean trlinfo.exp_rating];
 
-% design = [ones(64,1) trlinfo.Valence_mean trlinfo.rate_diff];
+design =   [ones(63,1) trlinfo.val_rating];
+% design = [ones(63,1) trlinfo.Valence_mean trlinfo.cue_observed_mean];
 
+% Check correlation between highcue_indx and cue_observed_mean
+
+% design = [ones(63,1) trlinfo.Valence_mean trlinfo.highcue_indx];
+% design = [ones(63,1) trlinfo.val_rating trlinfo.highcue_indx];
+% design = [ones(63,1) trlinfo.Valence_mean trlinfo.exp_rating];
+% design = [ones(63,1) trlinfo.Valence_mean trlinfo.rate_diff];
+% design = [trlinfo.Valence_mean(randperm(numel(trlinfo.Valence_mean))) trlinfo.cue_observed_mean(randperm(numel(trlinfo.cue_observed_mean)))];
+%%
 cfg = [];
 cfg.confound = design;
-% cfg.reject = [0 0 0];
 cfg.output = 'beta';
 cfg.statistics = 'yes';
-cfg.ftest = {'2'; '3'; '2 3'; '1 2 3'};
-% cfg.avgoverfreq = 'yes'; 
+cfg.normalize = 'no';
+
+% cfg.ftest = {'1'; '2'};
+% cfg.ftest = {'1'; '2'; '3'; '1 2'; '2 3'};
 
 data = ft_selectdata(cfg,data);
 betas = ft_regressconfound_absfix(cfg, data);
 
-bsize = size(betas.beta)
+% bsize = size(betas.beta(2,:,:,:))
+bsize = size(betas.beta([2 3],:,:,:))
+
+% designp = reshape(betas.prob(2,:), [], 1);
+
+designp = [reshape(betas.prob(2,:), [], 1); reshape(betas.prob(3,:), [], 1)];
+
+[h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(designp,.05,'pdep','yes');
+
+
+
 %%
-
-d_factor = 3;
-% fullp = reshape(betas.prob(d_factor,:,:,:), bsize(2)*bsize(3), bsize(4));
-fullp = reshape(betas.prob, [], 1);
-
-[h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(fullp,.05,'dep','yes');
-adj_p = reshape(adj_p, 1, numel(adj_p));
+% adj_p = reshape(adj_p, 1, numel(bsize));
+betas.adj_h = adj_p;
 for i = 1:numel(adj_p)
-    if adj_p(1, i) > 0.05
-        adj_p(1, i) = 0;
+    if adj_p(i, 1) > 0.05
+        betas.adj_h(i, 1) = 0;
     else
-        adj_p(1, i) = 1;
+        betas.adj_h(i, 1) = 1;
     end
 end
 
-% betas.cor_prob = reshape(adj_p, 1, bsize(2), bsize(3), bsize(4));
-betas.cor_prob = reshape(adj_p, bsize);
+betas.adj_h = reshape(betas.adj_h, bsize);
 
+%%
+betas.h = designp;
+for i = 1:numel(betas.h)
+    if betas.h(i,1) > 0.05
+        betas.h(i,1) = 0;
+    else
+        betas.h(i,1) = 1;
+    end
+end
+
+betas.h = reshape(betas.h, bsize);
+%%
+d_factor = 1;
 
 
 cfg = [];
@@ -65,21 +91,35 @@ cfg.baseline = 'yes';
 cfg.baselinetype = 'zscore';
 
 bl_data = ft_freqbaseline(cfg, data);
-mask_data = ft_selectdata(cfg, bl_data);
-mask_p = squeeze(betas.cor_prob(d_factor, :,:,:));
-% mask_p = (betas.cor_prob);
+mask_data = ft_selectdata(cfg, data);
+
+% mask_data = ft_selectdata(cfg, bl_data);
+
+mask_p = squeeze(betas.h(d_factor, :,:,:));
+sum(sum(sum(mask_p)))
 
 %%
-    % temppow = squeeze(mask_data.powspctrm);
+
 
 for chan = 1:numel(mask_data.label)
     mask_data.mask(chan, :, :) = mask_data.powspctrm(chan, :, :) .* mask_p(chan,:,:);
-    % mask_data.mask(chan, :) = temppow(chan, :) .* mask_p(chan,:);
-
-    
 end
 
 mask_data.h = mask_p;
+
+mask_data.b1 = squeeze(betas.beta(1,:,:,:));
+mask_data.t1 = squeeze(betas.stat(1,:,:,:));
+
+mask_data.b2 = squeeze(betas.beta(2,:,:,:));
+mask_data.t2 = squeeze(betas.stat(2,:,:,:));
+
+
+% 
+% mask_data.b3 = squeeze(betas.beta(3,:,:,:));
+% mask_data.t3 = squeeze(betas.stat(3,:,:,:));
+
+mask_data.h_log = mask_data.h > 0;
+
 fprintf('Masking complete.')
 
 
@@ -89,8 +129,7 @@ c = 1;
 sigchans = {};
 for i = 1:numel(mask_data.label)
     channame = mask_data.label{i};
-    if sum(sum(mask_p(i,:,:))) > 600
-    % if sum(sum(mask_p(i,:))) > 300
+    if sum(sum(mask_p(i,:,:))) > 150
     
         sigchans{c} = channame;
         c = c + 1;
@@ -103,68 +142,38 @@ sigchans
 cfg = [];
 for chan = 1:numel(sigchans)
     cfg.channel = sigchans{chan};
-    cfg.funparameter = 'powspctrm';
+    % cfg.channel = 'RTA1-RTA2';
+    
+    cfg.parameter = 't1';
     cfg.maskparameter = 'h';
+
+
+
+
+    % cfg.parameter = 'powspctrm';
+    % cfg.maskparameter = 'h_log';
+    % cfg.maskstyle = 'outline';
     % cfg.maskalpha = .8;
     % cfg.xlim = [-0.2 2];
-    % cfg.maskstyle = 'saturation';
+
     % cfg.colormap = 'RdBu';
     % cfg.zlim = [-2 2];
-    % ft_singleplotTFR(cfg, mask_data)
-    % ft_singleplotER(cfg, mask_data)
-       % fig = gcf;
-       % fig.Position = [1300 500 560 420];
+
+    % cfg.parameter = 'powspctrm';
+    % cfg.baseline = 'yes';
+    % cfg.baselinetype = 'zscore';
+
     ft_singleplotTFR(cfg, mask_data)
        fig = gcf;
        fig.Position = [700 500 560 420];
 
 end
-%%
 
-for chan = 1%:height(betas.label)
-
-    valence_betas = squeeze(betas.beta(1,chan,:,:));
-    valence_t = squeeze(betas.stat(1,1,:,:));
-    valence_p = squeeze(betas.prob(1,1,:,:));
-    
-    % Normalize Frequency contributions
-    norm_val = zscore(valence_betas, 0, 2);
-    mask_val = squeeze(betas.cor_prob(1,chan,:,:)) .* norm_val;
-    
-    % Create a time/frequency plot using imagesc
-    figure; hold on; 
-    % imagesc(flipud(mask_val));
-    imagesc(mask_val);
-    
-
-    % Add labels and title
-    ax = gca;
-    xlabel('Time');
-    ylabel('Frequency');
-    ax.YTickLabel = {'4', '14', '24', '40', '70', '100', '130', '160', '190'};
-    ax.XTickLabel = {'-2.5', '-1.5', '-0.5', '0.5', '1.5', '2.5', '3.5', '4.5', '5.5'};
-    fig = gcf;
-    fig.Position = [900 500 560 420];
-    title(sprintf('Time/Frequency Beta Weight %s', betas.label{chan}));
-    
-    % trim white space
-    xlim(ax, [200 700])
-
-    
-    % Customize the colormap and set common color scale
-    colormap('hsv');
-    colorbar;
-    clim(ax, [-5 5]);
-    
-    % 
-    hold off;
-
-end
 
 %% Permutation Testing
-perm_num = 5;
+perm_num = 3;
 t_null = {perm_num};
-for k = 1:10%numel(betas.label)
+for k = 1:5%numel(betas.label)
    % t_val = betas.stat(2,k,:,:);
 for i = 1:perm_num
     betas_null = {};
@@ -187,13 +196,99 @@ for i = 1:perm_num
 
 end
 end
+%% Permutation Testing w/o ft function
+
+
+
+for i = 1:p
+    null_design(:,i) = datasample(design(:,i), n, 'Replace', false);
+end
+%%
+[n,p] = size(design);
+
+perms = 100;
+
+chans = size(data.powspctrm, 2);
+freqs = size(data.powspctrm, 3);
+times = size(data.powspctrm, 4);
+
+t_null = struct;
+
+
+for k = 1:2 % channels
+    for ii = 1:perms
+        % Create null matrix
+        for i = 1:p %number of categories in design
+            null_design(:,i) = datasample(design(:,i), n, 'Replace', false);
+        end
+        X = null_design;
+        Y = reshape(imgview_freq.powspctrm, n, []);
+        
+        best = X\Y;
+        dfe = n - p;
+        err = Y - X * best;
+        mse = sum((err).^2)/dfe;
+        covar = diag(X'*X)';
+        bvar = repmat(mse', 1, size(covar,2))./repmat(covar,size(mse,2),1);
+        tval = (best'./ sqrt(bvar))';
+        tval = reshape(tval, p, chans, freqs, times);
+
+        for v = 1:p
+            t_null.max{v, k, ii} = max(max(abs(tval(v,k,:,:))));
+        end
+
+    end
+    for v = 1:p
+    t_null.thresh{v, k} = prctile([t_null.max{v,k,:}], 95);
+    end
+end
+%% Permutation testing with global bvar (run on Discovery in batches of 25 channels)
+[n,p] = size(design); 
+
+perms = 10000;
+
+chans = size(data.powspctrm, 2);
+freqs = size(data.powspctrm, 3);
+times = size(data.powspctrm, 4);
+
+t_null = struct;
+
+for k = 1:chans % channels
+    for ii = 1:perms
+        null_design = zeros(n, p); % Initialize null_design
+        for i = 1:p % number of categories in design
+            null_design(:,i) = datasample(design(:,i), n, 'Replace', false);
+        end
+        
+        X = null_design;
+        Y = reshape(data.powspctrm, n, []);
+        
+        best = X\Y;
+        dfe = n - p;
+        err = Y - X * best;
+        mse = sum((err).^2)/dfe;
+        covar = diag(X'*X)';
+        bvar = repmat(mse', 1, size(covar,2))./repmat(covar,size(mse,2),1);
+        tval = (best'./ sqrt(bvar))';
+        tval = reshape(tval, [p, chans, freqs, times]);
+
+        for v = 1:p
+            t_null.max{v} = max(abs(squeeze(tval(v,k,:,:))));
+        end
+    end
+    
+    for v = 1:p
+    t_null.thresh{v, k} = prctile([t_null.max{v}], 95); % Threshold computation
+    end
+end
+
 %%
 % t thresholds
 null_thresh = {};
-for k = 1:10%numel(betas.label)
+for k = 1:5%numel(betas.label)
     max_null = {};
-    for i = 1:perm_num
-    max_null{i} = max(max(abs(t_null{i,k}(2,:,:,:))));
+    for i = 1:perms
+    max_null{i} = max(max(abs(t_null{i}(2,:,:,:))));
     end
     max_null = cell2mat(max_null);
     null_thresh{k} = prctile(max_null, 95);
@@ -206,7 +301,7 @@ beep
 
 %% masking
 mask_t = zeros(bsize(2), bsize(3), bsize(4));
-for k = 1:10%numel(betas.label)
+for k = 1:5%numel(betas.label)
     t_val = (squeeze(betas.stat(2,k,:,:)));
     t_val(abs(t_val) < abs(null_thresh{k})) = 0;
     t_val(t_val ~= 0) = 1;
@@ -344,6 +439,36 @@ ft_singleplotTFR(cfg, avgRTA)
 
 
 
+%% From ChatGPT for reshaping of matrix testing instead of a vector
+my4Darray = betas.prob;
+[rows, cols, depth, pages] = size(my4Darray);
+
+
+% Reshape the 4D array into a matrix with three columns
+reshaped_matrix = reshape(permute(my4Darray, [1, 4, 2, 3]), 3, rows * pages * cols * depth);
+
+% Reshape the matrix back to the original shape
+reshaped_back = permute(reshape(reshaped_matrix, 3, pages, cols, depth, rows), [1, 5, 3, 4, 2]);
+
+% Check if the reshaped array matches the original size
+isequal(size(my4Darray), size(reshaped_back))
+
+%% Check Gaussian Distribution
+% Assuming your data is stored in a matrix called 'existing_data'
+% Check for Gaussian distribution for each column (variable)
+num_vars = size(design, 2);
+
+for i = 1:num_vars
+    variable = design(:, i);
+    [h, p] = kstest(variable);
+    disp(['Variable ', num2str(i), ':']);
+    if h == 0
+        disp('The variable follows a Gaussian distribution.');
+    else
+        disp('The variable does not follow a Gaussian distribution.');
+    end
+    disp(['p-value: ', num2str(p)]);
+end
 
 %%
 X = design;
@@ -475,12 +600,12 @@ numperm = 500;
 Y = squeeze(data.powspctrm(:,1,1,1));
 Xni = trlinfo.Valence_mean;
 X = [ones(size(Xni, 1), 1), Xni]; % Include the intercept term
-
+%%
 [n, p] = size(X);
 freedom = n - p;
 
 % Sample estimates
-B_hat = (X' * X)^-1 * X' * Y; % Sample beta estimate
+B_hat = (X' * X)^-1 * X' * Y % Sample beta estimate
 Y_hat = X * B_hat; % Predicted values
 resid = Y - Y_hat;
 var_resid = resid' * resid / freedom * (X' * X)^-1;
@@ -500,10 +625,10 @@ r2 = 1 - sumsqerr / sumsqtotal;
 
 % Calculate t-statistics and p-values for each coefficient
 tstat = B_hat ./ B_SE
-pval = (1 - tcdf(abs(tstat), freedom)) * 2;
+pval = (1 - tcdf(abs(tstat), freedom)) * 2
 
 std_resid = std(resid);
-
+%%
 % Permutation test
 t_null = zeros(numperm, 2);
 for i = 1:numperm
@@ -557,7 +682,9 @@ for trial = 1:size(data.powspctrm, 1)
 
 
 end % for 
-
+%%
+X = design;
+Y = squeeze(imgview_freq.powspctrm(:,1,1,1));
     [n, p] = size(X); % record rows and columns
     
     gram = X' * X; % Gram matrix
@@ -567,7 +694,7 @@ end % for
     err_freedom = n - p; % requires n > p, or number of observations > parameters
 
     % Beta
-    b_coeff = invgram * X' * Y; % beta hat
+    b_coeff = invgram * X' * Y % beta hat
 
     % Residuals
     res = Y - X * b_coeff;
@@ -591,5 +718,135 @@ end % for
     r2 = 1 - sumsqerr / sumsqtotal;
 
     % Calculate t-statistics and p-values for each coefficient
-    tstat = b_coeff ./ SE_coeff;
-    pval = (1 - tcdf(abs(tstat), err_freedom)) * 2;
+    tstat = b_coeff ./ SE_coeff
+    pval = (1 - tcdf(abs(tstat), err_freedom)) * 2
+
+%% Manual Beta Estimates
+betas_man = struct();
+for j = 1:size(imgview_freq.powspctrm, 2)
+    for k = 1:size(imgview_freq.powspctrm, 3)
+        for l = 1:size(imgview_freq.powspctrm, 4)
+
+            X = design;
+            Y = squeeze(imgview_freq.powspctrm(:,j,k,l));
+
+            [n, p] = size(X); % record rows and columns
+            
+            gram = X' * X; % Gram matrix
+        
+            invgram = gram^(-1);
+        
+            err_freedom = n - p; % requires n > p, or number of observations > parameters
+        
+            % Beta
+            b_coeff = invgram * X' * Y; % beta hat
+        
+            % Residuals
+            res = Y - X * b_coeff;
+        
+            var_res = res' * res ./ err_freedom * invgram;
+            var_sq = res' * res ./ err_freedom;
+        
+            % Variance of Beta
+            var_coeff = var_res^2 * invgram;
+        
+            % Standard Error of Coefficients
+            SE_coeff = sqrt(diag(var_coeff));
+        
+            % Calculate the sum of squared residuals
+            sumsqerr = res' * res;
+        
+            % Calculate the total sum of squares
+            sumsqtotal = (Y - mean(Y))' * (Y - mean(Y));
+        
+            % Coefficient of Determination (R-squared)
+            r2 = 1 - sumsqerr / sumsqtotal;
+        
+            % Calculate t-statistics and p-values for each coefficient
+            tstat = b_coeff' ./ SE_coeff';
+            pval = (1 - tcdf(abs(tstat), err_freedom)) * 2;
+            
+            for t = 1:p
+                betas_man.beta(t, j, k, l) = b_coeff(t);
+                betas_man.stat(t, j, k, l) = tstat(t);
+                betas_man.prob(t, j, k, l) = pval(t);
+            end
+
+
+        end
+    end
+end
+
+%%
+fullp = reshape(betas_man.prob(2:3,:,:,:), [], 1);
+
+[h, crit_p, adj_ci_cvrg, adj_p]=fdr_bh(fullp,.05,'pdep','yes');
+%%
+adj_p = reshape(adj_p, 1, numel(adj_p));
+for i = 1:numel(adj_p)
+    if adj_p(1, i) > 0.05
+        adj_p(1, i) = 0;
+    else
+        adj_p(1, i) = 1;
+    end
+end
+
+betas_man.cor_prob = reshape(adj_p, bsize);
+
+%% Manual Beta Estimates round 3 
+% The issue is that this method creates a global beta error and mse, while
+% the other method creates a local error
+
+%% If normalizing
+design_norm = design;
+  for c = 1:p
+    AVG = mean(design(:,c));
+    STD = std(design(:,c),0,1);
+    if abs(STD/AVG)<10*eps
+      fprintf('confound %s is a constant \n', num2str(c));
+    else
+      design_norm(:,c) = (design(:,c) - AVG) / STD;
+    end
+    clear AVG STD;
+  end
+
+%%
+X = design;
+[n,p] = size(X);
+Y = reshape(imgview_freq.powspctrm, n, []);
+
+base.best = X\Y;
+dfe = n - p;
+err = Y - X * base.best;
+mse = sum((err).^2)/dfe;
+covar = diag(X'*X)';
+bvar = repmat(mse', 1, size(covar,2))./repmat(covar,size(mse,2),1);
+base.tval = (base.best'./ sqrt(bvar))';
+base.prob = (1-tcdf(abs(base.tval), dfe))*2;
+
+base.adj_prob = reshape(base.prob, [], 1);
+[base.h, base.crit_p, base.adj_ci_cvrg, base.adj_p]=fdr_bh(base.adj_prob,.05,'pdep','yes');
+%%
+X = design_norm;
+[n,p] = size(X);
+Y = reshape(imgview_freq.powspctrm, n, []);
+
+norm.best = X\Y;
+dfe = n - p;
+err = Y - X * norm.best;
+mse = sum((err).^2)/dfe;
+covar = diag(X'*X)';
+bvar = repmat(mse', 1, size(covar,2))./repmat(covar,size(mse,2),1);
+norm.tval = (norm.best'./ sqrt(bvar))';
+norm.prob = (1-tcdf(abs(norm.tval), dfe))*2;
+
+adj_prob = reshape(norm.prob, [], 1);
+[norm.h, norm.crit_p, norm.adj_ci_cvrg, norm.adj_p]=fdr_bh(adj_prob,.05,'pdep','yes');
+%%
+      dfe        = nrpt - nconf;                                              % degrees of freedom
+      err        = dat - regr * beta;                                         % err = Y - X * B
+      mse        = sum((err).^2)/dfe;                                         % mean squared error
+      covar      = diag(regr'*regr)';                                         % regressor covariance
+bvar  = repmat(mse',1,size(covar,2))./repmat(covar,size(mse,2),1); % beta variance
+      tval       = (beta'./sqrt(bvar))';                                      % betas -> t-values
+      prob       = (1-tcdf(abs(tval),dfe))*2;                                      % p-values
