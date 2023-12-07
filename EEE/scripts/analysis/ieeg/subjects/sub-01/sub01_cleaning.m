@@ -104,7 +104,7 @@ end
 
 subjectnum = '01';
 sesdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-01\ses-01';
-eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
+eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG_deidentified.edf']);
 
 % Find and label unneeded channels
 cfg            = [];

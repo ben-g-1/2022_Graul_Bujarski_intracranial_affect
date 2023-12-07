@@ -29,7 +29,7 @@ subjdir = fullfile(projdir, 'Data', 'raw', ['sub-',  num2str(subjectnum)]);
 anatdir = fullfile(subjdir, 'anat');
 fsdir = '//dartfs-hpc/rc/lab/C/CANlab/labdata/data/EEE/ieeg/raw/sub-01/freesurfer';
 
-cd(subjdir)
+% cd(subjdir)
 
 subjID           = 'sub-01'; % for generating subject-specific filenames
 mrfile           = fullfile(anatdir, ['EEE_sub-', num2str(subjectnum), '_T1.nii']); % single file of a DICOM series or a nifti file

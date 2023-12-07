@@ -36,7 +36,7 @@ load(depth_names);
 %% Preprocess %%
 cfg                     = [];
 cfg.dataset             = eegfile;
-cfg.channel             = chans;
+cfg.channel             = 'all';
 
 cfg.demean              = 'yes'; 
 cfg.baselinewindow      = 'all'; 
@@ -57,18 +57,18 @@ cfg.trialfun            = 'trl_singlephase';
 cfg.trialdef.pre        = 2.5; 
 cfg.trialdef.post       = 5;
 cfg.trialdef.offset     = -2.5; % Picture viewing is at T = 0
-cfg.trialdef.event      = event_full;
+cfg.trialdef.event      = event;
 cfg.trialdef.eventvalue = 6;
 cfg.keeptrials          = 'yes';
 
 cfg                     = ft_definetrial(cfg);
 
 data                    = ft_preprocessing(cfg);
-data.elec               = elec_acpc_f;
+% data.elec               = elec_acpc_f;
 
 %% Remove bad trial %%
 cfg = [];
-cfg.trials = [1:61 63 64];
+% cfg.trials = [1:61 63 64];
 
 data_clean = ft_selectdata(cfg, data);
 %% Reference to Bipolar Montage %%
@@ -96,16 +96,16 @@ cfg.method              = 'mtmconvol';
 % cfg.foi     = 30:5:80;
 % This can be used to get a more granular view of the data if desired
 cfg.toi                 = -1.5:.05:3.5;
-cfg.foi                 = [5:5:55 65:5:115 125:5:150];
+cfg.foi                 = [5:5:55 65:5:115 125:5:151];
 % cfg.foi        = [4:1:29 30:5:55 65:5:115 125:5:150];
 
-cfg.t_ftimwin           = ones(length(cfg.foi),1).*0.2;
+cfg.t_ftimwin           = ones(length(cfg.foi),1).*0.2; % should figure out if this is reasonable
 cfg.taper               = 'hanning';
 cfg.output              = 'pow';
 cfg.keeptrials          = 'yes';
 
 
-imgview_freq            = ft_freqanalysis(cfg, reref);
+imgview_freq            = ft_freqanalysis(cfg, data);
 
 %% Visualize for Right Amygdala
 
@@ -114,8 +114,8 @@ cfg.channel            = 'RTA1-RTA2';
 
 cfg.avgoverrpt         = 'yes';
 
-% cfg.baseline           = [-1.51 -1.01]; 
-cfg.baselinetype       = 'relchange';
+cfg.baseline           = 'yes'; 
+cfg.baselinetype       = 'zscore';
 
 cfg.latency            = [-1 3];
 
@@ -145,7 +145,7 @@ flat_lay        = ft_prepare_layout(cfg, imgview_freq);
 
 %% Sample baseline
 cfg              = [];
-cfg.baseline     = 'all';
+cfg.baseline     = 'yes';
 cfg.baselinetype = 'db'; 
 freq_blc         = ft_freqbaseline(cfg, imgview_freq);
 
@@ -256,10 +256,10 @@ atlas.coordsys   = 'acpc';
 cfg              = [];
 cfg.inputcoord   = 'acpc';
 cfg.atlas        = atlas;
-cfg.roi          = 'Right-Amygdala'; 
+% cfg.roi          = 'Right-Amygdala'; 
 mask_rha         = ft_volumelookup(cfg, atlas);
-cfg.roi          = 'Left-Amygdala'; 
-mask_lha         = ft_volumelookup(cfg, atlas);
+% cfg.roi          = 'Left-Amygdala'; 
+% mask_lha         = ft_volumelookup(cfg, atlas);
 
 %% Create triangulated surface mesh
 seg = keepfields(atlas, {'dim', 'unit','coordsys','transform'}); 

@@ -100,8 +100,8 @@ end
 %%% iEEG Channels %%%
 % LFMC*, LFC*, LPPC*, RSMA*, RFC*, RSMAB*, RSMAC*, LSMA* 
 
-sesdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-03\ses-01';
-eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
+sesdir = '\\dartfs-hpc\rc\lab\C\CANlab\labdata\data\EEE\ieeg\raw\sub-03\ses-01';
+eegfile = fullfile(sesdir, ['EEE_', subjectnum, '_deidentified.edf']);
 
 % Find and label unneeded channels
 cfg            = [];
@@ -126,7 +126,7 @@ eegchan          = strcat('-', ft_channelselection({'eeg'}, hdr.label));
 % CHANNELS
 % 
 chans             = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
-    '-OSAT', '-*DC*' eegchan{:}, emptychan{:}}, hdr.label);
+    '-OSAT', '-*DC*', '-C*' eegchan{:}, emptychan{:}}, hdr.label);
 
 depths = {'LSMAB*', 'LFMC*', 'LFCA*', 'LPPC*', 'RSMAB*', 'RSMAC*', 'RSMA*',  ...
       'LSMA*', 'RFMC*', 'RPC*', 'RPPC*', 'RFCA*', 'RFOA*', 'RFOB*', ...
