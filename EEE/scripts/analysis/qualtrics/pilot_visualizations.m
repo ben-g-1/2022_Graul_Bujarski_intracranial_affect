@@ -29,6 +29,7 @@ data.ic_img_rate = full.img_rate - full.Valence_mean;
 data.ic_exp_rate = full.exp_rate - full.cue_observed_mean;
     data.ic_exp_rate;
 data.zc_img_rate = full.img_rate - 50;
+data.mc_img_rate = full.img_rate - mean(full.img_rate, "omitmissing");
 
 %% Standardizing data
 sdata = table();
@@ -61,7 +62,7 @@ sorted = sortrows(data,"Pair","ascend");
 cuehl = sorted.highcue_indx;
 cuemean = sorted.cue_mean;
 pair = sorted.Pair;
-rating = sorted.img_rate;
+rating = sorted.mc_img_rate; %%%%%%%%%%%%%
 stimmean = sorted.Valence_mean;
 
 wh_high = cuehl == '1';
@@ -131,6 +132,39 @@ xlabel('Pair');
 ylabel('Value');
 title('Mean Pair Values with Standard Error');
 legend('Mean hi values', 'Mean lo values');
+%%
+% Simple Comparison of Cue Effect for each Pair
+meanpair = table('Size', [32 5], 'VariableNames', {'mean_hi', 'mean_lo', 'hi_sd', 'lo_sd', 'pair'}, 'VariableTypes', {'double', 'double', 'double', 'double', 'double'});
+for i = 1:32
+    h = pair_table.hi_val(pair_table.Pair == string(i));
+    l = pair_table.lo_val(pair_table.Pair == string(i));
+    meanpair{i,1} = mean(h, 'omitmissing');
+    meanpair{i,2} = mean(l, 'omitmissing');
+    meanpair{i,3} = std(h, 'omitmissing') / sqrt(numel(h));
+    meanpair{i,4} = std(l, 'omitmissing') / sqrt(numel(l));
+    meanpair{i,5}  = i;
+end
+
+meanpair = sortrows(meanpair, 'mean_lo', 'ascend');
+means_hi = meanpair.mean_hi;
+means_lo = meanpair.mean_lo;
+stds_hi = meanpair.hi_sd;
+stds_lo = meanpair.lo_sd;
+
+% Calculate t-distribution critical value for a one-sided 95% confidence interval
+t_critical = tinv(0.95, numel(h) - 1); % Assuming a one-tailed distribution
+
+% Creating a plot with error bars
+figure;
+errorbar(1:numel(means_hi), means_hi, t_critical * stds_hi, 'o', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'b'); % Error bars for 'hi' values
+hold on;
+errorbar(1:numel(means_lo), means_lo, t_critical * stds_lo, 'o', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'r'); % Error bars for 'lo' values
+
+% Adding labels and title
+xlabel('Pair');
+ylabel('Value');
+title('Mean Pair Values with 95% One-Sided Confidence Interval');
+legend('Mean hi values', 'Mean lo values');
 
 %% Histograms of Ratings
 % 'Normalization', 'probability',
@@ -138,9 +172,9 @@ colors = seaborn_colors(16);
 
 edges = -50:5:50;
 f = figure;
-histogram(data.zc_img_rate(data.highcue_indx == "1"), edges, 'FaceColor', colors{16}, 'FaceAlpha', 0.8, 'EdgeColor', 'auto');
+histogram(data.mc_img_rate(data.highcue_indx == "1"), edges, 'FaceColor', colors{16}, 'FaceAlpha', 0.8, 'EdgeColor', 'auto');
 hold on;
-histogram(data.zc_img_rate(data.highcue_indx == "-1"), edges, 'FaceColor', colors{12}, 'FaceAlpha', 0.6, 'EdgeColor', 'auto');
+histogram(data.mc_img_rate(data.highcue_indx == "-1"), edges, 'FaceColor', colors{12}, 'FaceAlpha', 0.6, 'EdgeColor', 'auto');
 legend({"High Cue", "Low Cue"})
 xlabel("Valence Rating")
 title("Distribution of Subject Valence Ratings")
@@ -244,10 +278,10 @@ subj_avg = struct;
 
 for i = 1:numel(unique(pair_table.subj))
     temp_pair = pair_table(pair_table.subj == num2str(i), :);
-    % subj_avg.hi{i} = mean(temp_pair.hi_val-temp_pair.val_mean); % center around normative rating within pair
-    % subj_avg.lo{i} = mean(temp_pair.lo_val-temp_pair.val_mean);
-    subj_avg.hi{i} = mean(temp_pair.hi_val - 50);
-    subj_avg.lo{i} = mean(temp_pair.lo_val - 50);
+    % subj_avg.hi{i} = mean(temp_pair.hi_val-temp_pair.stim_mean); % center around normative rating within pair
+    % subj_avg.lo{i} = mean(temp_pair.lo_val-temp_pair.stim_mean);
+    subj_avg.hi{i} = mean(temp_pair.hi_val, "omitmissing");
+    subj_avg.lo{i} = mean(temp_pair.lo_val, "omitmissing");
 end
 
 data_to_plot = {};
@@ -258,7 +292,7 @@ colors = seaborn_colors(2);
 
 figure; hold on;
 barplot_columns(data_to_plot, 'title', 'Cue Effect on Valence Rating With Mean Subject Ratings', 'color', {colors{2}, colors{1}}, 'MarkerSize', 0.5, ...
-    'names', {'Lo Cue', 'Hi Cue'}, 'dolines', 'nofigure', 'plotout'); %'dolines', , 'dostars',
+    'names', {'Lo Cue', 'Hi Cue'}, 'dolines', 'nofigure', 'plotout', 'dorob', 'nostars', 'nobars'); %'dolines', , 'dostars',
 ylabel('Valence Rating')
 xlabel('Cue Type');
 % legend({});
