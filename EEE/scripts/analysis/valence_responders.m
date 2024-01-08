@@ -38,6 +38,7 @@ cfg                     = [];
 cfg.dataset             = eegfile;
 cfg.channel             = 'all';
 
+cfg.detrend             = 'yes';
 cfg.demean              = 'yes'; 
 cfg.baselinewindow      = 'all'; 
 
@@ -54,21 +55,21 @@ cfg.bsfreq      = [58 62; 118 122];
 % cfg                     = [];
 % cfg.dataset             = eegfile;
 cfg.trialfun            = 'trl_singlephase';
-cfg.trialdef.pre        = 2.5; 
-cfg.trialdef.post       = 5;
-cfg.trialdef.offset     = -2.5; % Picture viewing is at T = 0
-cfg.trialdef.event      = event;
+cfg.trialdef.pre        = 2; 
+cfg.trialdef.post       = 4;
+cfg.trialdef.offset     = -2; % Picture viewing is at T = 0
+cfg.trialdef.event      = event_full;
 cfg.trialdef.eventvalue = 6;
 cfg.keeptrials          = 'yes';
 
 cfg                     = ft_definetrial(cfg);
 
 data                    = ft_preprocessing(cfg);
-% data.elec               = elec_acpc_f;
+data.elec               = elec_acpc_f;
 
 %% Remove bad trial %%
 cfg = [];
-% cfg.trials = [1:61 63 64];
+cfg.trials = [1:61 63 64];
 
 data_clean = ft_selectdata(cfg, data);
 %% Reference to Bipolar Montage %%
@@ -95,9 +96,9 @@ cfg.method              = 'mtmconvol';
 % cfg.toi     = -1.5:1:3.5;
 % cfg.foi     = 30:5:80;
 % This can be used to get a more granular view of the data if desired
-cfg.toi                 = -1.5:.05:3.5;
-cfg.foi                 = [5:5:55 65:5:115 125:5:151];
-% cfg.foi        = [4:1:29 30:5:55 65:5:115 125:5:150];
+cfg.toi                 = -.5:.01:2;
+% cfg.foi                 = [5:5:55 65:5:115 125:5:151];
+cfg.foi                   = [4:1:58 62:1:118 122:1:150];
 
 cfg.t_ftimwin           = ones(length(cfg.foi),1).*0.2; % should figure out if this is reasonable
 cfg.taper               = 'hanning';
@@ -105,7 +106,7 @@ cfg.output              = 'pow';
 cfg.keeptrials          = 'yes';
 
 
-imgview_freq            = ft_freqanalysis(cfg, data);
+imgview_freq            = ft_freqanalysis(cfg, reref);
 
 %% Visualize for Right Amygdala
 
@@ -198,11 +199,17 @@ pos_img = ft_selectdata(cfg, imgview_freq);
 cfg.trials = imgview_freq.trialinfo.val_type == -1;
 
 neg_img = ft_selectdata(cfg, imgview_freq);
+%%
+design = zeros(1,size(pos_img.powspctrm,1) + size(neg_img.powspctrm,1));
+design(1,1:size(pos_img.powspctrm,1)) = 1;
+design(1,(size(pos_img.powspctrm,1)+1):(size(pos_img.powspctrm,1)+...
+size(neg_img.powspctrm,1))) = 2; 
+%%
 
 cfg = [];
 cfg.latency          = 'all';
 cfg.frequency        = 'all';
-cfg.method           = 'montecarlo';
+cfg.method           = 'analytic';
 cfg.statistic        = 'ft_statfun_indepsamplesT';
 cfg.correctm         = 'cluster';
 cfg.clusteralpha     = 0.05;
@@ -211,17 +218,12 @@ cfg.minnbchan        = 2;
 cfg.tail             = 0;
 cfg.clustertail      = 0;
 cfg.alpha            = 0.025;
-cfg.numrandomization = 100;
+cfg.numrandomization = 10;
 
 % prepare_neighbours determines what sensors may form clusters
-cfg_neighb.elec = imgview_freq.elec;
+cfg_neighb.elec      =  imgview_freq.elec;
 cfg_neighb.method    = 'distance';
 cfg.neighbours       = ft_prepare_neighbours(cfg_neighb, imgview_freq);
-
-design = zeros(1,size(pos_img.powspctrm,1) + size(neg_img.powspctrm,1));
-design(1,1:size(pos_img.powspctrm,1)) = 1;
-design(1,(size(pos_img.powspctrm,1)+1):(size(pos_img.powspctrm,1)+...
-size(neg_img.powspctrm,1))) = 2; 
 
 cfg.design           = design;
 cfg.ivar             = 1;

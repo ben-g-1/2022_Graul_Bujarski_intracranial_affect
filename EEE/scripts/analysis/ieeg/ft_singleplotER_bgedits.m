@@ -1,4 +1,4 @@
-function [cfg] = ft_singleplotER(cfg, varargin)
+function [cfg] = ft_singleplotER_bgedits(cfg, varargin)
 
 % FT_SINGLEPLOTER plots the event-related fields or potentials of a single
 % channel or the average over multiple channels. Multiple datasets can be
@@ -571,6 +571,38 @@ if istrue(cfg.showlocations)
   pointsize(selchan) = 4;
   pointsymbol = 'o';
   ft_plot_layout(cfg.layouttopo, 'box', 'no', 'label', 'off', 'pointsize', pointsize, 'pointcolor', pointcolor, 'pointsymbol', pointsymbol, 'hpos', hpos, 'vpos', vpos, 'width', w, 'height', h);
+end
+
+%% Section 5: 95% Confidence Interval Shading
+if strcmp(cfg.maskstyle, 'confidence')
+    % Calculate the mean and standard error for each time/frequency point
+    mean_data = mean(datamatrix, 1);
+    stderr_data = std(datamatrix, 1) / sqrt(Ndata);
+    
+    % Calculate the 95% confidence interval
+    conf_interval = 1.96 * stderr_data; % 1.96 corresponds to a 95% confidence interval
+    
+    % Plot the mean data
+    ft_plot_vector(xval, mean_data, 'color', permute(linecolor, [3 2 1]), 'style', linestyle(1,:), 'linewidth', linewidth(1,:), 'hlim', [xmin xmax], 'vlim', [ymin ymax]);
+    
+    % Plot the confidence interval shading
+    hold on;
+    h = fill([xval, fliplr(xval)], [mean_data - conf_interval, fliplr(mean_data + conf_interval)], 'k', 'EdgeColor', 'none');
+    alpha(h, 0.3); % Set transparency
+    hold off;
+    
+    % Add legend
+    if istrue(cfg.showlegend) && Ndata > 1
+        colorLabels = {};
+        for i = 1:Ndata
+            if ischar(linecolor)
+                colorLabels{end+1} = [dataname{i} '=' linecolor(i)];
+            elseif isnumeric(linecolor)
+                colorLabels{end+1} = [dataname{i} '=' num2str(linecolor(1, :, i))];
+            end
+        end
+        legend([colorLabels, '95% CI']);
+    end
 end
 
 % make the figure interactive
