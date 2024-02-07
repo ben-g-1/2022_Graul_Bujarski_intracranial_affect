@@ -8,7 +8,7 @@
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
-subnum = '06';
+subnum = '07';
 sesnum = '01';
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
@@ -18,6 +18,7 @@ filedir = fullfile(projdir, 'assets', 'referenceLists');
 scriptdir = fullfile(projdir, 'scripts', 'EEE_task');
 subjectnum = subnum;
 sessionnum = sesnum;
+subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);
 subjdir = fullfile(projdir, 'subjects', ['sub-',  num2str(subjectnum)]);
 sesdir = fullfile(subjdir, ['ses-', num2str(sessionnum)]);
 
@@ -258,32 +259,37 @@ plot(stim_table.Valence_mean(wh_low), stim_table.cue_observed_std(wh_low), 'ko',
 errorcount = 0;
 
 bad_table_flag = any(stim_table.Valence_mean > 7 | stim_table.Valence_mean < 1);
-if bad_table_flag, error('Some Valence_mean values out of range'); 
-    errorcount = errorcount + 1
- end
-
-bad_table_flag = any(stim_table.cue_observed_mean > 7 | stim_table.cue_observed_mean < 1);
-if bad_table_flag, error('Some cue_observed_mean values out of range');
-    errorcount = errorcount + 1
- end
-
-bad_table_flag = any(stim_table.cue_observed_std  < 0.4);
-if bad_table_flag, warning('Some cues have very low std, < 0.4');
+if bad_table_flag == 1 
+    disp('Some Valence_mean values out of range'); 
     errorcount = errorcount + 1;
  end
 
+bad_table_flag = any(stim_table.cue_observed_mean > 7 | stim_table.cue_observed_mean < 1);
+if bad_table_flag == 1  
+    disp('Some cue_observed_mean values out of range');
+    errorcount = errorcount + 1;
+ end
+
+bad_table_flag = any(stim_table.cue_observed_std  < 0.3);
+if bad_table_flag == 1 
+    disp('Some cues have very low std, < 0.3');
+    errorcount = errorcount + 1;
+end 
+
 bad_table_flag = any(abs(stim_table.cue_deviation_from_norm) > 1.6);
-if bad_table_flag, warning('Some cues are very different from the normalized rating')
+if bad_table_flag == 1 
+    disp('Some cues are very different from the normalized rating')
     errorcount = errorcount + 1;
 end
 
  if errorcount == 1
-    warning('Consider rerunning the script')
-    errorcount
+    disp('Consider rerunning the script')
+    disp(['Total errors:', num2str(errorcount)])
+    % pause;
     % return
  elseif errorcount > 1
-    warning('Poor randomization. Rerun the script. Exiting now.')
-    errorcount
+    disp('Poor randomization. Rerun the script. Exiting now.')
+    disp(errorcount)
     return
  end
  
@@ -342,5 +348,6 @@ end
 %%
 
 save(fwritename, 'stim_table')
+% clearvars -except stim_table
 %end % function
 
