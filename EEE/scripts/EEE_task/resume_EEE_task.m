@@ -137,7 +137,8 @@ imageJitter = stim_table.imageJitter(1);
 
 breaktext = ['You may take a break here.' ... 
             '\n\n\n Please rest and use this time to adjust if you are uncomfortable.' ...
-            '\n\n\n Click when you are ready to continue.'];thanktext = 'Thank you for your help with this experiment. Press any key to end.';
+            '\n\n\n Click when you are ready to continue.'];
+thanktext = 'Thank you for your help with this experiment. Press any key to end.';
 resumetext = 'Please click when you are ready to continue.';
 
 %% Resume showing images after last saved image
