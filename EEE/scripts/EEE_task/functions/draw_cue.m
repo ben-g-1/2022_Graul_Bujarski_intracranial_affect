@@ -78,7 +78,7 @@ function draw_cue(p,cue_xPixel)
 
 % Loop for drawing cues
 for k = 1:10
-        k = cue_xPixel(k)
+        k = cue_xPixel(k);
         Screen('DrawLine', p.ptb.window, p.ptb.white, k, p.ptb.yCenter-p.rate.rateDisp, k, p.ptb.yCenter+p.rate.rateDisp, p.penwidth)
 end
 

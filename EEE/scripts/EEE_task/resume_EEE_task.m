@@ -1,7 +1,7 @@
 function resume_EEE_task(subjectnumber, sessionnumber, projdirectorypath, startingimage, debugging)
 %%
 % Resume EEE Task after ending prematurely during testing
-% v0.1
+% v1.1
 % By Ben Graul
 
 if ~debugging
@@ -137,27 +137,38 @@ imageJitter = stim_table.imageJitter(1);
 
 breaktext = 'You may take a break here. Please click when you are ready to continue.';
 thanktext = 'Thank you for your help with this experiment. Press any key to end.';
-starttext = 'Please click when you are ready to continue.';
+resumetext = 'Please click when you are ready to continue.';
 
 %% Resume showing images after last saved image
 % Number should be one higher than the last image saved
+%% Offer self-timed break every {perblock} images.
+
 
 perblock = 8;
+numblocks = 8;
 loopcount = mod(startingimage, perblock);
+blockcount = ceil(startingimage/perblock);
 HideCursor;
 
-buttons = 0;
- while buttons == 0
-    DrawFormattedText(p.ptb.window, starttext, 'center', 'center', 255);
-    % Screen('FillRect',p.ptb.window,p.ptb.white, p.lightRect); %mark beginning of instructions
-    Screen('Flip', p.ptb.window)
-    [x,y,buttons] = GetMouse;
- end
+if DEBUG == true
+    numblocks = 8; 
+    perblock = 8;
+    ShowCursor;
+end % test settings 
 
+totaltrials = numblocks*perblock;
+disp("Trials: ", num2str(totaltrials))
 
+%% Resume Experiment
+click_resume = 0;
+while click_resume == 0
+    DrawFormattedText(p.ptb.window,resumetext,'center', 'center', 255);
+    Screen('Flip', p.ptb.window);
+    % WaitSecs(3.0);
+    [~,~,click_resume] = GetMouse;
+end
 
-%% Full Experiment
-for trial = startingimage:nrow
+for trial = startingimage:totaltrials
 %     escCheck(p, trial)
     fixJitter = stim_table.fixJitter(trial);
     imageJitter = stim_table.imageJitter(trial);
@@ -248,20 +259,48 @@ for trial = startingimage:nrow
     stim_table.cue_converted(trial) = num2cell(cue_xPixel, [1 2]);
     save(fpartialfill, "stim_table");
     disp(['Trial ', num2str(trial), ' saved.'])
+    disp(['Expected: ', num2str(stim_table.exp_rating(trial))])
+    disp(['Rated: ', num2str(stim_table.val_rating(trial))])
     
     % Check if break is needed
+    % Don't show break text after last block
+
     loopcount = loopcount + 1;
-    buttons = 0;
-    if loopcount == perblock
-        while buttons == 0
-        loopcount = 0;
-        DrawFormattedText(p.ptb.window,breaktext,'center', 'center', 255);
-        Screen('Flip', p.ptb.window);
-        [x,y,buttons] = GetMouse;
-        end
-    end %if
+    if blockcount < numblocks
+        if loopcount == perblock
+            click_break = 0;
+            loopcount = 0;
+            while click_break == 0
+                DrawFormattedText(p.ptb.window,breaktext,'center', 'center', 255);
+                Screen('Flip', p.ptb.window);
+                % WaitSecs(3.0);
+                [~,~,click_break] = GetMouse;
+            end %while no buttons
+
+            if mod(blockcount, 2) == 0 % Show block number on even trials 
+                disp(["Modulo condition met", mod(blockcount, 2)])
+                trialmsg = [num2str(blockcount), ' of ', num2str(numblocks), ' sections completed.'];
+                WaitSecs(0.3);
+                click_blocknum = 0;
+                while click_blocknum == 0
+                    DrawFormattedText(p.ptb.window,trialmsg,'center', 'center', 255);
+                    Screen('Flip', p.ptb.window);
+                    [~,~,click_blocknum] = GetMouse;
+                end %while no click
+            end %if even
+
+            blockcount = blockcount + 1;
+
+        end %if loopcount
     Screen('Close')
-end %trial
+    end % if blockcount to skip on last block
+
+    % Display current settings to terminal
+    disp(["Current loop", loopcount])
+    disp(["Per block", perblock])
+    disp(["Total blocks", numblocks])
+    disp(["Current block", blockcount])
+end %trials
 
 
 %% Debrief
