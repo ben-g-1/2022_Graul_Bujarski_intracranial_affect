@@ -29,7 +29,7 @@ addpath(genpath(subjdir));
 subjdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-01';
 sesdir = fullfile(subjdir, 'ses-01');
 
-eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG.EDF']);
+eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG_deidentified.EDF']);
 
 % Find and label unneeded channels
 cfg            = [];

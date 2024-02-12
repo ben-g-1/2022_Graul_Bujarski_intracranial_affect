@@ -1,6 +1,6 @@
 %% Initialize Variables
 
-subjectnum = '02';
+subjectnum = '03';
 sessionnum = '01';
 projdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE';
 filedir = fullfile(projdir, 'assets');
@@ -17,7 +17,7 @@ imagedir = fullfile(filedir, 'oasis_pairs');
 % 
 
 subjectnum = '03';
-sesdir = '//dartfs-hpc/rc/lab/C/CANlab/labdata/data/EEE/ieeg/raw/sub-03/ses-01';
+sesdir = ['//dartfs-hpc/rc/lab/C/CANlab/labdata/data/EEE/ieeg/raw/sub-', subjectnum, '/ses-01'];
 
 eegfile = [sesdir,  '/EEE_', subjectnum, '_deidentified.EDF'];
 %% Find and label unneeded channels
@@ -51,20 +51,20 @@ cfg.channel    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
 % cfg.demean = 'yes'; 
 % cfg.detrend = 'yes';
 % cfg.demean = 'no';
-cfg.baselinewindow = 'all';
-cfg.lpfilter = 'yes';
-cfg.lpfreq  = 150;
-cfg.hpfilter = 'yes';
-cfg.hpfreq = 3;
+% cfg.baselinewindow = 'all';
+% cfg.lpfilter = 'yes';
+% cfg.lpfreq  = 150;
+% cfg.hpfilter = 'yes';
+% cfg.hpfreq = 3;
 % cfg.padding = 10;
 %
 % 
 % 
 % 
-cfg.padtype = 'data';
-cfg.bsfilter = 'yes';
+% cfg.padtype = 'data';
+% cfg.bsfilter = 'yes';
 % cfg.bsfiltord = 3;
-cfg.bsfreq = [59 61; 119 121; 179 181];
+% cfg.bsfreq = [59 61; 119 121; 179 181];
 cfg.reref = 'yes';
 
 cfg.refchannel = 'LPPC7';

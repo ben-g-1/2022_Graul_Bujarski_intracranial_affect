@@ -105,7 +105,7 @@ end
 subjectnum = '01';
 sesdir = 'C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\raw\sub-01\ses-01';
 eegfile = fullfile(sesdir, ['EEE_PT-', subjectnum, '_BG_deidentified.edf']);
-
+%%
 % Find and label unneeded channels
 cfg            = [];
 cfg.dataset    = eegfile;
@@ -140,7 +140,7 @@ end
 eegchan          = strcat('-', ft_channelselection({'eeg'}, hdr.label));
 
 chans    = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
-    '-OSAT', '-*DC*', eegchan{:}, badchan{:}, emptychan{:}, extrachan{:}}, hdr.label);
+    '-OSAT', '-*DC*', eegchan{:}, emptychan{:}, extrachan{:}}, hdr.label);
 
 cfg.channel = chans;
 
@@ -149,7 +149,7 @@ depths         = {'RPXA*', 'RPPC*', 'RPRS*', 'RPAG*', 'RTA*', 'RTHA*', 'RTF*', '
 % ft_databrowser(cfg,data)
 % LTHA11/12, RFC4-6,
 
-data = ft_preprocessing(cfg);
+% data = ft_preprocessing(cfg);
 
 %% Detect event_fulls from photodiode
 
@@ -308,5 +308,5 @@ if sum(abs(c)) > 0.5
 end
 
 %%
-clearvars -except longstim event_full hdr depths chans eegfile stim_table data
+clearvars -except data longstim event_full hdr depths chans eegfile stim_table data
 beep

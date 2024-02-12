@@ -112,13 +112,13 @@ hdr              = ft_read_header(cfg.dataset);
 
 rowcnt = 1;
 emptychan = {};
-for i = 182:256
-    i_str = string(i);
-    chan = strcat('-C', i_str);
-    chan = convertStringsToChars(chan);
-    emptychan{rowcnt} = chan;
-    rowcnt = rowcnt + 1;
-end
+% for i = 182:256
+%     i_str = string(i);
+%     chan = strcat('-C', i_str);
+%     chan = convertStringsToChars(chan);
+%     emptychan{rowcnt} = chan;
+%     rowcnt = rowcnt + 1;
+% end
 
 %   Scalp EEG
 eegchan          = strcat('-', ft_channelselection({'eeg'}, hdr.label));
@@ -127,10 +127,10 @@ eegchan          = strcat('-', ft_channelselection({'eeg'}, hdr.label));
 % 
 chans             = ft_channelselection({'all', '-PR', '-Pleth', '-TRIG', ...
     '-OSAT', '-C*' eegchan{:}, emptychan{:}}, hdr.label); %'-*DC*',
-
-depths = {'LSMAB*', 'LFMC*', 'LFCA*', 'LPPC*', 'RSMAB*', 'RSMAC*', 'RSMA*',  ...
-      'LSMA*', 'RFMC*', 'RPC*', 'RPPC*', 'RFCA*', 'RFOA*', 'RFOB*', ...
-     'RFA*', 'RFC*', 'LFC*', 'LPC*'};
+% 
+% depths = {'LSMAB*', 'LFMC*', 'LFCA*', 'LPPC*', 'RSMAB*', 'RSMAC*', 'RSMA*',  ...
+%       'LSMA*', 'RFMC*', 'RPC*', 'RPPC*', 'RFCA*', 'RFOA*', 'RFOB*', ...
+%      'RFA*', 'RFC*', 'LFC*', 'LPC*'};
 
 cfg.channel    =  chans;
 

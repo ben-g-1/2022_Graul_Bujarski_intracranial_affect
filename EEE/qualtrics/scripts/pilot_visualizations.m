@@ -10,8 +10,8 @@ data.subj = categorical(full.subj);
 data.Pair = categorical(full.Pair);
 data.Image = categorical(full.Image);
 data.Theme = full.Theme;
-% data.val_type = categorical(full.val_type);
-% data.Half = categorical(full.Half);
+data.val_type = categorical(full.val_type);
+data.Half = categorical(full.Half);
 data.img_rate = full.img_rate;
 data.exp_rate = full.exp_rate;
 data.Valence_mean = full.Valence_mean;
@@ -21,7 +21,6 @@ data.highcue_indx = categorical(full.highcue_indx);
 data.norm_val = full.Valence_mean - mean(full.Valence_mean);
 data.norm_cue = full.cue_observed_mean - mean(full.cue_observed_mean,  "omitmissing");
 
-% querying highcue type difficult
 
 % Normalize scale around normative image mean 
 data.ic_img_rate = full.img_rate - full.Valence_mean;
@@ -152,7 +151,7 @@ stds_hi = meanpair.hi_sd;
 stds_lo = meanpair.lo_sd;
 
 % Calculate t-distribution critical value for a one-sided 95% confidence interval
-t_critical = tinv(0.95, numel(h) - 1); % Assuming a one-tailed distribution
+t_critical = tinv(0.975, numel(h) - 1); % Assuming a one-tailed distribution
 
 % Creating a plot with error bars
 figure;
@@ -244,9 +243,10 @@ xlabel('Valence Rating')
 % locue_val = (data.ic_img_rate(data.highcue_indx == '-1'));
 % hicue_val = (data.img_rate(data.highcue_indx == '1'));
 % locue_val = (data.img_rate(data.highcue_indx == '-1'));
-hicue_val = (data.zc_img_rate(data.highcue_indx == '1'));
-locue_val = (data.zc_img_rate(data.highcue_indx == '-1'));
-
+hicue_val = (data.mc_img_rate(data.highcue_indx == '1'));
+locue_val = (data.mc_img_rate(data.highcue_indx == '-1'));
+hicue_cont = (data.norm_val(data.highcue_indx == '1'));
+locue_cont = (data.norm_val(data.highcue_indx == '-1'));
 %% Overall Cue Effect
 data_to_plot = {locue_val, hicue_val};
 colors = seaborn_colors(2);
@@ -254,20 +254,20 @@ colors = seaborn_colors(2);
 figure;
 subplot(1,2,1);
 barplot_columns(data_to_plot, 'title', 'Cue Effect on Valence Rating', 'colors', {colors{2}, colors{1}}, 'MarkerSize', 0.3, ...
-    'names', {'Low Cue', 'High Cue'}, 'nofigure', 'nostars');
+    'names', {'Low Cue', 'High Cue'}, 'nofigure', 'nostars', 'noind');
 hold on;
 ylabel('Valence Rating')
 xlabel('Cue Type');
 title('Rating Comparison by Cue Type')
 hold off;
 
-data_to_plot = {hicue_val - locue_val};
+data_to_plot = {hicue_val - locue_val, hicue_cont - locue_cont};
 colors = seaborn_colors(4);
 
 subplot(1,2,2);
 title('Difference Between Ratings Due to Cue Type')
 barplot_columns(data_to_plot, 'title', 'Cue Effect on Valence Rating', 'colors', colors{4}, 'MarkerSize', 0.3, ...
-    'names', {'Diff'}, 'nofigure');
+    'names', {'Diff', 'Norm Rate Diff'}, 'nofigure', 'noind');
 hold on;
 ylabel('Valence Rating')
 xlabel('Diff');
@@ -276,30 +276,55 @@ hold off;
 %% Violin of Cue Effect by Subject
 subj_avg = struct;
 
-for i = 1:numel(unique(pair_table.subj))
+for i = 1:numel(unique(pair_table.subj)) + 1
     temp_pair = pair_table(pair_table.subj == num2str(i), :);
     % subj_avg.hi{i} = mean(temp_pair.hi_val-temp_pair.stim_mean); % center around normative rating within pair
     % subj_avg.lo{i} = mean(temp_pair.lo_val-temp_pair.stim_mean);
     subj_avg.hi{i} = mean(temp_pair.hi_val, "omitmissing");
     subj_avg.lo{i} = mean(temp_pair.lo_val, "omitmissing");
+    subj_avg.diff{i} = subj_avg.hi{i} - subj_avg.lo{i};
+    try 
+    subj_avg.group(i,1) = temp_pair.group(1);
+    catch
+        continue
+    end
 end
 
 data_to_plot = {};
 data_to_plot{1,1} = cell2mat(subj_avg.lo');
 data_to_plot{1,2} = cell2mat(subj_avg.hi');
 
-colors = seaborn_colors(2);
+colors = seaborn_colors(3);
+
+% figure; hold on;
+% barplot_columns(data_to_plot, 'title', 'Cue Effect on Valence Rating With Mean Subject Ratings', 'color', {colors{2}, colors{1}}, 'MarkerSize', 0.5, ...
+%     'names', {'Lo Cue', 'Hi Cue'}, 'dolines', 'nofigure', 'plotout', 'dorob', 'nostars', 'nobars'); %'dolines', , 'dostars',
+% ylabel('Valence Rating')
+% xlabel('Cue Type');
+% % legend({});
+% 
+% % axis([-1.3 1.3 -1 1])
+% hold off;
+
+data_to_plot = {};
+data_to_plot{1,1} = cell2mat(subj_avg.diff');
 
 figure; hold on;
-barplot_columns(data_to_plot, 'title', 'Cue Effect on Valence Rating With Mean Subject Ratings', 'color', {colors{2}, colors{1}}, 'MarkerSize', 0.5, ...
-    'names', {'Lo Cue', 'Hi Cue'}, 'dolines', 'nofigure', 'plotout', 'dorob', 'nostars', 'nobars'); %'dolines', , 'dostars',
+barplot_columns(data_to_plot, 'title', 'Cues Significantly Increase Valence Rating', 'color', colors{3}, 'MarkerSize', 0.5, ...
+     'plotout', 'dorob', 'nofigure'); %'dolines', , 'dostars',
 ylabel('Valence Rating')
-xlabel('Cue Type');
-% legend({});
-
-% axis([-1.3 1.3 -1 1])
+xlabel('Cue Difference');
 hold off;
 
+%%
+data_to_plot = {};
+g = 1;
+for ii = 1:2:8
+    % data_to_plot = {};
+    data_to_plot{1,ii} = cell2mat(subj_avg.lo(subj_avg.group == string(g)))';
+    data_to_plot{1,ii+1} = cell2mat(subj_avg.hi(subj_avg.group == string(g)))';
+    g = g + 1;
+end 
 %% Violin of Cue Effect by Group
 
 figure;
@@ -308,7 +333,9 @@ figure;
 
 data_to_plot = {};
 for i = 1:4
-    data_to_plot{1,i} = (data.ic_img_rate(data.highcue_indx == '1' & data.group == string(i))) - (data.ic_img_rate(data.highcue_indx == '-1' & data.group == string(i))); %diff between groups
+    % data_to_plot{1,i} = (data.ic_img_rate(data.highcue_indx == '1' & data.group == string(i))) - (data.ic_img_rate(data.highcue_indx == '-1' & data.group == string(i))); %diff between groups
+    data_to_plot{1,i} = (data.img_rate(data.highcue_indx == '1' & data.group == string(i))) - (data.img_rate(data.highcue_indx == '-1' & data.group == string(i))); %diff between groups
+
 
 end
 
@@ -325,9 +352,11 @@ hold off;
 
 data_to_plot = {};
 g = 1;
-for i = 1:4
-    data_to_plot{1,i} = data.ic_img_rate(data.highcue_indx == '-1' & data.group == string(g)); %low groups
-    data_to_plot{1,i+4} = (data.ic_img_rate(data.highcue_indx == '1' & data.group == string(g))); %high groups
+for i = 1:2:8
+    % data_to_plot{1,i} = data.ic_img_rate(data.highcue_indx == '-1' & data.group == string(g)); %low groups
+    % data_to_plot{1,i+4} = (data.ic_img_rate(data.highcue_indx == '1' & data.group == string(g))); %high groups
+    data_to_plot{1,i} = data.img_rate(data.highcue_indx == '-1' & data.group == string(g)); %low groups
+    data_to_plot{1,i+1} = (data.img_rate(data.highcue_indx == '1' & data.group == string(g))); %high groups
     g = g + 1;
 end
 
@@ -706,7 +735,7 @@ beep on; beep
 %   highcue_indx*Valence_mean | subj)', 'FitMethod', 'REML') 
 % Also got the issue of the boundary being singular in R
 
-comp = fitlme(data, 'img_rate ~ 1 + highcue_indx + Valence_mean + (1 | subj)', 'FitMethod', 'REML') 
+comp = fitlme(data, 'img_rate ~ 1 + highcue_indx + Valence_mean +  (highcue_indx + subj|Pair)', 'FitMethod', 'REML') 
 anova(comp, 'dfmethod', 'satterthwaite') 
 
 

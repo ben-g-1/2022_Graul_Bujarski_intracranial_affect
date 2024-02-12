@@ -16,7 +16,7 @@ filename = strcat('sub-', subnum, '_', cond, "_freq_", freq);
 % load data
 freqdat = fullfile(freqdir, filename);
 freqdat = "C:\Users\bgrau\Dropbox (Dartmouth College)\2023_Graul_EEE\Data\processed\sub-01\imgview\sub-01_imgview_freq_fullspec.mat";
-load(freqdat);
+% load(freqdat);
 
 %%
 cfg = []; 
@@ -78,7 +78,7 @@ disp(sigelecs)
 %%
 chans = {'RTA1', 'LFC2', 'LFC10', 'RPAG9', 'RPPC1', 'RFC3', 'LTA1', 'RFC7'};
 % chans = {'LTA1', 'LTA3', 'LTHA4', 'LTHA3'};
-chans = {'RTA1', 'LFC2', 'LFC10', 'RFC7'};
+% chans = {'RTA1', 'LFC2', 'LFC10', 'RFC7'};
 
 for chan = 1:numel(chans)
 figure; hold on;
