@@ -1,0 +1,86 @@
+---
+title: "EEE Behavioral Modeling"
+author: "Ben Graul"
+format: html
+echo: false
+cache: true
+---
+
+```{r}
+require(flexplot, quietly = TRUE)  # For visualizing LMM comparisons
+require(lmerTest, quietly = TRUE)  # For model p-values
+require(afex, quietly = TRUE)      # For testing alternate optimization
+# require(ggplot2, quietly = TRUE)   # For data visualization
+# require(tidyverse, quietly = TRUE) # For data manipulation
+require(lme4, quietly = TRUE)      # For fitting linear mixed effects models
+require(car, quietly = TRUE)       # For performing VIF
+library(knitr)
+library(kableExtra)
+library(effectsize)
+library(pwr)
+# library(tidymodels)
+library(tidyverse)
+```
+
+```{r}
+EEE_data <- read_csv('C:\\Users\\bgrau\\GitHub\\ieeg_affect\\EEE\\qualtrics\\data\\pilot_clean_NaNs.csv') %>%
+    as.tibble()
+# EEE_data <- read_csv('C:\\Users\\bgrau\\GitHub\\ieeg_affect\\EEE\\qualtrics\\data\\pilot_clean.csv')
+
+EEE_data$highcue_indx       <- as.factor(EEE_data$highcue_indx)
+EEE_data$val_type           <- as.factor(EEE_data$val_type)
+# EEE_data$subj               <- as.factor(EEE_data$subj)
+# EEE_data$Image              <- as.factor(EEE_data$Image)
+EEE_data$highcue_indx       <- as.factor(EEE_data$highcue_indx)
+EEE_data$group              <- as.factor(EEE_data$group)
+EEE_data$Pair               <- as.factor(EEE_data$Pair)
+
+EEE_data$norm_val           <-  EEE_data$Valence_mean - mean(EEE_data$Valence_mean)
+# EEE_data$Valence_mean       <- EEE_data$Valence_mean / sd(EEE_data$Valence_mean, na.rm = FALSE) 
+
+EEE_data$ic_img_rate           <- EEE_data$img_rate - mean(EEE_data$img_rate, na.rm = TRUE)
+# EEE_data$ic_img_rate           <- EEE_data$ic_img_rate - mean(EEE_data$ic_img_rate, na.rm = TRUE)
+# EEE_data$img_rate           <- EEE_data$img_rate / sd(EEE_data$img_rate, na.rm = TRUE)
+
+EEE_data$exp_rate           <- EEE_data$exp_rate - mean(EEE_data$exp_rate, na.rm = TRUE)
+# EEE_data$exp_rate           <- EEE_data$exp_rate / sd(EEE_data$exp_rate, na.rm = TRUE)
+
+
+head(EEE_data)
+```
+
+
+```{r}
+#| label: standard tests
+
+hi <- EEE_data %>%
+        filter(highcue_indx == 1) %>%
+        group_by(subj) %>%
+        summarize(sub_rate = mean(img_rate, na.rm = TRUE))
+
+lo <- EEE_data %>%
+        filter(highcue_indx == -1) %>%
+        group_by(subj) %>%
+        summarize(sub_rate = mean(img_rate, na.rm = TRUE))
+
+cue_t <- t.test(hi$sub_rate, lo$sub_rate)
+
+cue_t
+```
+
+
+```{r}
+#| label: linear mixed model 1
+
+ic_cue <- lmer(ic_img_rate ~ 1 + highcue_indx + (1|Pair) + (norm_val|subj), data = EEE_data, REML=TRUE)
+
+summary(ic_cue)
+coefs <- standardize_parameters(ic_cue)
+coefs
+# visualize(ic_cue)
+
+
+# cue <- lm(ic_img_rate ~ exp_rate + norm_val,  data = EEE_data)
+# summary(cue)
+# standardize_parameters(cue)
+
