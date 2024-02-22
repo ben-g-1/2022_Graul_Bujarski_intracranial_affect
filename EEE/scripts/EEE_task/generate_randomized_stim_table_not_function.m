@@ -8,7 +8,7 @@
 % SET UP PATHS AND LOCATION OF FILE NAME
 % ------------------------------------------------------
 %%%
-subnum = '07';
+subnum = '08';
 sesnum = '01';
 
 %% Input Path ID %%% CHANGE basedir MANUALLY, but create other scripts with this organization
@@ -285,6 +285,11 @@ end
  if errorcount == 1
     disp('Consider rerunning the script')
     disp(['Total errors:', num2str(errorcount)])
+    promptMessage = sprintf('Do you want to Continue processing,\nor Cancel to abort processing?');
+    button = questdlg(promptMessage, 'Continue', 'Continue', 'Cancel', 'Continue');
+    if strcmpi(button, 'Cancel')
+        return; % Or break or continue
+    end
     % pause;
     % return
  elseif errorcount > 1
@@ -298,7 +303,8 @@ set(gcf,'Units','pixels','Position', [200 200 800 250]);  %# Modify figure size
 
     frame = getframe(gcf);                   %# Capture the current window
     
-    filename = fullfile(sesdir, "stats_vis.jpg");
+    figwritename = "cue_image_info.jpg";
+    filename = fullfile(num2str(sesdir), figwritename);
 %     saveas(gcf, append([rand_dir, num2str(k), rand_settings, "_stats_vis.jpg" ]))
     saveas(gcf, filename);
 % figure; hold on; plot(stim_table.cue_observed_mean, 'LineWidth', 2)
