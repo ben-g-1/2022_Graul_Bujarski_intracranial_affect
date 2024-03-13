@@ -1,0 +1,99 @@
+---
+title: "EEE Pilot Behavioral Analysis"
+author: Ben Graul
+format: html
+cache: true
+---
+
+```{r}
+#| label: packages
+require(flexplot, quietly = TRUE)  # For visualizing LMM comparisons
+require(scatterplot3d)
+require(lmerTest, quietly = TRUE)  # For model p-values
+require(afex, quietly = TRUE)      # For testing alternate optimization
+require(ggplot2, quietly = TRUE)   # For data visualization
+require(tidyverse, quietly = TRUE) # For data manipulation
+require(lme4, quietly = TRUE)      # For fitting linear mixed effects models
+require(car, quietly = TRUE)       # For performing VIF
+
+```
+```{r}
+EEE_data <- read_csv('C:\\Users\\bgrau\\GitHub\\ieeg_affect\\EEE\\qualtrics\\data\\pilot_clean_NaNs.csv') %>%
+as.tibble()
+EEE_data <- EEE_data %>%
+    mutate(highcue_indx = as.factor(highcue_indx),
+                 val_type = as.factor(val_type),
+                 group = as.factor(group),
+                 norm_val = Valence_mean - mean(Valence_mean, na.rm = TRUE),
+                 norm_arousal = Arousal_mean - mean(Arousal_mean, na.rm = TRUE),
+                 norm_img_rate = img_rate - mean(img_rate, na.rm = TRUE),
+                 norm_exp_rate = exp_rate - mean(exp_rate, na.rm = TRUE),
+                 prct_img_rate = img_rate / 100,
+                 prct_exp_rate = exp_rate / 100,
+                 highcue_color = ifelse(highcue_indx == '-1', 1, 2))
+
+# Filter rows with NaNs
+rows_with_nans <- EEE_data[!complete.cases(EEE_data), ]
+
+#trying to identify careless responders 
+# table(rows_with_nans$subj)
+# careless <- table(EEE_data$subj[EEE_data$img_rate %in% c(0, 50, 100)]) %>%
+#     setNames(c("subject", "counts")) 
+```
+
+```{r}
+low_vs_high <- c(-0.5, 0.5)
+contrasts(EEE_data$highcue_indx) <- cbind(low_vs_high)
+
+mdl.min <- lm(norm_img_rate ~ 1, data = EEE_data)
+summary(mdl.min)
+
+meanval_model <- lm(norm_img_rate ~ norm_val,  data = EEE_data)
+summary(meanval_model)
+
+cuemodel <- lm(norm_img_rate ~ highcue_indx + norm_val,  data = EEE_data)
+summary(cuemodel)
+
+
+lsr::etaSquared(cuemodel, type = 3, anova = FALSE)
+
+exprate_model <- lm(norm_img_rate ~  norm_exp_rate + norm_val,  data = EEE_data)
+summary(exprate_model)
+vif(exprate_model)
+
+
+
+
+```
+
+Want to do a logistic curve instead
+```{r}
+
+
+
+mdl.log <- glm(prct_img_rate ~ highcue_indx * norm_val + Half, family = binomial, data = EEE_data)
+
+summary(mdl.log)
+
+plot(mdl.log)
+
+mdl.lme <- lmer(prct_img_rate ~ highcue_indx + scale(norm_val) + (1|subj), data = EEE_data)
+summary(mdl.lme)
+plot(mdl.lme)
+```
+
+```{r}
+
+ggplot(data = EEE_data, aes(x = scale(Valence_mean), y = scale(img_rate), color = highcue_indx)) +
+    geom_jitter() + 
+    geom_smooth(method = 'glm')
+```
+
+```{r}
+#| label: 3d scatter
+
+
+
+scatterplot3d(x = EEE_data$Pair, y = EEE_data$norm_rate, z = EEE_data$Valence_mean, color = EEE_data$highcue_color)
+
+```

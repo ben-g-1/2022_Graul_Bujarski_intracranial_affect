@@ -6,3 +6,13 @@
 **/*.edf
 **/*.asv
 *.pptx
+
+# For VSCode and Quarto
+*.code-workspace
+*.css
+*.js
+*.rdx
+*.rdb
+*.Ruserdata
+*.Rdata
+*.woff

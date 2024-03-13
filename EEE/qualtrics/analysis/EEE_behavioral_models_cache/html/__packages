@@ -1,0 +1,17 @@
+flexplot
+Matrix
+lme4
+lmerTest
+afex
+ggplot2
+tidyverse
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+lubridate
+carData
+car
