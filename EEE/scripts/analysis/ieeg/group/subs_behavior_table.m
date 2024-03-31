@@ -1,7 +1,8 @@
 %%% Making single table for iEEG patients behavioral data
 
-subjs = {'01', '02', '03', '04'};
-for sub = 1:4
+subjs = {'01', '02', '03', '04', '07', '08'};
+%subjects 5 and 6 below IQ cutoff
+for sub = 1:length(subjs)
 subj = subjs{sub};
 
 subjdir = 'C:\Users\bgrau\GitHub\ieeg_affect\EEE\subjects';
